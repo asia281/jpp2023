@@ -1,0 +1,48 @@
+-- Programs ------------------------------------------------
+
+entrypoints Program ;
+Program.   Program ::= [ Stmt ] ;
+
+-- Types ---------------------------------------------------
+
+TInt.       Type ::= "int" ;
+TBool.      Type ::= "bool" ;
+TString.    Type ::= "string" ;
+Void.       Type ::= "void" ;
+TList.      Type ::= "List" "<" Type ">" ;
+AnonFun.    Type ::= "Fun" "<" Type "(" [TypeOrRef] ")" ">" ;
+-- TStruct.    Type ::= "struct" Ident ;
+
+-- Operators -----------------------------------------------
+
+Plus.      AddOp ::= "+" ;
+Minus.     AddOp ::= "-" ;
+Times.     MulOp ::= "*" ;
+Div.       MulOp ::= "/" ;
+Mod.       MulOp ::= "%" ;
+LTH.       RelOp ::= "<" ;
+LE.        RelOp ::= "<=" ;
+GTH.       RelOp ::= ">" ;
+GE.        RelOp ::= ">=" ;
+EQU.       RelOp ::= "==" ;
+NE.        RelOp ::= "!=" ;
+
+-- Comments ------------------------------------------------
+
+comment    "//" ;
+comment    "/*" "*/" ;
+
+
+-- List operations -----------------------------------------
+ListPush.  Stmt ::= Ident "." "push" Expr ;
+ListLength.Expr5 ::= Expr6 "::" "length" ;
+ListAt.    Expr5 ::= Expr6 "::" "at" Expr6 ;
+
+
+-- Structs -------------------------------------------------
+
+-- StructDef. Stmt ::= "struct" Ident "{" [StructItem] "}" ;
+-- StructItem. StructItem ::= Type Ident ;
+-- separator StructItem ";" ;
+
+
