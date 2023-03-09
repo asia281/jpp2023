@@ -31,6 +31,12 @@ prop_OneRDP p = -- label ("Degree of p is " ++ show(degree p)) $
 prop_DistLDP :: DPI -> DPI -> DPI -> Property
 prop_DistLDP p q r = p*(q+r) === p*q + p*r
 
+prop_MulCanonicalDP :: DPI -> DPI -> Bool
+prop_MulCanonicalDP p q = isCanonicalDP (p*q)
+
+prop_SubCanonicalDP :: DPI -> DPI -> Bool
+prop_SubCanonicalDP p q = isCanonicalDP (p-q)
+
 prop_ShiftLDP :: NonNegative(Small Int) -> DPI -> DPI -> Property
 prop_ShiftLDP (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
 
@@ -65,13 +71,19 @@ prop_DistLSP p q r = within 100000 $ p*(q+r) === p*q + p*r
 prop_ShiftLSP :: NonNegative(Small Int) -> SPI -> SPI -> Property
 prop_ShiftLSP (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
 
+prop_MulCanonicalSP :: SPI -> SPI -> Bool
+prop_MulCanonicalSP p q = isCanonicalSP (p*q)
+
+prop_SubCanonicalSP :: SPI -> SPI -> Bool
+prop_SubCanonicalSP p q = isCanonicalSP (p-q)
+
 -- conversions
 
-prop_fromToDP :: SPI -> Bool
-prop_fromToDP p = fromDP(toDP p) == p
+prop_fromToDP :: SPI -> Property
+prop_fromToDP p = isCanonicalSP p ==> fromDP(toDP p) == p
 
-prop_toFromDP :: DPI -> Bool
-prop_toFromDP p = toDP(fromDP p) == p
+prop_toFromDP :: DPI -> Property
+prop_toFromDP p = isCanonicalDP p ==> toDP(fromDP p) == p
 
 
 type SPR = SparsePoly Rational

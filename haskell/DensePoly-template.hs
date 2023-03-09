@@ -9,8 +9,13 @@ instance Polynomial DensePoly where
 instance (Eq a, Num a) => Num (DensePoly a) where
 
 -- |
--- >>> let x = varP :: DensePoly Integer in x^3 - 1
+-- >>> x^3 - 1 :: DensePoly Integer 
 -- P {unP = [-1,0,0,1]}
+
+-- | Num operations give canonical results:
+-- >>> isCanonicalDP (sampleDP - sampleDP)
+-- True
+    
 instance (Eq a, Num a) => Eq (DensePoly a) where
 
 -- |
