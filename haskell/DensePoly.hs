@@ -49,7 +49,8 @@ mul :: (Eq a, Num a) => [a] -> [a] -> [a]
 mul a b =
     case (a, b) of
         ([], _) -> []
-        ((ah : at), b) -> addAndSimplify (mulConst ah (reverse b) []) (shiftP 1 (P (mul at b)))
+        ((ah : at), b) -> addAndSimplify (mulConst ah (reverse b) []) l
+            where P l = (shiftP 1 (P (mul at b)))
 
 mulAndSimplify :: (Eq a, Num a) => [a] -> [a] -> [a]
 mulAndSimplify a b = simplify (reverse (mul a b)) []
