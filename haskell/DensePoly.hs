@@ -24,38 +24,28 @@ instance Polynomial DensePoly where
                                 where shiftOne list = 0 : list
     degree (P pList) = length(pList) - 1
 
-simplify :: (Eq a, Num a) => [a] -> [a] -> [a]
-simplify l acc = 
-        case l of
-            [] -> acc
-            h : t | h == 0 && acc == [] -> simplify t acc
-            h : t -> simplify t (h : acc)
+simplify :: (Eq a, Num a) => [a] -> [a]
+simplify l = reverse(dropWhile (0 ==) (reverse l))
 
 add ::  (Eq a, Num a) => [a] -> [a] -> [a]
 add [] b = b
 add a b | (length a) > (length b) = add b a
 add (ah : at) (bh : bt) = (ah + bh) : (add at bt) 
 
-addAndSimplify ::  (Eq a, Num a) => [a] -> [a] -> [a]
-addAndSimplify a b = simplify (reverse (add a b)) []
-
-mulConst ::  (Eq a, Num a) => a -> [a] -> [a] -> [a]
-mulConst a b acc = 
-    case b of
-        [] -> acc
-        bh : bt -> mulConst a bt ((a * bh) : acc)
+mulConst ::  (Eq a, Num a) => a -> [a] -> [a]
+mulConst a b  = map (\y -> (y*a)) b
 
 mul :: (Eq a, Num a) => [a] -> [a] -> [a]
 mul a b =
     case (a, b) of
         ([], _) -> []
-        ((ah : at), b) -> addAndSimplify (mulConst ah (reverse b) []) l
+        ((ah : at), b) -> add (mulConst ah b) l
             where P l = (shiftP 1 (P (mul at b)))
 
 instance (Eq a, Num a) => Num (DensePoly a) where
-    (P a) + (P b) = P (addAndSimplify a b)
+    (P a) + (P b) = P (simplify (add a b))
     (P a) - (P b) = (P a) + (negate (P b))
-    (P a) * (P b) = P (simplify (reverse (mul a b)) [])
+    (P a) * (P b) = P (simplify (mul a b))
     negate (P a) = (constP (-1)) * (P a)
     abs = undefined
     signum = undefined

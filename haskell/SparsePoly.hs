@@ -48,13 +48,32 @@ instance Polynomial SparsePoly where
 
     degree (S sList) = length(sList) - 1
     --shiftP n (S sList) = S (foldr (\x [(yExp, yVar)] -> ((yExp+n, yVar) : x)) [] [sList])
-    shiftP n (S sList) = S (foldr (\x [y] -> (first (\x -> n+x) y) : x) [] [sList])
+    shiftP n (S sList) = S (map (\y -> (first (\x -> n+x) y)) sList)
+
+simplify :: (Eq a, Num a) => [(a, a)] -> [(a, a)]
+simplify l = filter (\x -> (fst x) /= 0 ) l 
+
+add ::  (Eq a, Num a) => [(a, a)] -> [(a, a)] -> [(a, a)]
+add a [] = a
+add [] b = b
+add (ah : at) (bh : bt) | (fst ah) == (fst bh) = ((fst ah), ((snd ah) + (snd bh))) : (add at bt) 
+add (ah : at) (bh : bt) | (fst ah) > (fst bh) = ah : (add at (bh : bt)) 
+add a b = add b a
+
+mulConst ::  (Eq a, Num a) => (a, a) -> [(a, a)] -> [(a, a)]
+mulConst (aExp, aVar) b  = map (second (\(x, y) -> (x + aExp, y * aVar))) b
+
+mul :: (Eq a, Num a) => [(a, a)] -> [(a, a)] -> [(a, a)]
+mul a b =
+    case (a, b) of
+        ([], _) -> []
+        ((ah : at), b) -> add (mulConst ah b) (mul at b)
 
 
 instance (Eq a, Num a) => Num (SparsePoly a) where
-    (S a) + (S b) = S (addAndSimplify a b)
+    (S a) + (S b) = S (simplify (add a b))
     (S a) - (S b) = (S a) + (negate (S b))
-    (S a) * (S b) = S (simplify (reverse (mul a b)) [])
+    (S a) * (S b) = S (simplify (mul a b))
     negate (S sList) = (constP (-1)) * (S sList)
     abs = undefined
     signum = undefined
@@ -65,7 +84,7 @@ instance (Eq a, Num a) => Eq (SparsePoly a) where
 
 -- qrP s t | not(nullP t) = (q, r) iff s == q*t + r && degree r < degree t
 qrP :: (Eq a, Fractional a) => SparsePoly a -> SparsePoly a -> (SparsePoly a, SparsePoly a)
-qrP = undefined
+qrP s t | degree s < degree t = (s, zeroP)
 
 -- | Division example
 -- >>> let x = varP in qrP (x^2 - 1) (x -1) == ((x + 1), 0)
