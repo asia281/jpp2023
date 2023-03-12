@@ -13,7 +13,7 @@ instance Polynomial DensePoly where
         | a == 0 = zeroP
         | otherwise = P [a]
     varP = P [0, 1]
-    evalP (P pList) x = evalPAcc x pList 0
+    evalP (P pList) x = evalPAcc x (reverse pList) 0
         where evalPAcc x pList acc = case pList of
                 [] -> acc
                 pHead : pTail -> evalPAcc x pTail (acc * x + pHead)
@@ -56,7 +56,7 @@ instance (Eq a, Num a) => Num (DensePoly a) where
 -- >>> let x = varP :: DensePoly Integer in x^3 - 1
 -- P {unP = [-1,0,0,1]}
 instance (Eq a, Num a) => Eq (DensePoly a) where
-   P list1 == P list2  =  list1 == list2
+   P list1 == P list2  =  (simplify list1 == simplify list2) 
 
 
 -- |

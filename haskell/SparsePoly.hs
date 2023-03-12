@@ -17,13 +17,15 @@ fromDP (P pList) = S (createSP (P pList) 0 [])
 
 appendZeros :: (Eq a, Num a) => Int -> Int -> a -> [a] -> [a]
 appendZeros prev curr toAdd acc 
-    | prev < 0 || prev - 1 == curr  = toAdd:acc
+    | prev == curr = acc
+    | prev < 0 || prev-1 == curr  = toAdd:acc
     | otherwise = appendZeros (prev-1) curr toAdd (0:acc)
 
-
-toDP (S sList) = P (createDP (S sList) (-2) [])
+toDP (S sList) 
+    | sList == []  = (P [])
+    | otherwise = P (createDP (S sList) (-1) []) 
     where createDP (S sList) prev acc = case sList of
-            [] -> acc
+            [] -> (appendZeros prev 0 0 acc)
             (sExp, sNum) : sTail -> createDP (S sTail) sExp (appendZeros prev sExp sNum acc)
 
 first :: (a -> a') -> (a, b) -> (a', b)
@@ -46,24 +48,25 @@ instance Polynomial SparsePoly where
     varP = S [(1, 1)]
     evalP (S sList) n = foldl (\x (yExp, yVar) -> (x + yVar * (fastPow n yExp))) 0 sList    
 
-    degree (S sList) = length(sList) - 1
-    --shiftP n (S sList) = S (foldr (\x [(yExp, yVar)] -> ((yExp+n, yVar) : x)) [] [sList])
+    degree (S sList) = case sList of
+        [] -> -1
+        sHead : _ -> (fst sHead)
     shiftP n (S sList) = S (map (\y -> (first (\x -> n+x) y)) sList)
 
-simplify :: (Eq a, Num a) => [(a, a)] -> [(a, a)]
-simplify l = filter (\x -> (fst x) /= 0 ) l 
+simplify :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)]
+simplify l = filter (\x -> (snd x) /= 0 ) l 
 
-add ::  (Eq a, Num a) => [(a, a)] -> [(a, a)] -> [(a, a)]
+add ::  (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
 add a [] = a
 add [] b = b
 add (ah : at) (bh : bt) | (fst ah) == (fst bh) = ((fst ah), ((snd ah) + (snd bh))) : (add at bt) 
 add (ah : at) (bh : bt) | (fst ah) > (fst bh) = ah : (add at (bh : bt)) 
 add a b = add b a
 
-mulConst ::  (Eq a, Num a) => (a, a) -> [(a, a)] -> [(a, a)]
-mulConst (aExp, aVar) b  = map (second (\(x, y) -> (x + aExp, y * aVar))) b
+mulConst ::  (Eq a, Num a) => (Int, a) -> [(Int, a)] -> [(Int, a)]
+mulConst (aExp, aVar) b  = map (\(x, y) -> (x + aExp, y * aVar)) b
 
-mul :: (Eq a, Num a) => [(a, a)] -> [(a, a)] -> [(a, a)]
+mul :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
 mul a b =
     case (a, b) of
         ([], _) -> []
@@ -80,11 +83,25 @@ instance (Eq a, Num a) => Num (SparsePoly a) where
     fromInteger i = constP (fromInteger i)
 
 instance (Eq a, Num a) => Eq (SparsePoly a) where
-    p == q = nullP(p-q)
+    S list1 == S list2  =  list1 == list2
+
+getFirstElem :: (Num a) => SparsePoly a -> a
+getFirstElem (S sList) = 
+    case sList of
+        [] -> 1
+        sHead : _ -> (snd sHead)
 
 -- qrP s t | not(nullP t) = (q, r) iff s == q*t + r && degree r < degree t
 qrP :: (Eq a, Fractional a) => SparsePoly a -> SparsePoly a -> (SparsePoly a, SparsePoly a)
-qrP s t | degree s < degree t = (s, zeroP)
+qrP s t = divWithRes s t zeroP
+    where divWithRes f s q | ddif < 0 = (q, f)
+                           | otherwise = divWithRes f' s q'
+                                where 
+                                    ddif = (degree f) - (degree s)
+                                    k = constP ((getFirstElem f) / (getFirstElem s))
+                                    q' = q + (shiftP ddif k)
+                                    f' = f - (k * (shiftP ddif s))
+
 
 -- | Division example
 -- >>> let x = varP in qrP (x^2 - 1) (x -1) == ((x + 1), 0)
