@@ -20,8 +20,8 @@ instance Polynomial DensePoly where
 
     shiftP n (P pList) 
         | pList == [] || n == 0 = (P pList)
-        | otherwise = shiftP (n-1) (P (shiftOne pList))
-                                where shiftOne list = 0 : list
+        | otherwise = shiftP (n-1) (P (0:pList))
+
     degree (P pList) = length(pList) - 1
 
 simplify :: (Eq a, Num a) => [a] -> [a]
