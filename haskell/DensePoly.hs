@@ -15,7 +15,8 @@ instance Polynomial DensePoly where
     evalP (P pList) x = foldr (\acc y -> acc * x + y) 0 pList
     shiftP n (P pList) 
         | pList == [] || n == 0 = (P pList)
-        | otherwise = shiftP (n-1) (P (0 : pList))
+        | otherwise = shiftP (n-1) (P (0:pList))
+
     degree (P pList) = length(pList) - 1
 
 simplify :: (Eq a, Num a) => [a] -> [a]
