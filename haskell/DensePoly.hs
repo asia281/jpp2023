@@ -4,7 +4,7 @@ import Representation
 import Data.List
 
 instance Functor DensePoly where
-    fmap f (P cs) = P (f <$> cs)
+    fmap f (P pl) = P (f <$> pl)
 
 instance Polynomial DensePoly where
     zeroP  = P []
@@ -12,12 +12,12 @@ instance Polynomial DensePoly where
         | a == 0 = zeroP
         | otherwise = P [a]
     varP = P [0, 1]
-    evalP (P pList) x = foldr (\acc y -> acc * x + y) 0 pList
-    shiftP n (P pList) 
-        | pList == [] || n == 0 = (P pList)
-        | otherwise = shiftP (n-1) (P (0:pList))
+    evalP (P pl) x = foldr (\acc y -> acc * x + y) 0 pl
+    shiftP n (P pl) 
+        | pl == [] || n == 0 = (P pl)
+        | otherwise = shiftP (n-1) (P (0:pl))
 
-    degree (P pList) = length(pList) - 1
+    degree (P pl) = length(pl) - 1
 
 simplify :: (Eq a, Num a) => [a] -> [a]
 simplify l = dropWhileEnd (0 ==) l
@@ -35,13 +35,13 @@ mul a b =
     case (a, b) of
         ([], _) -> []
         ((ah : at), b) -> add (mulConst ah b) l
-            where P l = (shiftP 1 (P (mul at b)))
+            where P l = (shiftP 1 (P (mul at b)))   
 
 instance (Eq a, Num a) => Num (DensePoly a) where
-    (P a) + (P b) = P (simplify (add a b))
-    (P a) - (P b) = (P a) + (negate (P b))
-    (P a) * (P b) = P (simplify (mul a b))
-    negate (P a) = (constP (-1)) * (P a)
+    (P al) + (P bl) = P (simplify (add a b))
+    (P al) - (P bl) = (P al) + (negate (P bl))
+    (P al) * (P bl) = P (simplify (mul a b))
+    negate (P al) = (constP (-1)) * (P al)
     abs = undefined
     signum = undefined
     fromInteger i = constP (fromInteger i)

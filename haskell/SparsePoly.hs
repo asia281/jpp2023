@@ -9,8 +9,8 @@ fromDP :: (Eq a, Num a) => DensePoly a -> SparsePoly a
 toDP :: (Eq a, Num a) => SparsePoly a -> DensePoly a
 
 
-fromDP (P pList) = S (createSP (P pList) 0 [])
-    where createSP (P pList) cnt acc = case pList of
+fromDP (P pl) = S (createSP (P pl) 0 [])
+    where createSP (P pl) cnt acc = case pl of
             [] -> acc
             pHead : pTail | pHead /= 0 -> createSP (P pTail) (cnt+1) ((cnt, pHead):acc)
             pHead : pTail -> createSP (P pTail) (cnt+1) acc
@@ -21,20 +21,20 @@ appendZeros prev curr toAdd acc
     | prev < 0 || prev-1 == curr  = toAdd:acc
     | otherwise = appendZeros (prev-1) curr toAdd (0:acc)
 
-toDP (S sList) 
-    | sList == []  = (P [])
-    | otherwise = P (createDP (S sList) (-1) []) 
-    where createDP (S sList) prev acc = case sList of
+toDP (S sl) 
+    | sl == []  = (P [])
+    | otherwise = P (createDP (S sl) (-1) []) 
+    where createDP (S sl) prev acc = case sl of
             [] -> (appendZeros prev 0 0 acc)
             (sExp, sNum) : sTail -> createDP (S sTail) sExp (appendZeros prev sExp sNum acc)
 
 first :: (a -> a') -> (a, b) -> (a', b)
-first f (a, b) = ((f a), b)
+first f (a, b)  = ((f a), b)
 second :: (b -> b') -> (a, b) -> (a, b')
 second f (a, b) = (a, (f b))
 
 instance Functor SparsePoly where
-    fmap f (S ncs) = S ((second f) <$> ncs)
+    fmap f (S sl) = S ((second f) <$> sl)
 
 fastPow :: (Num a) => a -> Int -> a
 fastPow base 1 = base
@@ -47,13 +47,13 @@ instance Polynomial SparsePoly where
         | a == 0 = zeroP
         | otherwise = S [(0, a)]
     varP = S [(1, 1)]
-    evalP (S sList) n = foldl (\x (yExp, yVar) -> (x + yVar * (fastPow n yExp))) 0 sList    
+    evalP (S sl) n = foldl (\x (yExp, yVar) -> (x + yVar * (fastPow n yExp))) 0 sl    
 
-    degree (S sList) = case sList of
+    degree (S sl) = case sl of
         [] -> -1
         sHead : _ -> (fst sHead)
         
-    shiftP n (S sList) = S (map (\y -> (first (\x -> n+x) y)) sList)
+    shiftP n (S sl) = S (map (\y -> (first (\x -> n+x) y)) sl)
 
 simplify :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)]
 simplify l = filter (\x -> (snd x) /= 0 ) l 
@@ -76,10 +76,10 @@ mul a b =
 
 
 instance (Eq a, Num a) => Num (SparsePoly a) where
-    (S a) + (S b) = S (simplify (add a b))
-    (S a) - (S b) = (S a) + (negate (S b))
-    (S a) * (S b) = S (simplify (mul a b))
-    negate (S sList) = (constP (-1)) * (S sList)
+    (S al) + (S bl) = S (simplify (add a b))
+    (S al) - (S bl) = (S al) + (negate (S bl))
+    (S al) * (S bl) = S (simplify (mul a b))
+    negate (S sl) = (constP (-1)) * (S sl)
     abs = undefined
     signum = undefined
     fromInteger i = constP (fromInteger i)
@@ -88,8 +88,8 @@ instance (Eq a, Num a) => Eq (SparsePoly a) where
     S list1 == S list2 = list1 == list2
 
 getFirstElem :: (Num a) => SparsePoly a -> a
-getFirstElem (S sList) = 
-    case sList of
+getFirstElem (S sl) = 
+    case sl of
         [] -> 1
         sHead : _ -> (snd sHead)
 
