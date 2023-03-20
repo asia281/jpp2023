@@ -12,7 +12,10 @@ instance Polynomial DensePoly where
         | a == 0 = zeroP
         | otherwise = P [a]
     varP = P [0, 1]
-    evalP (P pl) x = foldr (\acc y -> acc * x + y) 0 pl
+    evalP (P pl) x = evalPAcc x (reverse pl) 0
+        where evalPAcc x pl acc = case pl of
+                [] -> acc
+                pHead : pTail -> evalPAcc x pTail (acc * x + pHead)
     shiftP n (P pl) 
         | pl == [] || n == 0 = (P pl)
         | otherwise = shiftP (n-1) (P (0:pl))
@@ -28,7 +31,7 @@ add a b | (length a) > (length b) = add b a
 add (ah : at) (bh : bt) = (ah + bh) : (add at bt) 
 
 mulConst ::  (Eq a, Num a) => a -> [a] -> [a]
-mulConst a b  = map (\y -> (y*a)) b
+mulConst a b  =  (* a) <$> b
 
 mul :: (Eq a, Num a) => [a] -> [a] -> [a]
 mul a b =

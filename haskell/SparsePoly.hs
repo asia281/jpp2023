@@ -66,7 +66,7 @@ add (ah : at) (bh : bt) | (fst ah) > (fst bh) = ah : (add at (bh : bt))
 add a b = add b a
 
 mulConst ::  (Eq a, Num a) => (Int, a) -> [(Int, a)] -> [(Int, a)]
-mulConst (aExp, aVar) b  = map (\(x, y) -> (x + aExp, y * aVar)) b
+mulConst (aExp, aVar) b = map (\(x, y) -> (x + aExp, y * aVar)) b
 
 mul :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
 mul a b = foldl add [] (foldl (\acc ah -> (mulConst ah b) : acc) [] a)
