@@ -38,9 +38,9 @@ mul a b =
             where P l = (shiftP 1 (P (mul at b)))   
 
 instance (Eq a, Num a) => Num (DensePoly a) where
-    (P al) + (P bl) = P (simplify (add a b))
+    (P al) + (P bl) = P (simplify (add al bl))
     (P al) - (P bl) = (P al) + (negate (P bl))
-    (P al) * (P bl) = P (simplify (mul a b))
+    (P al) * (P bl) = P (simplify (mul al bl))
     negate (P al) = (constP (-1)) * (P al)
     abs = undefined
     signum = undefined

@@ -69,16 +69,12 @@ mulConst ::  (Eq a, Num a) => (Int, a) -> [(Int, a)] -> [(Int, a)]
 mulConst (aExp, aVar) b  = map (\(x, y) -> (x + aExp, y * aVar)) b
 
 mul :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
-mul a b =
-    case (a, b) of
-        ([], _) -> []
-        ((ah : at), b) -> add (mulConst ah b) (mul at b)
-
+mul a b = foldl add [] (foldl (\acc ah -> (mulConst ah b) : acc) [] a)
 
 instance (Eq a, Num a) => Num (SparsePoly a) where
-    (S al) + (S bl) = S (simplify (add a b))
+    (S al) + (S bl) = S (simplify (add al bl))
     (S al) - (S bl) = (S al) + (negate (S bl))
-    (S al) * (S bl) = S (simplify (mul a b))
+    (S al) * (S bl) = S (simplify (mul al bl))
     negate (S sl) = (constP (-1)) * (S sl)
     abs = undefined
     signum = undefined
