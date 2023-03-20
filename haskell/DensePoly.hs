@@ -3,9 +3,8 @@ import PolyClass
 import Representation
 import Data.List
 
-
--- instance Functor DensePoly where
---     fmap f (P pList)        = P (f pList)
+instance Functor DensePoly where
+    fmap f (P cs) = P (f <$> cs)
 
 instance Polynomial DensePoly where
     zeroP  = P []
@@ -13,19 +12,14 @@ instance Polynomial DensePoly where
         | a == 0 = zeroP
         | otherwise = P [a]
     varP = P [0, 1]
-    evalP (P pList) x = evalPAcc x (reverse pList) 0
-        where evalPAcc x pList acc = case pList of
-                [] -> acc
-                pHead : pTail -> evalPAcc x pTail (acc * x + pHead)
-
+    evalP (P pList) x = foldr (\acc y -> acc * x + y) 0 pList
     shiftP n (P pList) 
         | pList == [] || n == 0 = (P pList)
-        | otherwise = shiftP (n-1) (P (shiftOne pList))
-                                where shiftOne list = 0 : list
+        | otherwise = shiftP (n-1) (P (0 : pList))
     degree (P pList) = length(pList) - 1
 
 simplify :: (Eq a, Num a) => [a] -> [a]
-simplify l = reverse(dropWhile (0 ==) (reverse l))
+simplify l = dropWhileEnd (0 ==) l
 
 add ::  (Eq a, Num a) => [a] -> [a] -> [a]
 add [] b = b
@@ -56,7 +50,7 @@ instance (Eq a, Num a) => Num (DensePoly a) where
 -- >>> let x = varP :: DensePoly Integer in x^3 - 1
 -- P {unP = [-1,0,0,1]}
 instance (Eq a, Num a) => Eq (DensePoly a) where
-   P list1 == P list2  =  (simplify list1 == simplify list2) 
+   P list1 == P list2 = (simplify list1 == simplify list2) 
 
 
 -- |

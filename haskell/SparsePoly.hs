@@ -33,7 +33,8 @@ first f (a, b) = ((f a), b)
 second :: (b -> b') -> (a, b) -> (a, b')
 second f (a, b) = (a, (f b))
 
--- instance Functor SparsePoly where
+instance Functor SparsePoly where
+    fmap f (S ncs) = S ((second f) <$> ncs)
 
 fastPow :: (Num a) => a -> Int -> a
 fastPow base 1 = base
@@ -51,6 +52,7 @@ instance Polynomial SparsePoly where
     degree (S sList) = case sList of
         [] -> -1
         sHead : _ -> (fst sHead)
+        
     shiftP n (S sList) = S (map (\y -> (first (\x -> n+x) y)) sList)
 
 simplify :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)]
@@ -83,7 +85,7 @@ instance (Eq a, Num a) => Num (SparsePoly a) where
     fromInteger i = constP (fromInteger i)
 
 instance (Eq a, Num a) => Eq (SparsePoly a) where
-    S list1 == S list2  =  list1 == list2
+    S list1 == S list2 = list1 == list2
 
 getFirstElem :: (Num a) => SparsePoly a -> a
 getFirstElem (S sList) = 
