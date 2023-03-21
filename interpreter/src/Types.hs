@@ -14,10 +14,8 @@ module Types where
     type Loc = Integer
 -- Environment, maps variable/function name to location
     type Env = Map.Map VarName Loc
-
     -- return value of block of statements. Nothing when no return, Just MemVal if return occured 
     type ReturnRes = Maybe MemVal
-
     -- way of passing argument to function
     data PassArgType = ByValue | ByRef deriving Show 
     -- argument passed to function (name of variable, type of variable, way of passing argument)
@@ -43,3 +41,4 @@ module Types where
 
     -- struct description - field name and its type
     type StructDesc = Map.Map StructFieldName Type
+

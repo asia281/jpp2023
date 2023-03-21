@@ -1,0 +1,118 @@
+-------------------------------------------------------------------
+  01 Typy:
+Trzy typy: int, bool oraz string. Dodatkowo void 
+-------------------------------------------------------------------
+  02 (literały, arytmetyka, porównania)
+Literały:
+int: ciąg cyfr, który może rozpocząć się znakiem "-".
+bool: true lub false.
+string: napis zapisany w cudzysłowach "".
+
+Arytmetyka:
+Operatory arytmetyczne: +, -, *, /, % oraz -liczba (zanegowanie liczby).
+Operatory logiczne: and, or, not.
+
+Porównania:
+Operatory porównania: <, <=, >, >=, ==, !=.
+-------------------------------------------------------------------
+  03 (zmienne, przypisanie)
+- Zmienne:
+[Type] [Id]
+lub
+[Type] [Id] := [Expr]
+
+Czyli zadeklarowanie zmiennej bez i z przypisaniem.
+W przypadku zadeklarowania bez przypisania, domyslne wartosci to:
+int = 0
+bool = false
+string = ""
+list = []
+
+- Przypisanie:
+[Id] := [Expr]
+
+
+-------------------------------------------------------------------
+  04 (print)
+print([Stmt])
+
+Wyliczenie Stmt i wypisanie na standardowe wyjście.
+
+-------------------------------------------------------------------
+  05 (while, if)
+while([condition]){ 
+	[Stmt]
+}
+
+
+if([condition]){ 
+	[Stmt]
+}
+else([condition]){
+	[Stmt]
+}
+
+-------------------------------------------------------------------
+  06 (funkcje lub procedury, rekurencja)
+fun [Id]([argumenty]) -> TYP_ZWRACANY{
+	[Stmt]
+}
+
+Jak widac na opisie, po identyfikatorze funkcji "fun" następuje nazwa funkcji, a nastepnie argumenty (po przecinku).
+Później występuje "->", a po strzalce znajduje sie zwracany typ.
+Mozlwie typy zwracane, to:
+int, bool, string, list<typ>, struct[Id] oraz void (w tym przypadku będziemy mieli procedurę).
+
+Argumenty są przykazywane przez wartość, chyba ze
+przed argumentem występuje "&", co oznacza, ze zmienna jest przekazywana przez referencje.
+
+-------------------------------------------------------------------
+  07 (przez zmienną / przez wartość / in/out)
+[ideant]([argumenty])
+
+Jeśli przed danym argumentem funkcji wystepuje "&", nalezy dodac "&" w trakcie przekazywania argumentu.
+Wtedy oczywiscie nalezy przekazywac nazwę zmiennej (Idyfikator), a nie wyrazenie. 
+
+-------------------------------------------------------------------
+  08 (zmienne read-only i/lub pętla for)
+Dwa rodzaje pętli for:
+for([var] in [Expr]){
+  [Stmt]
+}
+
+for([var] from [Expr] to [Expr]){
+  [Stmt]
+}
+
+  Na 20 punktów
+-------------------------------------------------------------------
+  09 (przesłanianie i statyczne wiązanie)
+
+-------------------------------------------------------------------
+  10 (obsługa błędów wykonania)
+Mozliwe bledy wykonania:
+
+-------------------------------------------------------------------
+  11 (funkcje zwracające wartość)
+return [Stmt]
+
+  Na 30 punktów
+-------------------------------------------------------------------
+  12 (4) (statyczne typowanie)
+Typowanie będzie statyczne.
+
+-------------------------------------------------------------------
+  13 (2) (funkcje zagnieżdżone ze statycznym wiązaniem)
+
+-------------------------------------------------------------------
+  14 (1/2) (rekordy/listy/tablice/tablice wielowymiarowe)
+  list<[typ]>
+  struct [Id]{ 
+    [elementy] 
+  }
+  15 (2) (krotki z przypisaniem)
+  16 (1) (break, continue)
+  17 (4) (funkcje wyższego rzędu, anonimowe, domknięcia)
+  18 (3) (generatory)
+
+Razem: ...
