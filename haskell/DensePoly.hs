@@ -43,7 +43,6 @@ mul a b =
 
 instance (Eq a, Num a) => Num (DensePoly a) where
     (P al) + (P bl) = P (simplify (add al bl))
-    (P al) - (P bl) = (P al) + (negate (P bl))
     (P al) * (P bl) = P (simplify (mul al bl))
     negate (P al) = (constP (-1)) * (P al)
     abs = undefined
