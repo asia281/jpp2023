@@ -24,7 +24,7 @@ instance Polynomial DensePoly where
     degree (P pl) = length pl - 1
 
 simplify :: (Eq a, Num a) => [a] -> [a]
-simplify l = dropWhileEnd (0 ==) l
+simplify = dropWhileEnd (0 ==)
 
 add ::  (Eq a, Num a) => [a] -> [a] -> [a]
 add [] b = b
