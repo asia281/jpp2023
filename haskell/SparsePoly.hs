@@ -71,7 +71,7 @@ add a b = addAcc a b []
           addAcc a b acc = addAcc b a acc
 
 mulConst ::  (Eq a, Num a) => (Int, a) -> [(Int, a)] -> [(Int, a)]
-mulConst (aExp, aVar) b = map (\(x, y) -> (x + aExp, y * aVar)) b
+mulConst (aExp, aVar) = map (\(x, y) -> (x + aExp, y * aVar))
 
 mul :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
 mul a b = foldl' add [] (foldl' (\acc ah -> (mulConst ah b) : acc) [] a)
