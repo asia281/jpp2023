@@ -17,8 +17,9 @@ instance Polynomial DensePoly where
                 [] -> acc
                 pHead : pTail -> evalPAcc x pTail (acc * x + pHead)
     shiftP n (P pl) 
-        | pl == [] || n == 0 = (P pl)
-        | otherwise = shiftP (n-1) (P (0:pl))
+        | pl == [] || n == 0 = P (simplify pl)
+        | (n < 0) = P (simplify (drop (-n) pl))
+        | otherwise = shiftP (n-1) (P (0 : pl))
 
     degree (P pl) = length(pl) - 1
 
