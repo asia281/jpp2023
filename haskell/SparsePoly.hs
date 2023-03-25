@@ -92,7 +92,7 @@ getFirstElem :: (Num a) => SparsePoly a -> a
 getFirstElem (S sl) = 
     case sl of
         [] -> 1
-        sHead : _ -> (snd sHead)
+        (_, coeff) : _ -> coeff
 
 -- qrP s t | not(nullP t) = (q, r) iff s == q*t + r && degree r < degree t
 qrP :: (Eq a, Fractional a) => SparsePoly a -> SparsePoly a -> (SparsePoly a, SparsePoly a)
