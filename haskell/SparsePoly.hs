@@ -78,7 +78,6 @@ mul a b = foldl' add [] (foldl' (\acc ah -> (mulConst ah b) : acc) [] a)
 
 instance (Eq a, Num a) => Num (SparsePoly a) where
     (S al) + (S bl) = S (simplify (add al bl))
-    (S al) - (S bl) = (S al) + (negate (S bl))
     (S al) * (S bl) = S (simplify (mul al bl))
     negate (S sl) = (constP (-1)) * (S sl)
     abs = undefined
