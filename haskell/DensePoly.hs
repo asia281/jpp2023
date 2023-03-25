@@ -47,7 +47,7 @@ instance (Eq a, Num a) => Num (DensePoly a) where
     negate (P al) = (constP (-1)) * (P al)
     abs = undefined
     signum = undefined
-    fromInteger i = constP (fromInteger i)
+    fromInteger = constP . fromInteger
 
 
 -- |
