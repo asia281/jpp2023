@@ -52,7 +52,7 @@ instance Polynomial SparsePoly where
 
     degree (S sl) = case sl of
         [] -> -1
-        sHead : _ -> (fst sHead)
+        (pow, _) : _ -> pow
         
     shiftP n (S sl) = S (map (\y -> (first (\x -> n+x) y)) sl)
 
