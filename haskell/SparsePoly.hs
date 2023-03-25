@@ -30,9 +30,9 @@ toDP (S sl)
             (sExp, sNum) : sTail -> createDP (S sTail) sExp (appendZeros prev sExp sNum acc)
 
 first :: (a -> a') -> (a, b) -> (a', b)
-first f (a, b)  = ((f a), b)
+first f (a, b)  = (f a, b)
 second :: (b -> b') -> (a, b) -> (a, b')
-second f (a, b) = (a, (f b))
+second f (a, b) = (a, f b)
 
 instance Functor SparsePoly where
     fmap f (S sl) = S ((second f) <$> sl)
