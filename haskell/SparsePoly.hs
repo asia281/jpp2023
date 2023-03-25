@@ -1,6 +1,7 @@
 module SparsePoly(fromDP, toDP, qrP) where
 import PolyClass
 import Representation
+import Data.List
 
 -- | fromDP example
 -- >>> fromDP sampleDP
@@ -12,14 +13,14 @@ toDP :: (Eq a, Num a) => SparsePoly a -> DensePoly a
 fromDP (P pl) = S (createSP (P pl) 0 [])
     where createSP (P pl) cnt acc = case pl of
             [] -> acc
-            pHead : pTail | pHead /= 0 -> createSP (P pTail) (cnt+1) ((cnt, pHead):acc)
+            pHead : pTail | pHead /= 0 -> createSP (P pTail) (cnt+1) ((cnt, pHead) : acc)
             pHead : pTail -> createSP (P pTail) (cnt+1) acc
 
 appendZeros :: (Eq a, Num a) => Int -> Int -> a -> [a] -> [a]
 appendZeros prev curr toAdd acc 
     | prev == curr = acc
-    | prev < 0 || prev-1 == curr  = toAdd:acc
-    | otherwise = appendZeros (prev-1) curr toAdd (0:acc)
+    | prev < 0 || prev-1 == curr  = toAdd : acc
+    | otherwise = appendZeros (prev-1) curr toAdd (0 : acc)
 
 toDP (S sl) 
     | sl == []  = (P [])
@@ -47,7 +48,7 @@ instance Polynomial SparsePoly where
         | a == 0 = zeroP
         | otherwise = S [(0, a)]
     varP = S [(1, 1)]
-    evalP (S sl) n = foldl (\x (yExp, yVar) -> (x + yVar * (fastPow n yExp))) 0 sl    
+    evalP (S sl) n = foldl' (\x (yExp, yVar) -> (x + yVar * (fastPow n yExp))) 0 sl    
 
     degree (S sl) = case sl of
         [] -> -1
@@ -58,18 +59,21 @@ instance Polynomial SparsePoly where
 simplify :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)]
 simplify l = filter (\x -> (snd x) /= 0 ) l 
 
+
 add ::  (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
-add a [] = a
-add [] b = b
-add (ah : at) (bh : bt) | (fst ah) == (fst bh) = ((fst ah), ((snd ah) + (snd bh))) : (add at bt) 
-add (ah : at) (bh : bt) | (fst ah) > (fst bh) = ah : (add at (bh : bt)) 
-add a b = add b a
+add a b = addAcc a b []
+    where addAcc [] [] acc = reverse acc
+          addAcc (ah : at) [] acc = addAcc at [] (ah : acc)
+          addAcc [] (bh : bt) acc = addAcc bt [] (bh : acc)
+          addAcc (ah : at) (bh : bt) acc | (fst ah) == (fst bh) = addAcc at bt (((fst ah), ((snd ah) + (snd bh))) : acc) 
+          addAcc (ah : at) (bh : bt) acc | (fst ah) > (fst bh) = addAcc at (bh : bt) (ah : acc)
+          addAcc a b acc = addAcc b a acc
 
 mulConst ::  (Eq a, Num a) => (Int, a) -> [(Int, a)] -> [(Int, a)]
 mulConst (aExp, aVar) b = map (\(x, y) -> (x + aExp, y * aVar)) b
 
 mul :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
-mul a b = foldl add [] (foldl (\acc ah -> (mulConst ah b) : acc) [] a)
+mul a b = foldl' add [] (foldl' (\acc ah -> (mulConst ah b) : acc) [] a)
 
 instance (Eq a, Num a) => Num (SparsePoly a) where
     (S al) + (S bl) = S (simplify (add al bl))
@@ -81,7 +85,7 @@ instance (Eq a, Num a) => Num (SparsePoly a) where
     fromInteger i = constP (fromInteger i)
 
 instance (Eq a, Num a) => Eq (SparsePoly a) where
-    S list1 == S list2 = list1 == list2
+  p == q = nullP (p - q)
 
 getFirstElem :: (Num a) => SparsePoly a -> a
 getFirstElem (S sl) = 
@@ -91,6 +95,7 @@ getFirstElem (S sl) =
 
 -- qrP s t | not(nullP t) = (q, r) iff s == q*t + r && degree r < degree t
 qrP :: (Eq a, Fractional a) => SparsePoly a -> SparsePoly a -> (SparsePoly a, SparsePoly a)
+qrP _ (S []) = undefined
 qrP s t = divWithRes s t zeroP
     where divWithRes f s q | ddif < 0 = (q, f)
                            | otherwise = divWithRes f' s q'
