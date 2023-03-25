@@ -39,8 +39,9 @@ instance Functor SparsePoly where
 
 fastPow :: (Num a) => a -> Int -> a
 fastPow base 1 = base
-fastPow base pow | even pow = (fastPow base (div pow 2)) ^ 2
-                 | odd pow = (fastPow base (div (pow-1) 2)) ^ 2 * base
+fastPow base pow 
+  | even pow = (fastPow base (div pow 2)) ^ 2
+  | odd pow = (fastPow base (div (pow-1) 2)) ^ 2 * base
 
 instance Polynomial SparsePoly where
     zeroP  = S []
