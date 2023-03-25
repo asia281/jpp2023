@@ -58,7 +58,7 @@ instance Polynomial SparsePoly where
     shiftP n (S sl) = S (map (\y -> (first (\x -> n+x) y)) sl)
 
 simplify :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)]
-simplify l = filter (\x -> (snd x) /= 0 ) l 
+simplify = filter ((/= 0) . snd)
 
 
 add ::  (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
