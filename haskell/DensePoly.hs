@@ -21,7 +21,7 @@ instance Polynomial DensePoly where
         | (n < 0) = P (simplify (drop (-n) pl))
         | otherwise = shiftP (n-1) (P (0 : pl))
 
-    degree (P pl) = length(pl) - 1
+    degree (P pl) = length pl - 1
 
 simplify :: (Eq a, Num a) => [a] -> [a]
 simplify l = dropWhileEnd (0 ==) l
