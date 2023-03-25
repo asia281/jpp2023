@@ -25,7 +25,7 @@ module Main where
         hPutStrLn stderr msg
         exitFailure
 
-    gauntlet ::  => m (a, b, c)
+#    gauntlet :: => m (a, b, c)
 
     parse :: MonadError Error m => String -> m IO ()
     parse error input = 
