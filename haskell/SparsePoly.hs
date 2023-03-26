@@ -49,11 +49,11 @@ instance Polynomial SparsePoly where
         | a == 0 = zeroP
         | otherwise = S [(0, a)]
     varP = S [(1, 1)]
-    evalP (S sl) n = foldl' (\x (yExp, yVar) -> (x + yVar * (fastPow n yExp))) 0 sl    
+    evalP (S sl) n = foldl' (\x (yExp, yCoeff) -> (x + yCoeff * (fastPow n yExp))) 0 sl    
 
     degree (S sl) = case sl of
         [] -> -1
-        (pow, _) : _ -> pow
+        (exp, _) : _ -> exp
         
     shiftP n (S sl) = S (map (\y -> (first (\x -> n+x) y)) sl)
 
@@ -71,7 +71,7 @@ add a b = addAcc a b []
           addAcc a b acc = addAcc b a acc
 
 mulConst ::  (Eq a, Num a) => (Int, a) -> [(Int, a)] -> [(Int, a)]
-mulConst (aExp, aVar) = map (\(x, y) -> (x + aExp, y * aVar))
+mulConst (aExp, aCoeff) = map (\(x, y) -> (x + aExp, y * aCoeff))
 
 mul :: (Eq a, Num a) => [(Int, a)] -> [(Int, a)] -> [(Int, a)]
 mul a b = foldl' add [] (foldl' (\acc ah -> (mulConst ah b) : acc) [] a)
@@ -97,13 +97,14 @@ getFirstElem (S sl) =
 qrP :: (Eq a, Fractional a) => SparsePoly a -> SparsePoly a -> (SparsePoly a, SparsePoly a)
 qrP _ (S []) = undefined
 qrP s t = divWithRes s t zeroP
-    where divWithRes f s q | ddif < 0 = (q, f)
-                           | otherwise = divWithRes f' s q'
-                                where 
-                                    ddif = (degree f) - (degree s)
-                                    k = constP ((getFirstElem f) / (getFirstElem s))
-                                    q' = q + (shiftP ddif k)
-                                    f' = f - (k * (shiftP ddif s))
+    where divWithRes f s q 
+            | ddif < 0 = (q, f)
+            | otherwise = divWithRes f' s q'
+                where 
+                    ddif = (degree f) - (degree s)
+                    k = constP ((getFirstElem f) / (getFirstElem s))
+                    q' = q + (shiftP ddif k)
+                    f' = f - (k * (shiftP ddif s))
 
 
 -- | Division example
