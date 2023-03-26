@@ -82,7 +82,7 @@ instance (Eq a, Num a) => Num (SparsePoly a) where
     negate (S sl) = (constP (-1)) * (S sl)
     abs = undefined
     signum = undefined
-    fromInteger i = constP (fromInteger i)
+    fromInteger = constP . fromInteger
 
 instance (Eq a, Num a) => Eq (SparsePoly a) where
   p == q = nullP (p - q)
