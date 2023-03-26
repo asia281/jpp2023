@@ -64,8 +64,8 @@ LTH.       RelOp ::= "<" ;
 LE.        RelOp ::= "<=" ;
 GTH.       RelOp ::= ">" ;
 GE.        RelOp ::= ">=" ;
-EQU.       RelOp ::= "==" ;
-NE.        RelOp ::= "!=" ;
+EQ.        RelOp ::= "==" ;
+NEQ.       RelOp ::= "!=" ;
 
 -- Expression ------------------------------------------------
 EOr.       Expr ::= Expr1 "or" Expr ;       -- or < and

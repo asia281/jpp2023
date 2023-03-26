@@ -21,7 +21,7 @@ Operatory porównania: <, <=, >, >=, ==, !=.
 lub
 [Type] [Id] := [Expr]
 
-Czyli zadeklarowanie zmiennej bez i z przypisaniem.
+Czyli zadeklarowanie zmiennej bez i z przypisaniem. Wyliczanie expressions będzie eager.
 W przypadku zadeklarowania bez przypisania, domyslne wartosci to:
 int = 0
 bool = false
@@ -87,10 +87,22 @@ for([var] from [Expr] to [Expr]){
   Na 20 punktów
 -------------------------------------------------------------------
   09 (przesłanianie i statyczne wiązanie)
+Będzie.
 
 -------------------------------------------------------------------
   10 (obsługa błędów wykonania)
 Mozliwe bledy wykonania:
+  data RuntimeExceptions = NoReturnException 
+                            | ZeroDivisionException
+                            | OutOfRangeExeption Integer 
+                            | NoStructFieldException String deriving Show
+
+  data TypeCheckerExceptions = TypeCheckException Type Type 
+                            | DeclarationInvTypeException Type 
+                            | FuncArgsInvTypeException Type 
+                            | NotListException Type 
+                            | IdentifierNotExistException String 
+                            | ReturnTypeMismatchException (Maybe Type) (Maybe Type)  deriving Show
 
 -------------------------------------------------------------------
   11 (funkcje zwracające wartość)
@@ -103,13 +115,15 @@ Typowanie będzie statyczne.
 
 -------------------------------------------------------------------
   13 (2) (funkcje zagnieżdżone ze statycznym wiązaniem)
-
+Będzie.
 -------------------------------------------------------------------
   14 (1/2) (rekordy/listy/tablice/tablice wielowymiarowe)
-  list<[typ]>
-  struct [Id]{ 
-    [elementy] 
-  }
+list<[typ]>
+struct [Id]{ 
+  [elementy] 
+}
+gdzie pojedynczy element to: [typ] [nazwa_zmiennej];
+
   15 (2) (krotki z przypisaniem)
   16 (1) (break, continue)
   17 (4) (funkcje wyższego rzędu, anonimowe, domknięcia)
