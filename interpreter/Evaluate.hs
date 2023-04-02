@@ -87,7 +87,7 @@ module Evaluate where
 -- structs
 
 
--- STATEMENT --
+-- STMT --
     returnNothing :: Interpreter (Env, ReturnRes)
     returnNothing = do
         env <- ask

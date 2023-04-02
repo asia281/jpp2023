@@ -25,18 +25,18 @@ While.     Stmt ::= "while" "(" Expr ")" Block ;
 For.       Stmt ::= "for" "(" Ident "from" Expr "to" Expr ")" Block ;
 ForIn.     Stmt ::= "for" "(" Ident "in" Expr ")" Block ;
 
-Print.     Stmt ::= "print" "(" Expr ")" ;
+Print.     Stmt ::= "print" "(" [Expr] ")" ;
+separator  Expr "," ;
 
 Return.    Stmt ::= "return" Expr ;
 ReturnVoIdent.   Stmt ::= "return" ;
-Assign.    Stmt ::= Ident ":=" Expr ;
+Assign.    Stmt ::= Ident "=" Expr ;
 
 FunDef.    Stmt ::= "fun" Ident "(" [Arg] ")" "->" Type Block ;
 Arg. 	   Arg ::= Type Ident;
 ArgRef.	   Arg ::= "&" Type Ident;
 separator  Arg "," ;
 
-separator  Ident "," ;
 
 -- Types ---------------------------------------------------
 
@@ -46,6 +46,7 @@ TString.    Type ::= "string" ;
 TVoid.      Type ::= "void" ;
 TList.      Type ::= "list" "<" Type ">" ;
 TStruct.    Type ::= "struct" Ident ;
+TFun.       Type ::= "lambda" "<" "(" [TypeOrRef] ")" "->" Type ">" ;
 separator   Type "," ;
 
 TRType.     TypeOrRef ::= Type ;
@@ -74,7 +75,7 @@ ERel.      Expr2 ::= Expr2 RelOp Expr3 ;    -- rel operators < add/minus
 EAdd.      Expr3 ::= Expr3 AddOp Expr4 ;    -- add/minus < mul/div/mod
 EMul.      Expr4 ::= Expr4 MulOp Expr5 ;    -- mul/div/mod < not/negate
 ENeg.      Expr5 ::= "-" Expr6 ;
-ENot.      Expr5 ::= "not" Expr6 ;          -- not/negate < (expr)
+ENot.      Expr5 ::= "not" Expr6 ;          -- not/negate < ()
 
 EApp.      Expr6 ::= Expr6 "(" [ExprOrRef] ")" ; -- () < just a integer/string/bool 
 EInt.      Expr7 ::= Integer ;
@@ -83,6 +84,8 @@ ETrue.     Expr7 ::= "true" ;
 EFalse.    Expr7 ::= "false" ;
 EEmptyList. Expr7 ::= Type "[]" ;
 EString.   Expr7 ::= String;
+ELambda.   Expr7 ::= "lambda" Ident "(" [Arg] ")" "->" Type Block ;
+
 
 coercions  Expr 7 ;
 
@@ -99,9 +102,9 @@ comment    "{*" "*}" ;
 
 
 -- List operations -----------------------------------------
-ListPush.  Stmt ::= Ident "::" "push" Expr ;
+ListPush.  Stmt ::= Ident "::" "push" "(" Expr ")" ;
 ListLen.   Expr5 ::= Expr6 "." "len" ;
-ListAt.    Expr5 ::= Expr6 "." "at" Expr6 ;
+ListAt.    Expr5 ::= Expr6 "." "at" "(" Expr6 ")" ;
 
 
 -- Structs -------------------------------------------------

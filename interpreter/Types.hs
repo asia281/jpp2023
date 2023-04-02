@@ -76,4 +76,4 @@ module Types where
 
 
 -- Monad type
-    type InterpreterMonad = ReaderT Env (StateT Store (ExceptT RuntimeExceptions IO))
+    type Interpreter = ReaderT Env (StateT Store (ExceptT RuntimeExceptions IO))
