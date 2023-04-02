@@ -1,4 +1,4 @@
-module Evaluate where
+module EvalExpr(evalExpr) where
     import AbsGrammar
 
     import Data.Map as Map
@@ -11,6 +11,12 @@ module Evaluate where
     import Types
     import Memory
     import TypeChecker
+
+    defaultValue :: Type -> Expr
+    defaultValue TInt = EInt 0
+    defaultValue TBool = EFalse
+    defaultValue TString = EString ""
+    defaultValue (TList t) = EEmptyList t
 
 -- EXPRESSION --
     evalAddOp Minus e1 e2 = e1 - e2
@@ -86,22 +92,9 @@ module Evaluate where
 
 -- structs
 
+-- lambda
+    -- evalExpr (ELambda capture args returnType (Block stmts)) = do
+    --     argsList <- mapM argToFunArg args
+    --     captureGroup <- mapM constructCaptureGroup capture
+    --     return $ FunVal (stmts, Map.empty, argsList, returnType, captureGroup)
 
--- STMT --
-    returnNothing :: Interpreter (Env, ReturnRes)
-    returnNothing = do
-        env <- ask
-        return (env, Nothing)
-
-    evalStmt :: Stmt -> Interpreter (Env, ReturnRes)
-
-    interpretAll :: [Stmt] -> Interpreter (Env, ReturnRes)
-    interpretAll [] = returnNothing
-    interpretAll (x : xt) = do
-                (env, ret) <- evalStmt x
-                if isNothing ret then
-                    local (const env) (interpretAll xs)
-                else
-                    return (env, ret)
-
-    runProg prog = runExceptT $ runStateT (runReaderT (interpretMany prog) Map.empty) (Map.empty, 0)
