@@ -14,277 +14,277 @@ import qualified Test.QuickCheck.Gen
 type DPI = DensePoly Int
 type SPI = SparsePoly Int
 
--- prop_AddCommDP :: DPI -> DPI -> Property
--- prop_AddCommDP p q = p + q === q + p
+prop_AddCommDP :: DPI -> DPI -> Property
+prop_AddCommDP p q = p + q === q + p
 
--- prop_AddZeroRDP :: DPI -> Property
--- prop_AddZeroRDP p = p + zeroP === p
+prop_AddZeroRDP :: DPI -> Property
+prop_AddZeroRDP p = p + zeroP === p
 
--- prop_AddZeroLDP :: DPI -> Property
--- prop_AddZeroLDP p = zeroP + p === p
+prop_AddZeroLDP :: DPI -> Property
+prop_AddZeroLDP p = zeroP + p === p
 
--- prop_MulZeroRDP :: DPI -> Property
--- prop_MulZeroRDP p = p * zeroP === zeroP
+prop_MulZeroRDP :: DPI -> Property
+prop_MulZeroRDP p = p * zeroP === zeroP
 
--- prop_MulZeroLDP :: DPI -> Property
--- prop_MulZeroLDP p = zeroP * p === zeroP
+prop_MulZeroLDP :: DPI -> Property
+prop_MulZeroLDP p = zeroP * p === zeroP
 
--- prop_MulCommDP :: DPI -> DPI -> Property
--- prop_MulCommDP p q = p * q === q * p
+prop_MulCommDP :: DPI -> DPI -> Property
+prop_MulCommDP p q = p * q === q * p
 
--- prop_NegNegDP :: DPI -> Property
--- prop_NegNegDP p = -(-p) === p
+prop_NegNegDP :: DPI -> Property
+prop_NegNegDP p = -(-p) === p
 
--- prop_AddNegDP :: DPI -> Property
--- prop_AddNegDP p = p - p === zeroP
+prop_AddNegDP :: DPI -> Property
+prop_AddNegDP p = p - p === zeroP
 
--- prop_OneRDP :: DPI -> Property
--- prop_OneRDP p = p * constP 1 === p
+prop_OneRDP :: DPI -> Property
+prop_OneRDP p = p * constP 1 === p
 
--- prop_OneLDP :: DPI -> Property
--- prop_OneLDP p = (constP 1) * p === p
+prop_OneLDP :: DPI -> Property
+prop_OneLDP p = (constP 1) * p === p
 
--- prop_DistLDP :: DPI -> DPI -> DPI -> Property
--- prop_DistLDP p q r = p * (q + r) === p * q + p * r
+prop_DistLDP :: DPI -> DPI -> DPI -> Property
+prop_DistLDP p q r = p * (q + r) === p * q + p * r
 
--- prop_ShiftLDP :: NonNegative(Small Int) -> DPI -> DPI -> Property
--- prop_ShiftLDP (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
+prop_ShiftLDP :: NonNegative(Small Int) -> DPI -> DPI -> Property
+prop_ShiftLDP (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
 
--- prop_EqDP :: DPI -> DPI -> Property
--- prop_EqDP p q = (p == q) === (q == p)
+prop_EqDP :: DPI -> DPI -> Property
+prop_EqDP p q = (p == q) === (q == p)
 
 is_canonic_DP :: DPI -> Property
 is_canonic_DP (P []) = True ==> True
 is_canonic_DP (P l) = True ==> last l /= 0
 
--- -- prop_EvalPlus  :: Int ->  DPI -> DPI -> Property
--- -- prop_EvalPlus x p q = evalP(p + q) x === evalP p x + evalP q x
+-- prop_EvalPlus  :: Int ->  DPI -> DPI -> Property
+-- prop_EvalPlus x p q = evalP(p + q) x === evalP p x + evalP q x
 
--- prop_Fmap_id_DP :: DPI -> Property
--- prop_Fmap_id_DP p = p === (fmap id p)
+prop_Fmap_id_DP :: DPI -> Property
+prop_Fmap_id_DP p = p === (fmap id p)
 
--- -- SPI
+-- SPI
 
--- prop_AddCommSP :: SPI -> SPI -> Property
--- prop_AddCommSP p q = within 100000 $ p + q === q + p
+prop_AddCommSP :: SPI -> SPI -> Property
+prop_AddCommSP p q = within 100000 $ p + q === q + p
 
--- prop_AddZeroRSP :: SPI -> Property
--- prop_AddZeroRSP p = p + zeroP === p
+prop_AddZeroRSP :: SPI -> Property
+prop_AddZeroRSP p = p + zeroP === p
 
--- prop_AddZeroLSP :: SPI -> Property
--- prop_AddZeroLSP p = zeroP + p === p
+prop_AddZeroLSP :: SPI -> Property
+prop_AddZeroLSP p = zeroP + p === p
 
--- prop_MulZeroRSP :: SPI -> Property
--- prop_MulZeroRSP p = p * zeroP === zeroP
+prop_MulZeroRSP :: SPI -> Property
+prop_MulZeroRSP p = p * zeroP === zeroP
 
--- prop_MulZeroLSP :: SPI -> Property
--- prop_MulZeroLSP p = zeroP * p === zeroP
+prop_MulZeroLSP :: SPI -> Property
+prop_MulZeroLSP p = zeroP * p === zeroP
 
--- prop_NegNegSP :: SPI -> Property
--- prop_NegNegSP p = -(-p) === p
+prop_NegNegSP :: SPI -> Property
+prop_NegNegSP p = -(-p) === p
 
--- prop_OneRSP :: SPI -> Property
--- prop_OneRSP p = p * constP 1 === p
+prop_OneRSP :: SPI -> Property
+prop_OneRSP p = p * constP 1 === p
 
--- prop_OneLSP :: SPI -> Property
--- prop_OneLSP p = (constP 1) * p === p
+prop_OneLSP :: SPI -> Property
+prop_OneLSP p = (constP 1) * p === p
 
--- -- within: prop fails if it does not complete within the given number of microseconds.
--- prop_MulCommSP :: SPI -> SPI -> Property
--- prop_MulCommSP p q = within 100000 $ p * q === q * p
+-- within: prop fails if it does not complete within the given number of microseconds.
+prop_MulCommSP :: SPI -> SPI -> Property
+prop_MulCommSP p q = within 100000 $ p * q === q * p
 
--- prop_DistLSP :: SPI -> SPI -> SPI -> Property
--- prop_DistLSP p q r = within 100000 $ p*(q+r) === p*q + p*r
+prop_DistLSP :: SPI -> SPI -> SPI -> Property
+prop_DistLSP p q r = within 100000 $ p*(q+r) === p*q + p*r
 
--- prop_ShiftLSP :: NonNegative(Small Int) -> SPI -> SPI -> Property
--- prop_ShiftLSP (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
+prop_ShiftLSP :: NonNegative(Small Int) -> SPI -> SPI -> Property
+prop_ShiftLSP (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
 
--- prop_EqSP :: SPI -> SPI -> Property
--- prop_EqSP p q = (p == q) === (q == p)
+prop_EqSP :: SPI -> SPI -> Property
+prop_EqSP p q = (p == q) === (q == p)
 
--- is_canonic_SP :: SPI -> Property
--- is_canonic_SP (S []) = True ==> True
--- is_canonic_SP (S l) =
---   let mapped = map fst l in
---   let sorted = Data.List.sort mapped in
---   True ==> (mapped == reverse sorted && not (or [x == y | (x, y) <- zip mapped (tail mapped)]) && snd (head l) /= 0)
+is_canonic_SP :: SPI -> Property
+is_canonic_SP (S []) = True ==> True
+is_canonic_SP (S l) =
+  let mapped = map fst l in
+  let sorted = Data.List.sort mapped in
+  True ==> (mapped == reverse sorted && not (or [x == y | (x, y) <- zip mapped (tail mapped)]) && snd (head l) /= 0)
 
--- prop_add_canonic_SP :: SPI -> SPI -> Property
--- prop_add_canonic_SP p q = is_canonic_SP (p + q)
--- prop_mul_canonic_SP :: SPI -> SPI -> Property
--- prop_mul_canonic_SP p q = is_canonic_SP (p * q)
--- prop_sub_canonic_SP :: SPI -> SPI -> Property
--- prop_sub_canonic_SP p q = is_canonic_SP (p - q)
--- prop_neg_canonic_SP :: SPI -> Property
--- prop_neg_canonic_SP p = is_canonic_SP (-p)
--- prop_const_canonic_SP :: Int -> Property
--- prop_const_canonic_SP c = is_canonic_SP (constP c)
--- prop_shift_canonic_SP :: Int -> SparsePoly Int -> Property
--- prop_shift_canonic_SP n p = is_canonic_SP (shiftP n p)
+prop_add_canonic_SP :: SPI -> SPI -> Property
+prop_add_canonic_SP p q = is_canonic_SP (p + q)
+prop_mul_canonic_SP :: SPI -> SPI -> Property
+prop_mul_canonic_SP p q = is_canonic_SP (p * q)
+prop_sub_canonic_SP :: SPI -> SPI -> Property
+prop_sub_canonic_SP p q = is_canonic_SP (p - q)
+prop_neg_canonic_SP :: SPI -> Property
+prop_neg_canonic_SP p = is_canonic_SP (-p)
+prop_const_canonic_SP :: Int -> Property
+prop_const_canonic_SP c = is_canonic_SP (constP c)
+prop_shift_canonic_SP :: Int -> SparsePoly Int -> Property
+prop_shift_canonic_SP n p = is_canonic_SP (shiftP n p)
 
--- prop_Fmap_id_SP :: SPI -> Property
--- prop_Fmap_id_SP p = p === (fmap id p)
+prop_Fmap_id_SP :: SPI -> Property
+prop_Fmap_id_SP p = p === (fmap id p)
 
--- -- conversions
+-- conversions
 
--- prop_fromToDP :: SPI -> Bool
--- prop_fromToDP p = fromDP(toDP p) == p
+prop_fromToDP :: SPI -> Bool
+prop_fromToDP p = fromDP(toDP p) == p
 
--- prop_toFromDP :: DPI -> Bool
--- prop_toFromDP p = toDP(fromDP p) == p
-
-
--- prop_add_DP_SP :: DPI -> DPI -> Property
--- prop_add_DP_SP p q = p + q === toDP ((fromDP p) + (fromDP q))
-
--- prop_mul_DP_SP :: DPI -> DPI -> Property
--- prop_mul_DP_SP p q = p * q === toDP ((fromDP p) * (fromDP q))
-
--- prop_sub_DP_SP :: DPI -> DPI -> Property
--- prop_sub_DP_SP p q = p - q === toDP ((fromDP p) - (fromDP q))
-
--- prop_neg_DP_SP :: DPI -> Property
--- prop_neg_DP_SP p = -p === toDP (-(fromDP p))
-
--- prop_const_DP_SP :: Int -> Property
--- prop_const_DP_SP c = constP c === toDP (constP c)
-
--- -- prop_shift_DP_SP :: Int -> DPI -> Property
--- -- prop_shift_DP_SP n p = shiftP n p === toDP (shiftP n (fromDP p)) -- TODO: mail do prowadzacego
--- prop_shift_DP_SP :: (NonNegative Int) -> DPI -> Property
--- prop_shift_DP_SP (NonNegative n) p = shiftP n p === toDP (shiftP n (fromDP p))
+prop_toFromDP :: DPI -> Bool
+prop_toFromDP p = toDP(fromDP p) == p
 
 
--- -- Modulo tests
+prop_add_DP_SP :: DPI -> DPI -> Property
+prop_add_DP_SP p q = p + q === toDP ((fromDP p) + (fromDP q))
 
--- type DPM = DensePoly IntModulo
--- type SPM = SparsePoly IntModulo
+prop_mul_DP_SP :: DPI -> DPI -> Property
+prop_mul_DP_SP p q = p * q === toDP ((fromDP p) * (fromDP q))
 
--- prop_AddCommDPM :: DPM -> DPM -> Property
--- prop_AddCommDPM p q = p + q === q + p
+prop_sub_DP_SP :: DPI -> DPI -> Property
+prop_sub_DP_SP p q = p - q === toDP ((fromDP p) - (fromDP q))
 
--- prop_AddZeroRDPM :: DPM -> Property
--- prop_AddZeroRDPM p = p + zeroP === p
+prop_neg_DP_SP :: DPI -> Property
+prop_neg_DP_SP p = -p === toDP (-(fromDP p))
 
--- prop_AddZeroLDPM :: DPM -> Property
--- prop_AddZeroLDPM p = zeroP + p === p
+prop_const_DP_SP :: Int -> Property
+prop_const_DP_SP c = constP c === toDP (constP c)
 
--- prop_MulZeroRDPM :: DPM -> Property
--- prop_MulZeroRDPM p = p * zeroP === zeroP
-
--- prop_MulZeroLDPM :: DPM -> Property
--- prop_MulZeroLDPM p = zeroP * p === zeroP
-
--- prop_MulCommDPM :: DPM -> DPM -> Property
--- prop_MulCommDPM p q = p * q === q * p
-
--- prop_NegNegDPM :: DPM -> Property
--- prop_NegNegDPM p = -(-p) === p
-
--- prop_AddNegDPM :: DPM -> Property
--- prop_AddNegDPM p = p - p === zeroP
-
--- prop_OneRDPM :: DPM -> Property
--- prop_OneRDPM p = p * constP 1 === p
-
--- prop_OneLDPM :: DPM -> Property
--- prop_OneLDPM p = (constP 1) * p === p
-
--- prop_DistLDPM :: DPM -> DPM -> DPM -> Property
--- prop_DistLDPM p q r = p * (q + r) === p * q + p * r
-
--- prop_ShiftLDPM :: NonNegative(Small Int) -> DPM -> DPM -> Property
--- prop_ShiftLDPM (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
-
--- prop_EqDPM :: DPM -> DPM -> Property
--- prop_EqDPM p q = (p == q) === (q == p)
-
--- is_canonic_DPM :: DPM -> Property
--- is_canonic_DPM (P []) = True ==> True
--- is_canonic_DPM (P l) = True ==> last l /= 0
+-- prop_shift_DP_SP :: Int -> DPI -> Property
+-- prop_shift_DP_SP n p = shiftP n p === toDP (shiftP n (fromDP p)) -- TODO: mail do prowadzacego
+prop_shift_DP_SP :: (NonNegative Int) -> DPI -> Property
+prop_shift_DP_SP (NonNegative n) p = shiftP n p === toDP (shiftP n (fromDP p))
 
 
--- prop_Fmap_id_DPM :: DPM -> Property
--- prop_Fmap_id_DPM p = p === (fmap id p)
+-- Modulo tests
 
--- -- SPM
+type DPM = DensePoly IntModulo
+type SPM = SparsePoly IntModulo
 
--- prop_AddCommSPM :: SPM -> SPM -> Property
--- prop_AddCommSPM p q = within 100000 $ p + q === q + p
+prop_AddCommDPM :: DPM -> DPM -> Property
+prop_AddCommDPM p q = p + q === q + p
 
--- prop_AddZeroRSPM :: SPM -> Property
--- prop_AddZeroRSPM p = p + zeroP === p
+prop_AddZeroRDPM :: DPM -> Property
+prop_AddZeroRDPM p = p + zeroP === p
 
--- prop_AddZeroLSPM :: SPM -> Property
--- prop_AddZeroLSPM p = zeroP + p === p
+prop_AddZeroLDPM :: DPM -> Property
+prop_AddZeroLDPM p = zeroP + p === p
 
--- prop_MulZeroRSPM :: SPM -> Property
--- prop_MulZeroRSPM p = p * zeroP === zeroP
+prop_MulZeroRDPM :: DPM -> Property
+prop_MulZeroRDPM p = p * zeroP === zeroP
 
--- prop_MulZeroLSPM :: SPM -> Property
--- prop_MulZeroLSPM p = zeroP * p === zeroP
+prop_MulZeroLDPM :: DPM -> Property
+prop_MulZeroLDPM p = zeroP * p === zeroP
 
--- prop_NegNegSPM :: SPM -> Property
--- prop_NegNegSPM p = -(-p) === p
+prop_MulCommDPM :: DPM -> DPM -> Property
+prop_MulCommDPM p q = p * q === q * p
 
--- prop_OneRSPM :: SPM -> Property
--- prop_OneRSPM p = p * constP 1 === p
+prop_NegNegDPM :: DPM -> Property
+prop_NegNegDPM p = -(-p) === p
 
--- prop_OneLSPM :: SPM -> Property
--- prop_OneLSPM p = (constP 1) * p === p
+prop_AddNegDPM :: DPM -> Property
+prop_AddNegDPM p = p - p === zeroP
 
--- -- within: prop fails if it does not complete within the given number of microseconds.
--- prop_MulCommSPM :: SPM -> SPM -> Property
--- prop_MulCommSPM p q = within 100000 $ p * q === q * p
+prop_OneRDPM :: DPM -> Property
+prop_OneRDPM p = p * constP 1 === p
 
--- prop_DistLSPM :: SPM -> SPM -> SPM -> Property
--- prop_DistLSPM p q r = within 100000 $ p*(q+r) === p*q + p*r
+prop_OneLDPM :: DPM -> Property
+prop_OneLDPM p = (constP 1) * p === p
 
--- prop_ShiftLSPM :: NonNegative(Small Int) -> SPM -> SPM -> Property
--- prop_ShiftLSPM (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
+prop_DistLDPM :: DPM -> DPM -> DPM -> Property
+prop_DistLDPM p q r = p * (q + r) === p * q + p * r
 
--- prop_EqSPM :: SPM -> SPM -> Property
--- prop_EqSPM p q = (p == q) === (q == p)
+prop_ShiftLDPM :: NonNegative(Small Int) -> DPM -> DPM -> Property
+prop_ShiftLDPM (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
 
--- is_canonic_SPM :: SPM -> Property
--- is_canonic_SPM (S []) = True ==> True
--- is_canonic_SPM (S l) =
---   let mapped = map fst l in
---   let sorted = Data.List.sort mapped in
---   True ==> (mapped == reverse sorted && not (or [x == y | (x, y) <- zip mapped (tail mapped)]) && snd (head l) /= 0)
+prop_EqDPM :: DPM -> DPM -> Property
+prop_EqDPM p q = (p == q) === (q == p)
 
--- prop_add_canonic_SPM :: SPM -> SPM -> Property
--- prop_add_canonic_SPM p q = is_canonic_SPM (p + q)
--- prop_mul_canonic_SPM :: SPM -> SPM -> Property
--- prop_mul_canonic_SPM p q = is_canonic_SPM (p * q)
--- prop_sub_canonic_SPM :: SPM -> SPM -> Property
--- prop_sub_canonic_SPM p q = is_canonic_SPM (p - q)
--- prop_neg_canonic_SPM :: SPM -> Property
--- prop_neg_canonic_SPM p = is_canonic_SPM (-p)
--- prop_const_canonic_SPM :: IntModulo -> Property
--- prop_const_canonic_SPM c = is_canonic_SPM (constP c)
--- prop_shift_canonic_SPM :: Int -> SparsePoly IntModulo -> Property
--- prop_shift_canonic_SPM n p = is_canonic_SPM (shiftP n p)
+is_canonic_DPM :: DPM -> Property
+is_canonic_DPM (P []) = True ==> True
+is_canonic_DPM (P l) = True ==> last l /= 0
 
--- prop_Fmap_id_SPM :: SPM -> Property
--- prop_Fmap_id_SPM p = p === fmap id p
+
+prop_Fmap_id_DPM :: DPM -> Property
+prop_Fmap_id_DPM p = p === (fmap id p)
+
+-- SPM
+
+prop_AddCommSPM :: SPM -> SPM -> Property
+prop_AddCommSPM p q = within 100000 $ p + q === q + p
+
+prop_AddZeroRSPM :: SPM -> Property
+prop_AddZeroRSPM p = p + zeroP === p
+
+prop_AddZeroLSPM :: SPM -> Property
+prop_AddZeroLSPM p = zeroP + p === p
+
+prop_MulZeroRSPM :: SPM -> Property
+prop_MulZeroRSPM p = p * zeroP === zeroP
+
+prop_MulZeroLSPM :: SPM -> Property
+prop_MulZeroLSPM p = zeroP * p === zeroP
+
+prop_NegNegSPM :: SPM -> Property
+prop_NegNegSPM p = -(-p) === p
+
+prop_OneRSPM :: SPM -> Property
+prop_OneRSPM p = p * constP 1 === p
+
+prop_OneLSPM :: SPM -> Property
+prop_OneLSPM p = (constP 1) * p === p
+
+-- within: prop fails if it does not complete within the given number of microseconds.
+prop_MulCommSPM :: SPM -> SPM -> Property
+prop_MulCommSPM p q = within 100000 $ p * q === q * p
+
+prop_DistLSPM :: SPM -> SPM -> SPM -> Property
+prop_DistLSPM p q r = within 100000 $ p*(q+r) === p*q + p*r
+
+prop_ShiftLSPM :: NonNegative(Small Int) -> SPM -> SPM -> Property
+prop_ShiftLSPM (NonNegative (Small n)) p q = shiftP n p * q === shiftP n (p*q)
+
+prop_EqSPM :: SPM -> SPM -> Property
+prop_EqSPM p q = (p == q) === (q == p)
+
+is_canonic_SPM :: SPM -> Property
+is_canonic_SPM (S []) = True ==> True
+is_canonic_SPM (S l) =
+  let mapped = map fst l in
+  let sorted = Data.List.sort mapped in
+  True ==> (mapped == reverse sorted && not (or [x == y | (x, y) <- zip mapped (tail mapped)]) && snd (head l) /= 0)
+
+prop_add_canonic_SPM :: SPM -> SPM -> Property
+prop_add_canonic_SPM p q = is_canonic_SPM (p + q)
+prop_mul_canonic_SPM :: SPM -> SPM -> Property
+prop_mul_canonic_SPM p q = is_canonic_SPM (p * q)
+prop_sub_canonic_SPM :: SPM -> SPM -> Property
+prop_sub_canonic_SPM p q = is_canonic_SPM (p - q)
+prop_neg_canonic_SPM :: SPM -> Property
+prop_neg_canonic_SPM p = is_canonic_SPM (-p)
+prop_const_canonic_SPM :: IntModulo -> Property
+prop_const_canonic_SPM c = is_canonic_SPM (constP c)
+prop_shift_canonic_SPM :: Int -> SparsePoly IntModulo -> Property
+prop_shift_canonic_SPM n p = is_canonic_SPM (shiftP n p)
+
+prop_Fmap_id_SPM :: SPM -> Property
+prop_Fmap_id_SPM p = p === fmap id p
 
 
 -- Rational poly test
 
 type SPR = SparsePoly Rational
 
--- prop_qr1 :: SPR -> (NonZero SPR) -> Bool
--- prop_qr1 p (NonZero s) = p == q*s + r where (q,r) = qrP p s
+prop_qr1 :: SPR -> (NonZero SPR) -> Bool
+prop_qr1 p (NonZero s) = p == q*s + r where (q,r) = qrP p s
 
--- prop_qr2 :: SPR -> (NonZero SPR) -> Bool
--- prop_qr2 p (NonZero s) = degree r < degree s where (q,r) = qrP p s
+prop_qr2 :: SPR -> (NonZero SPR) -> Bool
+prop_qr2 p (NonZero s) = degree r < degree s where (q,r) = qrP p s
 
--- prop_qr_whole :: SPR -> (NonZero SPR) -> Bool
--- prop_qr_whole p (NonZero s) = r == 0 where (q, r) = qrP (p * s) s
+prop_qr_whole :: SPR -> (NonZero SPR) -> Bool
+prop_qr_whole p (NonZero s) = r == 0 where (q, r) = qrP (p * s) s
 
--- writeln :: String -> IO ()
--- writeln = putStrLn
+writeln :: String -> IO ()
+writeln = putStrLn
 
 -- Hic sunt leones
 
@@ -311,11 +311,11 @@ instance (Num a, Eq a, Arbitrary a) => Arbitrary (SparsePoly a) where
     s ((a,n):ps) = ps:[(a,n):ps' | S ps' <- shrink (S ps)]
 
 -- Handmade tests
--- prop_add_canonic_DP p q = is_canonic_DP (p + q)
--- prop_mul_canonic_DP p q = is_canonic_DP (p * q)
--- prop_sub_canonic_DP p q = is_canonic_DP (p - q)
--- prop_neg_canonic_DP p = is_canonic_DP (-p)
--- prop_const_canonic_DP c = is_canonic_DP (constP c)
+prop_add_canonic_DP p q = is_canonic_DP (p + q)
+prop_mul_canonic_DP p q = is_canonic_DP (p * q)
+prop_sub_canonic_DP p q = is_canonic_DP (p - q)
+prop_neg_canonic_DP p = is_canonic_DP (-p)
+prop_const_canonic_DP c = is_canonic_DP (constP c)
 
 handmade_DP_evalP_0 = TestCase (assertEqual "dp_eval_0" 1 (evalP (P [1, 2, 3]) 0))
 handmade_DP_evalP_1 = TestCase (assertEqual "dp_eval_1" (-2) (evalP (P [-2, 2, 3]) 0))
@@ -346,7 +346,7 @@ handmade_tests = TestList [
 return []
 runTests = do
   runTestTT handmade_tests
-  $forAllProperties (quickCheckResult . withMaxSuccess 1000)
+  $forAllProperties (quickCheckResult . withMaxSuccess 10000)
   
 
 main = runTests
