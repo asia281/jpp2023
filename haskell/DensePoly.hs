@@ -17,13 +17,14 @@ instance Polynomial DensePoly where
                 [] -> acc
                 pHead : pTail -> evalPAcc x pTail (acc * x + pHead)
     shiftP n (P pl) 
-        | pl == [] || n == 0 = (P pl)
-        | otherwise = shiftP (n-1) (P (0:pl))
+        | pl == [] || n == 0 = P (simplify pl)
+        | (n < 0) = P (simplify (drop (-n) pl))
+        | otherwise = shiftP (n-1) (P (0 : pl))
 
-    degree (P pl) = length(pl) - 1
+    degree (P pl) = length pl - 1
 
 simplify :: (Eq a, Num a) => [a] -> [a]
-simplify l = dropWhileEnd (0 ==) l
+simplify = dropWhileEnd (0 ==)
 
 add ::  (Eq a, Num a) => [a] -> [a] -> [a]
 add [] b = b
@@ -42,12 +43,11 @@ mul a b =
 
 instance (Eq a, Num a) => Num (DensePoly a) where
     (P al) + (P bl) = P (simplify (add al bl))
-    (P al) - (P bl) = (P al) + (negate (P bl))
     (P al) * (P bl) = P (simplify (mul al bl))
     negate (P al) = (constP (-1)) * (P al)
     abs = undefined
     signum = undefined
-    fromInteger i = constP (fromInteger i)
+    fromInteger = constP . fromInteger
 
 
 -- |

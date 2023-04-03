@@ -19,9 +19,9 @@ Operatory porównania: <, <=, >, >=, ==, !=.
 - Zmienne:
 [Type] [Id]
 lub
-[Type] [Id] := [Expr]
+[Type] [Id] = [Expr]
 
-Czyli zadeklarowanie zmiennej bez i z przypisaniem.
+Czyli zadeklarowanie zmiennej bez i z przypisaniem. Wyliczanie expressions będzie eager.
 W przypadku zadeklarowania bez przypisania, domyslne wartosci to:
 int = 0
 bool = false
@@ -29,7 +29,7 @@ string = ""
 list = []
 
 - Przypisanie:
-[Id] := [Expr]
+[Id] = [Expr]
 
 
 -------------------------------------------------------------------
@@ -54,7 +54,7 @@ else([condition]){
 
 -------------------------------------------------------------------
   06 (funkcje lub procedury, rekurencja)
-fun [Id]([argumenty]) -> TYP_ZWRACANY{
+fun [Id]([argumenty]) -> typ_zwracany{
 	[Stmt]
 }
 
@@ -78,19 +78,31 @@ Wtedy oczywiscie nalezy przekazywac nazwę zmiennej (Idyfikator), a nie wyrazeni
 Dwa rodzaje pętli for:
 for([var] in [Expr]){
   [Stmt]
-}
+};
 
 for([var] from [Expr] to [Expr]){
   [Stmt]
-}
+};
 
   Na 20 punktów
 -------------------------------------------------------------------
   09 (przesłanianie i statyczne wiązanie)
+Będzie.
 
 -------------------------------------------------------------------
   10 (obsługa błędów wykonania)
 Mozliwe bledy wykonania:
+  data RuntimeExceptions = NoReturnException 
+                            | ZeroDivisionException
+                            | OutOfRangeExeption Integer 
+                            | NoStructFieldException String deriving Show
+
+  data TypeCheckerExceptions = TypeCheckException Type Type 
+                            | DeclarationInvTypeException Type 
+                            | FuncArgsInvTypeException Type 
+                            | NotListException Type 
+                            | IdentifierNotExistException String 
+                            | ReturnTypeMismatchException (Maybe Type) (Maybe Type)  deriving Show
 
 -------------------------------------------------------------------
   11 (funkcje zwracające wartość)
@@ -103,16 +115,22 @@ Typowanie będzie statyczne.
 
 -------------------------------------------------------------------
   13 (2) (funkcje zagnieżdżone ze statycznym wiązaniem)
-
+Będą.
 -------------------------------------------------------------------
   14 (1/2) (rekordy/listy/tablice/tablice wielowymiarowe)
-  list<[typ]>
-  struct [Id]{ 
-    [elementy] 
-  }
+list<[typ]>
+struct [Id]{ 
+  [elementy] 
+}
+gdzie pojedynczy element to: [typ] [nazwa_zmiennej];
+
   15 (2) (krotki z przypisaniem)
   16 (1) (break, continue)
   17 (4) (funkcje wyższego rzędu, anonimowe, domknięcia)
+
+Funkcje anonimowe:
+lambda <([typ]) -> typ_zwracany>
+
   18 (3) (generatory)
 
 Razem: ...
