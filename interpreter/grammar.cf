@@ -29,7 +29,7 @@ Print.     Stmt ::= "print" "(" [Expr] ")" ;
 separator  Expr "," ;
 
 Return.    Stmt ::= "return" Expr ;
-ReturnVoIdent.   Stmt ::= "return" ;
+ReturnVoid.   Stmt ::= "return" ;
 Assign.    Stmt ::= Ident "=" Expr ;
 
 FunDef.    Stmt ::= "fun" Ident "(" [Arg] ")" "->" Type Block ;
@@ -102,9 +102,9 @@ comment    "{*" "*}" ;
 
 
 -- List operations -----------------------------------------
-ListPush.  Stmt ::= Ident "::" "push" "(" Expr ")" ;
-ListLen.   Expr5 ::= Expr6 "." "len" ;
-ListAt.    Expr5 ::= Expr6 "." "at" "(" Expr6 ")" ;
+SListPush.  Stmt ::= Ident "." "push" "(" Expr ")" ;
+EListLen.   Expr5 ::= Expr6 "." "len()" ;
+EListAt.    Expr5 ::= Expr6 "." "at" "(" Expr6 ")" ;
 
 
 -- Structs -------------------------------------------------

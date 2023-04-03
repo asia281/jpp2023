@@ -33,9 +33,10 @@ The reserved words used in grammar are the following:
   | ``and`` | ``at`` | ``bool`` | ``else``
   | ``false`` | ``for`` | ``from`` | ``fun``
   | ``if`` | ``in`` | ``int`` | ``lambda``
-  | ``list`` | ``not`` | ``or`` | ``print``
-  | ``push`` | ``return`` | ``string`` | ``struct``
-  | ``to`` | ``true`` | ``void`` | ``while``
+  | ``len`` | ``list`` | ``not`` | ``or``
+  | ``print`` | ``push`` | ``return`` | ``string``
+  | ``struct`` | ``to`` | ``true`` | ``void``
+  | ``while`` |  |  |
 
 The symbols used in grammar are the following:
   | { | } | ; | =
@@ -43,7 +44,7 @@ The symbols used in grammar are the following:
   | & | < | > | +
   | - | * | / | %
   | <= | >= | == | !=
-  | [] | . | len() |
+  | [] | :: | . |
 
 ===Comments===
 Single-line comments begin with #.Multiple-line comments are  enclosed with {* and *}.
@@ -74,7 +75,7 @@ All other symbols are terminals.
   |  |  **|**  | ``return``
   |  |  **|**  | //Ident// ``=`` //Expr//
   |  |  **|**  | ``fun`` //Ident// ``(`` //[Arg]// ``)`` ``->`` //Type// //Block//
-  |  |  **|**  | //Ident// ``.`` ``push`` ``(`` //Expr// ``)``
+  |  |  **|**  | //Ident// ``::`` ``push`` ``(`` //Expr// ``)``
   |  |  **|**  | ``struct`` //Ident// ``{`` //[StructItem]// ``}``
   | //Item// | -> | //Ident//
   |  |  **|**  | //Ident// ``=`` //Expr//
@@ -130,7 +131,7 @@ All other symbols are terminals.
   | //Expr5// | -> | ``-`` //Expr6//
   |  |  **|**  | ``not`` //Expr6//
   |  |  **|**  | //Expr6//
-  |  |  **|**  | //Expr6// ``.`` ``len()``
+  |  |  **|**  | //Expr6// ``.`` ``len``
   |  |  **|**  | //Expr6// ``.`` ``at`` ``(`` //Expr6// ``)``
   | //Expr6// | -> | //Expr6// ``(`` //[ExprOrRef]// ``)``
   |  |  **|**  | //Expr7//

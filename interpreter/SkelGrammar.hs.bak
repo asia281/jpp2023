@@ -41,7 +41,7 @@ transStmt x = case x of
   AbsGrammar.ReturnVoid -> failure x
   AbsGrammar.Assign ident expr -> failure x
   AbsGrammar.FunDef ident args type_ block -> failure x
-  AbsGrammar.SListPush ident expr -> failure x
+  AbsGrammar.ListPush ident expr -> failure x
   AbsGrammar.StructDef ident structitems -> failure x
 
 transItem :: AbsGrammar.Item -> Result
@@ -106,8 +106,8 @@ transExpr x = case x of
   AbsGrammar.EEmptyList type_ -> failure x
   AbsGrammar.EString string -> failure x
   AbsGrammar.ELambda ident args type_ block -> failure x
-  AbsGrammar.EListLen expr -> failure x
-  AbsGrammar.EListAt expr1 expr2 -> failure x
+  AbsGrammar.ListLen expr -> failure x
+  AbsGrammar.ListAt expr1 expr2 -> failure x
 
 transExprOrRef :: AbsGrammar.ExprOrRef -> Result
 transExprOrRef x = case x of

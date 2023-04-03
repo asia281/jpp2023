@@ -11,4 +11,3 @@ module Memory where
     import Types
 
     -- create funcs to use memory
-    

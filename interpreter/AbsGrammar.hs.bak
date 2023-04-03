@@ -29,7 +29,7 @@ data Stmt
     | ReturnVoid
     | Assign Ident Expr
     | FunDef Ident [Arg] Type Block
-    | SListPush Ident Expr
+    | ListPush Ident Expr
     | StructDef Ident [StructItem]
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
@@ -77,8 +77,8 @@ data Expr
     | EEmptyList Type
     | EString String
     | ELambda Ident [Arg] Type Block
-    | EListLen Expr
-    | EListAt Expr Expr
+    | ListLen Expr
+    | ListAt Expr Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data ExprOrRef = EorRExpr Expr | EorRRef Ident

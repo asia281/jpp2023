@@ -114,7 +114,7 @@ Stmt
   | 'return' { AbsGrammar.ReturnVoid }
   | Ident '=' Expr { AbsGrammar.Assign $1 $3 }
   | 'fun' Ident '(' ListArg ')' '->' Type Block { AbsGrammar.FunDef $2 $4 $7 $8 }
-  | Ident '.' 'push' '(' Expr ')' { AbsGrammar.SListPush $1 $5 }
+  | Ident '.' 'push' '(' Expr ')' { AbsGrammar.ListPush $1 $5 }
   | 'struct' Ident '{' ListStructItem '}' { AbsGrammar.StructDef $2 $4 }
 
 Item :: { AbsGrammar.Item }
@@ -212,8 +212,8 @@ Expr5
   : '-' Expr6 { AbsGrammar.ENeg $2 }
   | 'not' Expr6 { AbsGrammar.ENot $2 }
   | Expr6 { $1 }
-  | Expr6 '.' 'len()' { AbsGrammar.EListLen $1 }
-  | Expr6 '.' 'at' '(' Expr6 ')' { AbsGrammar.EListAt $1 $5 }
+  | Expr6 '.' 'len()' { AbsGrammar.ListLen $1 }
+  | Expr6 '.' 'at' '(' Expr6 ')' { AbsGrammar.ListAt $1 $5 }
 
 Expr6 :: { AbsGrammar.Expr }
 Expr6

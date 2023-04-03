@@ -25,7 +25,7 @@ module Types where
     type TypeToPass = (Type, PassArgType)
 
     -- Argument passed to function (name, type of variable, way of passing argument)
-    type FunArg = (VariableName, Type, PassArgType)
+    type FunArg = (Name, Type, PassArgType)
     -- list of arguments passed to function
     type FunArgList = [FunArg]
 
@@ -38,7 +38,7 @@ module Types where
 
 -- Memory
     -- mapping from Loc to value in memory
-    type State = Map.Map Loc VMemory
+    type StateInMemory = Map.Map Loc VMemory
 
     -- type for value in memory
     data VMemory = VBool Bool 
@@ -51,7 +51,7 @@ module Types where
                 | VStructType StructType deriving Show
 
     -- state in memory, next free location and 
-    data Store = (State, Loc)
+    type Store = (StateInMemory, Loc)
 
 -- Exceptions
     data RuntimeExceptions = NoReturnException 
