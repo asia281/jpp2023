@@ -15,7 +15,6 @@ module TypeChecker where
     checkTypeExpr e t = checkType (evalExprType e) t
 
 
-    
     evalExprType :: Expr -> TypeCheck Type
 
 -- base
@@ -91,6 +90,11 @@ module TypeChecker where
         checkTypeExpr TInt end 
         checkTypeOfId TInt id
         check stmt
+        
+    check (For id list stmt) = do
+        checkTypeExpr TList<TInt> list  
+        checkTypeOfId TInt id
+        check stmt 
 
     check (While cond expr) = do
         checkTypeExpr TBool cond
@@ -135,7 +139,7 @@ module TypeChecker where
         returnOk
 
 -- Check number of 
-    isValidVType :: Type -> Bool -> TT Bool
+    isValidVType :: Type -> Bool -> TypeCheck Bool
     isValidVarType 
         | TInt _ | TBool _ | isValidVarType TString = return True
         | TList {} _ = return True
