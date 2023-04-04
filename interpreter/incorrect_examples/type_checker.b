@@ -29,3 +29,5 @@ test(v7);
 
 fun fun_void_2(& int y) -> void { };
 fun_void_2(& v7)
+
+string v9 = 5;

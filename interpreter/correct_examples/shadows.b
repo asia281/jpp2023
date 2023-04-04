@@ -11,7 +11,7 @@ fun parity(int x) -> bool {
 
 bool par2 = parity(11);
 
-print(par1, par2);
+printEndl(par1, par2);
 
 fun parity(& int x) -> bool {
     x = 5;

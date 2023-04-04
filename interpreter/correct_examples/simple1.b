@@ -19,8 +19,7 @@ else {
 	}
 }
 
-print (x - 1);
-print ("\n");
+printEndl (x - 1);
 
 while (x - 1 < 15) {
 	x = x + 1;

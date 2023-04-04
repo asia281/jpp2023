@@ -14,8 +14,7 @@ module ExecStmt where
     import EvalExpr
 
 
-
--- STMT --
+    execStmt :: Stmt -> Interpreter (Env, ReturnRes)
 
 -- print
     execStmt (Print e) = 
@@ -31,7 +30,7 @@ module ExecStmt where
         env <- ask
         return (env, Nothing)
 
-    evalStmt :: Stmt -> Interpreter (Env, ReturnRes)
+    
 
     interpretAll :: [Stmt] -> Interpreter (Env, ReturnRes)
     interpretAll [] = returnNothing

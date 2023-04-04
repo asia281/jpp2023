@@ -11,7 +11,7 @@ fun factorial(int x) -> int {
 }
 
 int fac = factorial(6);
-print(fac, "\n");
+printEndl(fac);
 
 fun mult_3(int x, int exp) -> int {
     int i;

@@ -18,8 +18,7 @@ fun printer(Fun< bool->int > cond) -> void{
 	int i;
 	for(i from -5 to 5){
 		if (cond(i)){
-			print(i);
-			print(" ");
+			printEndl(i);
 		};
 	};	
 };
