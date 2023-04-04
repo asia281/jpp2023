@@ -18,10 +18,13 @@ module ExecStmt where
 -- STMT --
 
 -- print
-    execStmt (Print e) = do
-        expr <- evalExpr e
-        liftIO $ putStr (memToString expr)
-        returnNothing
+    execStmt (Print e) = 
+        case e of
+            [] -> returnNothing
+            h:t -> do
+                expr <- evalExpr h
+                liftIO $ putStr (memToString expr)
+                execStmt (Print t)
 
     returnNothing :: Interpreter (Env, ReturnRes)
     returnNothing = do

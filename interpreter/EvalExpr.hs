@@ -97,4 +97,3 @@ module EvalExpr(evalExpr) where
     --     argsList <- mapM argToFunArg args
     --     captureGroup <- mapM constructCaptureGroup capture
     --     return $ FunVal (stmts, Map.empty, argsList, returnType, captureGroup)
-

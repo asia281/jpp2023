@@ -6,7 +6,7 @@ module Main where
     import System.Environment ( getArgs, getProgName )
     import System.Exit ( exitFailure, exitSuccess )
     import Control.Exception (catch, IOException)
-    import Control.Monad.Error.Class (MonadError)
+    import Control.Monad.Error.Class (throwError)
 
     import Interpreter
     import TypeChecker

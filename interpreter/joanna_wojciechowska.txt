@@ -44,6 +44,11 @@ while([condition]){
 	[Stmt]
 }
 
+if([condition]){ 
+	[Stmt]
+}
+
+oraz
 
 if([condition]){ 
 	[Stmt]
@@ -78,6 +83,12 @@ Wtedy oczywiscie nalezy przekazywac nazwę zmiennej (Idyfikator), a nie wyrazeni
 Pętla for:
 
 for([var] from [Expr] to [Expr]){
+  [Stmt]
+}
+
+and for in list:
+
+for([var] in [Expr]){
   [Stmt]
 };
 
@@ -132,7 +143,5 @@ Funkcje wyzszego rzedu (funkcje jako parametry) będą.
 
   18 (3) (generatory)
 
-  19 Inne: makra
-
   
-Razem: ...
+Razem: 30
