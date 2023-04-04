@@ -75,10 +75,7 @@ Wtedy oczywiscie nalezy przekazywac nazwę zmiennej (Idyfikator), a nie wyrazeni
 
 -------------------------------------------------------------------
   08 (zmienne read-only i/lub pętla for)
-Dwa rodzaje pętli for:
-for([var] in [Expr]){
-  [Stmt]
-};
+Pętla for:
 
 for([var] from [Expr] to [Expr]){
   [Stmt]
@@ -131,6 +128,11 @@ gdzie pojedynczy element to: [typ] [nazwa_zmiennej];
 Funkcje anonimowe:
 lambda <([typ]) -> typ_zwracany>
 
+Funkcje wyzszego rzedu (funkcje jako parametry) będą.
+
   18 (3) (generatory)
 
+  19 Inne: makra
+
+  
 Razem: ...

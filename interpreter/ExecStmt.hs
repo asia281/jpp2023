@@ -39,4 +39,4 @@ module ExecStmt where
                 else
                     return (env, ret)
 
-    runProg prog = runExceptT $ runStateT (runReaderT (interpretMany prog) Map.empty) (Map.empty, 0)
+    runProg prog = runExceptT $ runStateT (runReaderT (interpretAll prog) Map.empty) (Map.empty, 0)
