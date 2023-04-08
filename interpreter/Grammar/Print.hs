@@ -262,9 +262,14 @@ instance Print Grammar.Abs.Expr where
     Grammar.Abs.EFalse -> prPrec i 7 (concatD [doc (showString "false")])
     Grammar.Abs.EEmptyList type_ -> prPrec i 7 (concatD [prt 0 type_, doc (showString "[]")])
     Grammar.Abs.EString str -> prPrec i 7 (concatD [printString str])
-    Grammar.Abs.ELambda id_ typeorrefs type_ block -> prPrec i 7 (concatD [doc (showString "lambda"), prt 0 id_, doc (showString "("), prt 0 typeorrefs, doc (showString ")"), doc (showString "->"), prt 0 type_, prt 0 block])
+    Grammar.Abs.ELambda ids typeorrefs type_ block -> prPrec i 7 (concatD [doc (showString "["), prt 0 ids, doc (showString "]"), doc (showString "("), prt 0 typeorrefs, doc (showString ")"), doc (showString "->"), prt 0 type_, prt 0 block])
     Grammar.Abs.EListLen expr -> prPrec i 5 (concatD [prt 6 expr, doc (showString "."), doc (showString "len()")])
     Grammar.Abs.EListAt expr1 expr2 -> prPrec i 5 (concatD [prt 6 expr1, doc (showString "."), doc (showString "at"), doc (showString "("), prt 6 expr2, doc (showString ")")])
+
+instance Print [Grammar.Abs.Ident] where
+  prt _ [] = concatD []
+  prt _ [x] = concatD [prt 0 x]
+  prt _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
 
 instance Print Grammar.Abs.ExprOrRef where
   prt i = \case

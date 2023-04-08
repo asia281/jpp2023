@@ -42,34 +42,36 @@ import Grammar.Lex
   '=='     { PT _ (TS _ 17) }
   '>'      { PT _ (TS _ 18) }
   '>='     { PT _ (TS _ 19) }
-  '[]'     { PT _ (TS _ 20) }
-  'and'    { PT _ (TS _ 21) }
-  'at'     { PT _ (TS _ 22) }
-  'bool'   { PT _ (TS _ 23) }
-  'else'   { PT _ (TS _ 24) }
-  'false'  { PT _ (TS _ 25) }
-  'for'    { PT _ (TS _ 26) }
-  'from'   { PT _ (TS _ 27) }
-  'fun'    { PT _ (TS _ 28) }
-  'if'     { PT _ (TS _ 29) }
-  'in'     { PT _ (TS _ 30) }
-  'int'    { PT _ (TS _ 31) }
-  'lambda' { PT _ (TS _ 32) }
-  'len()'  { PT _ (TS _ 33) }
-  'list'   { PT _ (TS _ 34) }
-  'not'    { PT _ (TS _ 35) }
-  'or'     { PT _ (TS _ 36) }
-  'print'  { PT _ (TS _ 37) }
-  'push'   { PT _ (TS _ 38) }
-  'return' { PT _ (TS _ 39) }
-  'string' { PT _ (TS _ 40) }
-  'struct' { PT _ (TS _ 41) }
-  'to'     { PT _ (TS _ 42) }
-  'true'   { PT _ (TS _ 43) }
-  'void'   { PT _ (TS _ 44) }
-  'while'  { PT _ (TS _ 45) }
-  '{'      { PT _ (TS _ 46) }
-  '}'      { PT _ (TS _ 47) }
+  '['      { PT _ (TS _ 20) }
+  '[]'     { PT _ (TS _ 21) }
+  ']'      { PT _ (TS _ 22) }
+  'and'    { PT _ (TS _ 23) }
+  'at'     { PT _ (TS _ 24) }
+  'bool'   { PT _ (TS _ 25) }
+  'else'   { PT _ (TS _ 26) }
+  'false'  { PT _ (TS _ 27) }
+  'for'    { PT _ (TS _ 28) }
+  'from'   { PT _ (TS _ 29) }
+  'fun'    { PT _ (TS _ 30) }
+  'if'     { PT _ (TS _ 31) }
+  'in'     { PT _ (TS _ 32) }
+  'int'    { PT _ (TS _ 33) }
+  'lambda' { PT _ (TS _ 34) }
+  'len()'  { PT _ (TS _ 35) }
+  'list'   { PT _ (TS _ 36) }
+  'not'    { PT _ (TS _ 37) }
+  'or'     { PT _ (TS _ 38) }
+  'print'  { PT _ (TS _ 39) }
+  'push'   { PT _ (TS _ 40) }
+  'return' { PT _ (TS _ 41) }
+  'string' { PT _ (TS _ 42) }
+  'struct' { PT _ (TS _ 43) }
+  'to'     { PT _ (TS _ 44) }
+  'true'   { PT _ (TS _ 45) }
+  'void'   { PT _ (TS _ 46) }
+  'while'  { PT _ (TS _ 47) }
+  '{'      { PT _ (TS _ 48) }
+  '}'      { PT _ (TS _ 49) }
   L_Ident  { PT _ (TV $$)   }
   L_integ  { PT _ (TI $$)   }
   L_quoted { PT _ (TL $$)   }
@@ -229,8 +231,14 @@ Expr7
   | 'false' { Grammar.Abs.EFalse }
   | Type '[]' { Grammar.Abs.EEmptyList $1 }
   | String { Grammar.Abs.EString $1 }
-  | 'lambda' Ident '(' ListTypeOrRef ')' '->' Type Block { Grammar.Abs.ELambda $2 $4 $7 $8 }
+  | '[' ListIdent ']' '(' ListTypeOrRef ')' '->' Type Block { Grammar.Abs.ELambda $2 $5 $8 $9 }
   | '(' Expr ')' { $2 }
+
+ListIdent :: { [Grammar.Abs.Ident] }
+ListIdent
+  : {- empty -} { [] }
+  | Ident { (:[]) $1 }
+  | Ident ',' ListIdent { (:) $1 $3 }
 
 ExprOrRef :: { Grammar.Abs.ExprOrRef }
 ExprOrRef

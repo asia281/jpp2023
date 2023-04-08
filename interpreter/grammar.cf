@@ -81,6 +81,7 @@ EFalse.    Expr7 ::= "false" ;
 EEmptyList. Expr7 ::= Type "[]" ;
 EString.   Expr7 ::= String;
 ELambda.   Expr7 ::= "[" [Ident] "]" "(" [TypeOrRef] ")" "->" Type Block ;
+separator  Ident "," ;
 
 
 coercions  Expr 7 ;

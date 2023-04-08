@@ -43,10 +43,11 @@ The symbols used in grammar are the following:
   | & | < | > | +
   | - | * | / | %
   | <= | >= | == | !=
-  | [] | . | len() |
+  | [] | [ | ] | .
+  | len() |  |  |
 
 ===Comments===
-Single-line comments begin with #.Multiple-line comments are  enclosed with {* and *}.
+Single-line comments begin with #, //.Multiple-line comments are  enclosed with {* and *}.
 
 ==The syntactic structure of grammar==
 Non-terminals are enclosed between < and >.
@@ -140,8 +141,11 @@ All other symbols are terminals.
   |  |  **|**  | ``false``
   |  |  **|**  | //Type// ``[]``
   |  |  **|**  | //String//
-  |  |  **|**  | ``lambda`` //Ident// ``(`` //[TypeOrRef]// ``)`` ``->`` //Type// //Block//
+  |  |  **|**  | ``[`` //[Ident]// ``]`` ``(`` //[TypeOrRef]// ``)`` ``->`` //Type// //Block//
   |  |  **|**  | ``(`` //Expr// ``)``
+  | //[Ident]// | -> | **eps**
+  |  |  **|**  | //Ident//
+  |  |  **|**  | //Ident// ``,`` //[Ident]//
   | //ExprOrRef// | -> | //Expr//
   |  |  **|**  | ``&`` //Ident//
   | //[ExprOrRef]// | -> | **eps**
