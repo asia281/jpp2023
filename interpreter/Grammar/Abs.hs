@@ -4,7 +4,7 @@
 
 -- | The abstract syntax of language grammar.
 
-module AbsGrammar where
+module Grammar.Abs where
 
 import Prelude (Integer, String)
 import qualified Prelude as C (Eq, Ord, Show, Read)
@@ -18,12 +18,12 @@ data Block = Block [Stmt]
 
 data Stmt
     = Decl Type Item
-    | SExp Expr
+    | SExpr Expr
     | If Expr Block
     | IfElse Expr Block Block
     | While Expr Block
     | For Ident Expr Expr Block
-    | ForIn Ident Expr Block
+    | ForInList Ident Expr Block
     | Print [Expr]
     | Return Expr
     | ReturnVoid
@@ -46,7 +46,7 @@ data Type
     | TVoid
     | TList Type
     | TStruct Ident
-    | TFun [TypeOrRef] Type
+    | TLambda [TypeOrRef] Type
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data TypeOrRef = TRType Type | TRRef Type
@@ -76,7 +76,7 @@ data Expr
     | EFalse
     | EEmptyList Type
     | EString String
-    | ELambda Ident [Arg] Type Block
+    | ELambda Ident [TypeOrRef] Type Block
     | EListLen Expr
     | EListAt Expr Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)

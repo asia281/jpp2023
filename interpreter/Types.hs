@@ -1,5 +1,5 @@
 module Types where
-    import AbsGrammar
+    import Grammar.Abs
 
     import Data.Map as Map
     import Data.Maybe
@@ -15,7 +15,7 @@ module Types where
     -- Environment maps variable or function name to location
     type Env = Map.Map Name Loc
 
-    -- Return value of block of statements, no return = nothing, otherwise = Just MemVal 
+    -- Return value of block of statements, no return = nothing, otherwise = Just VMemory 
     type ReturnRes = Maybe VMemory
 
     -- How to pass an argument to function
@@ -30,7 +30,7 @@ module Types where
     type FunArgList = [FunArg]
 
     -- Function - function body, environment of function, return type
-    type FuncDef = ([Stmt], Env, FunArgList, Type)
+    type FuncDef = (FunArgList, Type, [Stmt], Env)
 
     -- List definition - hold type and list of values
     type ListDef = (Type, [VMemory])
@@ -45,7 +45,7 @@ module Types where
                 | VInt Integer 
                 | VString String 
                 | VVoid 
-                | FunVal FuncDef 
+                | VFun FuncDef 
                 | VList ListDef 
                 | VStruct StructDef 
                 | VStructType StructType deriving Show

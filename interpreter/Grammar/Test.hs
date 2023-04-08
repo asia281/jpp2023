@@ -18,11 +18,11 @@ import System.Environment ( getArgs )
 import System.Exit        ( exitFailure )
 import Control.Monad      ( when )
 
-import AbsGrammar   ()
-import LexGrammar   ( Token, mkPosToken )
-import ParGrammar   ( pProgram, myLexer )
-import PrintGrammar ( Print, printTree )
-import SkelGrammar  ()
+import Grammar.Abs   ()
+import Grammar.Lex   ( Token, mkPosToken )
+import Grammar.Par   ( pProgram, myLexer )
+import Grammar.Print ( Print, printTree )
+import Grammar.Skel  ()
 
 type Err        = Either String
 type ParseFun a = [Token] -> Err a

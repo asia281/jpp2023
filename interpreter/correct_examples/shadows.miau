@@ -2,7 +2,6 @@ fun parity(int x) -> bool {
     return x % 2 == 1;
 };
 
-
 bool par1 = parity(11);
 
 fun parity(int x) -> bool {

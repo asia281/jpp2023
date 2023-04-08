@@ -8,36 +8,61 @@ module Main where
     import Control.Exception (catch, IOException)
     import Control.Monad.Error.Class (throwError)
 
-    import Interpreter
-    import TypeChecker
     import Types
 
-    import ParGrammar
-    import AbsGrammar
-    import ErrM
+    import Grammar.Par
+    import Grammar.Abs
+    import Grammar.ErrM
+    import Control.Monad.Reader
+    import qualified Data.Map as Map
+    import Data.Maybe
+    import TypeChecker
+    import ExecStmt
 
-    data ParseErr a = {location:Int, reason:String}
-    type Error a = Either ParseErr a
+
+    -- data ParseErr a = {location:Int, reason:String}
+    -- type Error a = Either ParseErr a
 
 
-    exitWithErr :: String -> IO ()
-    exitWithErr msg  = do
-        hPutStrLn stderr msg
-        exitFailure
+    -- exitWithErr :: String -> IO ()
+    -- exitWithErr msg  = do
+    --     hPutStrLn stderr msg
+    --     exitFailure
 
-#    gauntlet :: => m (a, b, c)
+    printTypeCheckError :: TypeCheckerExceptions -> [Char]
+    printTypeCheckError error =
+        case error of
+            TypeCheckException t1 t2 -> "Mismatch in types, expected: " ++ show t1 ++ ", got: " ++ show t2
+            DeclarationInvTypeException t -> "Wrong type of a declared element: " ++ show t
+            FuncArgsInvTypeException t -> "Wrong type of argument in function: " ++ show t
+            NotListException t -> "Element is not a list: " ++ show t
+            IdentifierNotExistException str -> "No such identifier: " ++ show str 
+            ReturnTypeMismatchException t1 t2 -> "Mismatch in returned type, expected: " ++ show t1 ++ ", got: " ++ show t2
 
-    parse :: MonadError Error m => String -> m IO ()
-    parse error input = 
+    printRuntimeError :: RuntimeExceptions -> String
+    printRuntimeError error =
+        case error of
+            NoReturnException -> "Missing return."
+            ZeroDivisionException -> "Division by zero."
+            OutOfRangeExeption i -> "Out of range:" ++ show i
+           -- | NoStructFieldException String deriving Show
 
-    convert :: String -> String convert s = str where
-    (Right str) = tryParse s ‘catchError‘ returnError tryParse s = do {n <- parse s; return $ show n}
-    returnError :: ParseError -> Result String 
-    returnError (Error loc msg) = return $ concat ["At position ",show loc,":",msg]
+    run p = do
+        check <- runProgramCheck p
+        case check of
+            (Left err) -> error (printTypeCheckError err)
+            (Right _) -> runProgram p
 
     main :: IO ()
     main = do
-        args <- getArgs
-        
-        Left  (Error e) -> "Error: " ++ e
-        Right result    -> "successfully doing thing with result"
+        file <- getArgs
+        case file of
+            [] -> error "No args provided!"
+            file:_ -> do
+                program <- readFile file
+                let parser = pProgram . myLexer
+                case parser program of
+                    Ok (Program p) -> do
+                        run p
+                        return ()
+                    Bad e -> error e

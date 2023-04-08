@@ -14,7 +14,7 @@ separator nonempty Item "," ;
 
 
 separator  Stmt ";" ;
-SExp.      Stmt ::= Expr ;
+SExpr.      Stmt ::= Expr ;
 
 If.        Stmt ::= "if" "(" Expr ")" Block ;
 IfElse.    Stmt ::= "if" "(" Expr ")" Block "else" Block ;
@@ -80,7 +80,7 @@ ETrue.     Expr7 ::= "true" ;
 EFalse.    Expr7 ::= "false" ;
 EEmptyList. Expr7 ::= Type "[]" ;
 EString.   Expr7 ::= String;
-ELambda.   Expr7 ::= "lambda" Ident "(" [TypeOrRef] ")" "->" Type Block ;
+ELambda.   Expr7 ::= "[" [Ident] "]" "(" [TypeOrRef] ")" "->" Type Block ;
 
 
 coercions  Expr 7 ;
@@ -90,10 +90,6 @@ separator  Expr "," ;
 EorRExpr.	   ExprOrRef ::= Expr ;
 EorRRef.	   ExprOrRef ::= "&" Ident ;
 separator      ExprOrRef "," ;
-
--- Comments ------------------------------------------------
-comment    "#" ;
-comment    "{*" "*}" ;
 
 
 -- List operations -----------------------------------------
@@ -109,3 +105,8 @@ StructItem. StructItem ::= Type Ident ;
 separator StructItem ";" ;
 
 
+
+-- Comments ------------------------------------------------
+comment    "#" ;
+comment    "//" ;
+comment    "{*" "*}" ;

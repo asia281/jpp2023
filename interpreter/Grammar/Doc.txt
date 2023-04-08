@@ -140,7 +140,7 @@ All other symbols are terminals.
   |  |  **|**  | ``false``
   |  |  **|**  | //Type// ``[]``
   |  |  **|**  | //String//
-  |  |  **|**  | ``lambda`` //Ident// ``(`` //[Arg]// ``)`` ``->`` //Type// //Block//
+  |  |  **|**  | ``lambda`` //Ident// ``(`` //[TypeOrRef]// ``)`` ``->`` //Type// //Block//
   |  |  **|**  | ``(`` //Expr// ``)``
   | //ExprOrRef// | -> | //Expr//
   |  |  **|**  | ``&`` //Ident//

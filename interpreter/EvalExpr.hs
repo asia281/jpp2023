@@ -1,5 +1,5 @@
 module EvalExpr(evalExpr) where
-    import AbsGrammar
+    import Grammar.Abs
 
     import Data.Map as Map
     import Data.Maybe
@@ -30,12 +30,12 @@ module EvalExpr(evalExpr) where
     evalRelOp LE e1 e2 = e1 <= e2
     evalRelOp GTH e1 e2 = e1 > e2
     evalRelOp GE e1 e2 = e1 >= e2
-    evalRelOp EQ e1 e2 = e1 == e2
+    evalRelOp Grammar.Abs.EQ e1 e2 = e1 == e2
     evalRelOp NEQ e1 e2 = e1 /= e2
 
     evalExpr :: Expr -> Interpreter VMemory
 
-    evalExpr (EVar ident) = readFromMemory ident
+    evalExpr (EVar ident) = getVFromIdent ident
     evalExpr ETrue = return $ VBool True
     evalExpr EFalse = return $ VBool False
     evalExpr (EInt var) = return $ VInt var
@@ -68,27 +68,31 @@ module EvalExpr(evalExpr) where
         VInt done2 <- evalExpr e2
         return $ VInt $ evalAddOp op done1 done2
 
-    evalExpr (Neg e) = do
+    evalExpr (ENeg e) = do
         VInt done <- evalExpr e 
         return $ VInt $ -done
 
-    evalExpr (EMul e1 op e2)
-        | e2 == 0 && (op == Div || op == Mod) = throwError ZeroDivisionException
-        | return $ VInt $ evalMulOp op (evalExpr e1) (evalExpr e2)
+    evalExpr (EMul e1 op e2) = do
+        VInt done1 <- evalExpr e1 
+        VInt done2 <- evalExpr e2
+        if done2 == 0 && (op == Div || op == Mod) then 
+            throwError ZeroDivisionException 
+        else 
+            return $ VInt $ evalMulOp op done1 done2
 
 
 -- lists
-    evalExpr (ListLen l) = do
+    evalExpr (EListLen l) = do
         VList (_, elems) <- evalExpr l
-        return $ VInt $ length elems
+        return $ VInt $ fromIntegral $ length elems
 
-    evalExpr (ListAt l pos) = do
+    evalExpr (EListAt l pos) = do
         VInt idx <- evalExpr pos
         VList (_, elems) <- evalExpr l
-        if idx < 0 || length elems >= idx then
+        if idx < 0 || length elems >= fromIntegral idx then
             throwError $ OutOfRangeExeption idx
-
-        return $ elems !! idx
+        else 
+            return $ elems !! fromIntegral idx
 
 -- structs
 
