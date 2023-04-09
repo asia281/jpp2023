@@ -34,8 +34,9 @@ The reserved words used in grammar are the following:
   | ``false`` | ``for`` | ``from`` | ``fun``
   | ``if`` | ``in`` | ``int`` | ``lambda``
   | ``list`` | ``not`` | ``or`` | ``print``
-  | ``push`` | ``return`` | ``string`` | ``struct``
-  | ``to`` | ``true`` | ``void`` | ``while``
+  | ``printEndl`` | ``push`` | ``return`` | ``string``
+  | ``struct`` | ``to`` | ``true`` | ``void``
+  | ``while`` |  |  |
 
 The symbols used in grammar are the following:
   | { | } | ; | =
@@ -71,6 +72,7 @@ All other symbols are terminals.
   |  |  **|**  | ``for`` ``(`` //Ident// ``from`` //Expr// ``to`` //Expr// ``)`` //Block//
   |  |  **|**  | ``for`` ``(`` //Ident// ``in`` //Expr// ``)`` //Block//
   |  |  **|**  | ``print`` ``(`` //[Expr]// ``)``
+  |  |  **|**  | ``printEndl`` ``(`` //[Expr]// ``)``
   |  |  **|**  | ``return`` //Expr//
   |  |  **|**  | ``return``
   |  |  **|**  | //Ident// ``=`` //Expr//

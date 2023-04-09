@@ -152,6 +152,8 @@ module TypeChecker where
         t <- evalListExprType expr
         returnOk
 
+    check (PrintEndl expr) = check (Print expr)
+
 -- Check for prog
     checkList :: [Stmt] -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     checkList [] = do

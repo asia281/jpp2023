@@ -23,58 +23,59 @@ import Grammar.Lex
 %monad { Err } { (>>=) } { return }
 %tokentype {Token}
 %token
-  '!='     { PT _ (TS _ 1)  }
-  '%'      { PT _ (TS _ 2)  }
-  '&'      { PT _ (TS _ 3)  }
-  '('      { PT _ (TS _ 4)  }
-  ')'      { PT _ (TS _ 5)  }
-  '*'      { PT _ (TS _ 6)  }
-  '+'      { PT _ (TS _ 7)  }
-  ','      { PT _ (TS _ 8)  }
-  '-'      { PT _ (TS _ 9)  }
-  '->'     { PT _ (TS _ 10) }
-  '.'      { PT _ (TS _ 11) }
-  '/'      { PT _ (TS _ 12) }
-  ';'      { PT _ (TS _ 13) }
-  '<'      { PT _ (TS _ 14) }
-  '<='     { PT _ (TS _ 15) }
-  '='      { PT _ (TS _ 16) }
-  '=='     { PT _ (TS _ 17) }
-  '>'      { PT _ (TS _ 18) }
-  '>='     { PT _ (TS _ 19) }
-  '['      { PT _ (TS _ 20) }
-  '[]'     { PT _ (TS _ 21) }
-  ']'      { PT _ (TS _ 22) }
-  'and'    { PT _ (TS _ 23) }
-  'at'     { PT _ (TS _ 24) }
-  'bool'   { PT _ (TS _ 25) }
-  'else'   { PT _ (TS _ 26) }
-  'false'  { PT _ (TS _ 27) }
-  'for'    { PT _ (TS _ 28) }
-  'from'   { PT _ (TS _ 29) }
-  'fun'    { PT _ (TS _ 30) }
-  'if'     { PT _ (TS _ 31) }
-  'in'     { PT _ (TS _ 32) }
-  'int'    { PT _ (TS _ 33) }
-  'lambda' { PT _ (TS _ 34) }
-  'len()'  { PT _ (TS _ 35) }
-  'list'   { PT _ (TS _ 36) }
-  'not'    { PT _ (TS _ 37) }
-  'or'     { PT _ (TS _ 38) }
-  'print'  { PT _ (TS _ 39) }
-  'push'   { PT _ (TS _ 40) }
-  'return' { PT _ (TS _ 41) }
-  'string' { PT _ (TS _ 42) }
-  'struct' { PT _ (TS _ 43) }
-  'to'     { PT _ (TS _ 44) }
-  'true'   { PT _ (TS _ 45) }
-  'void'   { PT _ (TS _ 46) }
-  'while'  { PT _ (TS _ 47) }
-  '{'      { PT _ (TS _ 48) }
-  '}'      { PT _ (TS _ 49) }
-  L_Ident  { PT _ (TV $$)   }
-  L_integ  { PT _ (TI $$)   }
-  L_quoted { PT _ (TL $$)   }
+  '!='        { PT _ (TS _ 1)  }
+  '%'         { PT _ (TS _ 2)  }
+  '&'         { PT _ (TS _ 3)  }
+  '('         { PT _ (TS _ 4)  }
+  ')'         { PT _ (TS _ 5)  }
+  '*'         { PT _ (TS _ 6)  }
+  '+'         { PT _ (TS _ 7)  }
+  ','         { PT _ (TS _ 8)  }
+  '-'         { PT _ (TS _ 9)  }
+  '->'        { PT _ (TS _ 10) }
+  '.'         { PT _ (TS _ 11) }
+  '/'         { PT _ (TS _ 12) }
+  ';'         { PT _ (TS _ 13) }
+  '<'         { PT _ (TS _ 14) }
+  '<='        { PT _ (TS _ 15) }
+  '='         { PT _ (TS _ 16) }
+  '=='        { PT _ (TS _ 17) }
+  '>'         { PT _ (TS _ 18) }
+  '>='        { PT _ (TS _ 19) }
+  '['         { PT _ (TS _ 20) }
+  '[]'        { PT _ (TS _ 21) }
+  ']'         { PT _ (TS _ 22) }
+  'and'       { PT _ (TS _ 23) }
+  'at'        { PT _ (TS _ 24) }
+  'bool'      { PT _ (TS _ 25) }
+  'else'      { PT _ (TS _ 26) }
+  'false'     { PT _ (TS _ 27) }
+  'for'       { PT _ (TS _ 28) }
+  'from'      { PT _ (TS _ 29) }
+  'fun'       { PT _ (TS _ 30) }
+  'if'        { PT _ (TS _ 31) }
+  'in'        { PT _ (TS _ 32) }
+  'int'       { PT _ (TS _ 33) }
+  'lambda'    { PT _ (TS _ 34) }
+  'len()'     { PT _ (TS _ 35) }
+  'list'      { PT _ (TS _ 36) }
+  'not'       { PT _ (TS _ 37) }
+  'or'        { PT _ (TS _ 38) }
+  'print'     { PT _ (TS _ 39) }
+  'printEndl' { PT _ (TS _ 40) }
+  'push'      { PT _ (TS _ 41) }
+  'return'    { PT _ (TS _ 42) }
+  'string'    { PT _ (TS _ 43) }
+  'struct'    { PT _ (TS _ 44) }
+  'to'        { PT _ (TS _ 45) }
+  'true'      { PT _ (TS _ 46) }
+  'void'      { PT _ (TS _ 47) }
+  'while'     { PT _ (TS _ 48) }
+  '{'         { PT _ (TS _ 49) }
+  '}'         { PT _ (TS _ 50) }
+  L_Ident     { PT _ (TV $$)   }
+  L_integ     { PT _ (TI $$)   }
+  L_quoted    { PT _ (TL $$)   }
 
 %%
 
@@ -112,6 +113,7 @@ Stmt
   | 'for' '(' Ident 'from' Expr 'to' Expr ')' Block { Grammar.Abs.For $3 $5 $7 $9 }
   | 'for' '(' Ident 'in' Expr ')' Block { Grammar.Abs.ForInList $3 $5 $7 }
   | 'print' '(' ListExpr ')' { Grammar.Abs.Print $3 }
+  | 'printEndl' '(' ListExpr ')' { Grammar.Abs.PrintEndl $3 }
   | 'return' Expr { Grammar.Abs.Return $2 }
   | 'return' { Grammar.Abs.ReturnVoid }
   | Ident '=' Expr { Grammar.Abs.Assign $1 $3 }

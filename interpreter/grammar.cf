@@ -24,6 +24,7 @@ For.       Stmt ::= "for" "(" Ident "from" Expr "to" Expr ")" Block ;
 ForInList. Stmt ::= "for" "(" Ident "in" Expr ")" Block ;
 
 Print.     Stmt ::= "print" "(" [Expr] ")" ;
+PrintEndl. Stmt ::= "printEndl" "(" [Expr] ")" ;
 separator  Expr "," ;
 
 Return.    Stmt ::= "return" Expr ;

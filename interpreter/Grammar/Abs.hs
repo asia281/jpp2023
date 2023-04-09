@@ -25,6 +25,7 @@ data Stmt
     | For Ident Expr Expr Block
     | ForInList Ident Expr Block
     | Print [Expr]
+    | PrintEndl [Expr]
     | Return Expr
     | ReturnVoid
     | Assign Ident Expr

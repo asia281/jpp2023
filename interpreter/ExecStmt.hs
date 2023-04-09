@@ -90,8 +90,11 @@ module ExecStmt where
             [] -> returnNothing
             h:t -> do
                 expr <- evalExpr h
-                liftIO $ putStr $ vToString expr
+                liftIO $ putStr $ vToString expr ++ " "
                 execStmt (Print t)
+        
+    execStmt (PrintEndl e) = do
+        execStmt (Print (e ++ [EString "\n"])) 
 
 
     vToString :: VMemory -> String

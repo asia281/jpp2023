@@ -14,12 +14,12 @@ ALEX_OPTS  = --ghc
 
 # Default goal.
 
-all : Catte/Test
+all : Grammar/Test
 
 # Rules for building the parser.
 
-Catte/Abs.hs Catte/Lex.x Catte/Par.y Catte/Print.hs Catte/Test.hs : catte.cf
-	bnfc --haskell -d catte.cf
+Grammar/Abs.hs Grammar/Lex.x Grammar/Par.y Grammar/Print.hs Grammar/Test.hs : grammar.cf
+	bnfc --haskell -d grammar.cf
 
 %.hs : %.y
 	${HAPPY} ${HAPPY_OPTS} $<
@@ -27,16 +27,16 @@ Catte/Abs.hs Catte/Lex.x Catte/Par.y Catte/Print.hs Catte/Test.hs : catte.cf
 %.hs : %.x
 	${ALEX} ${ALEX_OPTS} $<
 
-Catte/Test : Catte/Abs.hs Catte/Lex.hs Catte/Par.hs Catte/Print.hs Catte/Test.hs
+Grammar/Test : Grammar/Abs.hs Grammar/Lex.hs Grammar/Par.hs Grammar/Print.hs Grammar/Test.hs
 	${GHC} ${GHC_OPTS} $@
 
 # Rules for cleaning generated files.
 
 clean :
-	-rm -f Catte/*.hi Catte/*.o Catte/*.log Catte/*.aux Catte/*.dvi
+	-rm -f Grammar/*.hi Grammar/*.o Grammar/*.log Grammar/*.aux Grammar/*.dvi
 
 distclean : clean
-	-rm -f Catte/Abs.hs Catte/Abs.hs.bak Catte/ComposOp.hs Catte/ComposOp.hs.bak Catte/Doc.txt Catte/Doc.txt.bak Catte/ErrM.hs Catte/ErrM.hs.bak Catte/Layout.hs Catte/Layout.hs.bak Catte/Lex.x Catte/Lex.x.bak Catte/Par.y Catte/Par.y.bak Catte/Print.hs Catte/Print.hs.bak Catte/Skel.hs Catte/Skel.hs.bak Catte/Test.hs Catte/Test.hs.bak Catte/XML.hs Catte/XML.hs.bak Catte/AST.agda Catte/AST.agda.bak Catte/Parser.agda Catte/Parser.agda.bak Catte/IOLib.agda Catte/IOLib.agda.bak Catte/Main.agda Catte/Main.agda.bak Catte/catte.dtd Catte/catte.dtd.bak Catte/Test Catte/Lex.hs Catte/Par.hs Catte/Par.info Catte/ParData.hs Makefile
-	-rmdir -p Catte/
+	-rm -f Grammar/Abs.hs Grammar/Abs.hs.bak Grammar/ComposOp.hs Grammar/ComposOp.hs.bak Grammar/Doc.txt Grammar/Doc.txt.bak Grammar/ErrM.hs Grammar/ErrM.hs.bak Grammar/Layout.hs Grammar/Layout.hs.bak Grammar/Lex.x Grammar/Lex.x.bak Grammar/Par.y Grammar/Par.y.bak Grammar/Print.hs Grammar/Print.hs.bak Grammar/Skel.hs Grammar/Skel.hs.bak Grammar/Test.hs Grammar/Test.hs.bak Grammar/XML.hs Grammar/XML.hs.bak Grammar/AST.agda Grammar/AST.agda.bak Grammar/Parser.agda Grammar/Parser.agda.bak Grammar/IOLib.agda Grammar/IOLib.agda.bak Grammar/Main.agda Grammar/Main.agda.bak Grammar/grammar.dtd Grammar/grammar.dtd.bak Grammar/Test Grammar/Lex.hs Grammar/Par.hs Grammar/Par.info Grammar/ParData.hs Makefile
+	-rmdir -p Grammar/
 
 # EOF

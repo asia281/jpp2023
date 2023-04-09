@@ -166,6 +166,7 @@ instance Print Grammar.Abs.Stmt where
     Grammar.Abs.For id_ expr1 expr2 block -> prPrec i 0 (concatD [doc (showString "for"), doc (showString "("), prt 0 id_, doc (showString "from"), prt 0 expr1, doc (showString "to"), prt 0 expr2, doc (showString ")"), prt 0 block])
     Grammar.Abs.ForInList id_ expr block -> prPrec i 0 (concatD [doc (showString "for"), doc (showString "("), prt 0 id_, doc (showString "in"), prt 0 expr, doc (showString ")"), prt 0 block])
     Grammar.Abs.Print exprs -> prPrec i 0 (concatD [doc (showString "print"), doc (showString "("), prt 0 exprs, doc (showString ")")])
+    Grammar.Abs.PrintEndl exprs -> prPrec i 0 (concatD [doc (showString "printEndl"), doc (showString "("), prt 0 exprs, doc (showString ")")])
     Grammar.Abs.Return expr -> prPrec i 0 (concatD [doc (showString "return"), prt 0 expr])
     Grammar.Abs.ReturnVoid -> prPrec i 0 (concatD [doc (showString "return")])
     Grammar.Abs.Assign id_ expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "="), prt 0 expr])

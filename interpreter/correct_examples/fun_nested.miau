@@ -16,7 +16,7 @@ fun ident(int n) -> Fun<int()> {
 	return increment(ref n);
 };
 
-print(increment(7), "\n");
+printEndl(increment(7));
 Fun<int()> id = ident(2);
 int i;
 for (i from 1 to 20){
