@@ -107,7 +107,6 @@ StructItem. StructItem ::= Type Ident ;
 separator StructItem ";" ;
 
 
-
 -- Comments ------------------------------------------------
 comment    "#" ;
 comment    "//" ;

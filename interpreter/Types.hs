@@ -74,6 +74,5 @@ module Types where
     -- struct description - field name and its type
     type StructType = Map.Map StructFieldName Type
 
-
--- Monad type
+-- Monad type of interpreter
     type Interpreter = ReaderT Env (StateT Store (ExceptT RuntimeExceptions IO))

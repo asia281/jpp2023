@@ -2,11 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Main where
-    import System.IO ( stdin, hGetContents, hPutStrLn, stderr, getContents, hPutStr )
-    import System.Environment ( getArgs, getProgName )
-    import System.Exit ( exitFailure, exitSuccess )
-    import Control.Exception (catch, IOException)
-    import Control.Monad.Error.Class (throwError)
+    import System.Environment ( getArgs )
 
     import Types
 
@@ -18,39 +14,13 @@ module Main where
     import Data.Maybe
     import TypeChecker
     import ExecStmt
+    import Exceptions
 
-
-    -- data ParseErr a = {location:Int, reason:String}
-    -- type Error a = Either ParseErr a
-
-
-    -- exitWithErr :: String -> IO ()
-    -- exitWithErr msg  = do
-    --     hPutStrLn stderr msg
-    --     exitFailure
-
-    printTypeCheckError :: TypeCheckerExceptions -> [Char]
-    printTypeCheckError error =
-        case error of
-            TypeCheckException t1 t2 -> "Mismatch in types, expected: " ++ show t1 ++ ", got: " ++ show t2
-            DeclarationInvTypeException t -> "Wrong type of a declared element: " ++ show t
-            FuncArgsInvTypeException t -> "Wrong type of argument in function: " ++ show t
-            NotListException t -> "Element is not a list: " ++ show t
-            IdentifierNotExistException str -> "No such identifier: " ++ show str 
-            ReturnTypeMismatchException t1 t2 -> "Mismatch in returned type, expected: " ++ show t1 ++ ", got: " ++ show t2
-
-    printRuntimeError :: RuntimeExceptions -> String
-    printRuntimeError error =
-        case error of
-            NoReturnException -> "Missing return."
-            ZeroDivisionException -> "Division by zero."
-            OutOfRangeExeption i -> "Out of range:" ++ show i
-           -- | NoStructFieldException String deriving Show
-
+    run :: [Stmt] -> IO ()
     run p = do
         check <- runProgramCheck p
         case check of
-            (Left err) -> error (printTypeCheckError err)
+            (Left err) -> printTypeCheckError err
             (Right _) -> runProgram p
 
     main :: IO ()

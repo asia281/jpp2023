@@ -13,10 +13,8 @@ module ExecStmt where
     import TypeChecker
     import EvalExpr
 
-
     execStmt :: Stmt -> Interpreter (Env, ReturnRes)
 
--- tocheck    
     execStmt (SExpr stmt) = do
         evalExpr stmt
         returnNothing
@@ -24,10 +22,10 @@ module ExecStmt where
 -- assignment
     execStmt (Assign id expr) = do
         evaledExpr <- evalExpr expr
-        -- add to memory
+        updateIdentInMem id evaledExpr
         returnNothing
 
--- Return
+-- return
     execStmt ReturnVoid = do
         env <- ask
         return (env, Just VVoid)
@@ -114,9 +112,9 @@ module ExecStmt where
     execList :: [Stmt] -> Interpreter (Env, ReturnRes)
     execList [] = returnNothing
     execList (h:t) = do
-            (env, ret) <- execStmt h
-            case ret of
-                Nothing -> local (const env) (execList t)
-                _ -> return (env, ret)
+        (env, ret) <- execStmt h
+        case ret of
+            Nothing -> local (const env) (execList t)
+            _ -> return (env, ret)
 
     runProgram program = runExceptT $ runStateT (runReaderT (execList program) Map.empty) (Map.empty, 0)
