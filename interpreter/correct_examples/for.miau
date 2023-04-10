@@ -13,11 +13,11 @@ fun factorial(int x) -> int {
 int fac = factorial(6);
 printEndl(fac);
 
-fun mult_3(int x, int exp) -> int {
+fun pow(int x, int exp) -> int {
     int i;
     int res = 1;
 
-    for (i in 1 to x){
+    for (i from 1 to x){
         res = res * i;
     }
     return res;

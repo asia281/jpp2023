@@ -4,14 +4,9 @@
 module Main where
     import System.Environment ( getArgs )
 
-    import Types
-
     import Grammar.Par
     import Grammar.Abs
     import Grammar.ErrM
-    import Control.Monad.Reader
-    import qualified Data.Map as Map
-    import Data.Maybe
     import TypeChecker
     import ExecStmt
     import Exceptions
@@ -21,15 +16,20 @@ module Main where
         check <- runProgramCheck p
         case check of
             (Left err) -> printTypeCheckError err
-            (Right _) -> runProgram p
+            (Right _) -> do 
+                runResult <- runProgram p
+                case runResult of
+                    Left err -> printRuntimeError err
+                    Right _ -> return ()
+
 
     main :: IO ()
     main = do
         file <- getArgs
         case file of
             [] -> error "No args provided!"
-            file:_ -> do
-                program <- readFile file
+            f:_ -> do
+                program <- readFile f
                 let parser = pProgram . myLexer
                 case parser program of
                     Ok (Program p) -> do

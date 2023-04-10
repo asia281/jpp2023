@@ -43,7 +43,6 @@ transStmt x = case x of
   Grammar.Abs.Assign ident expr -> failure x
   Grammar.Abs.FunDef ident args type_ block -> failure x
   Grammar.Abs.SListPush ident expr -> failure x
-  Grammar.Abs.StructDef ident structitems -> failure x
 
 transItem :: Grammar.Abs.Item -> Result
 transItem x = case x of
@@ -52,8 +51,7 @@ transItem x = case x of
 
 transArg :: Grammar.Abs.Arg -> Result
 transArg x = case x of
-  Grammar.Abs.Arg type_ ident -> failure x
-  Grammar.Abs.ArgRef type_ ident -> failure x
+  Grammar.Abs.Arg typeorref ident -> failure x
 
 transType :: Grammar.Abs.Type -> Result
 transType x = case x of
@@ -62,7 +60,6 @@ transType x = case x of
   Grammar.Abs.TString -> failure x
   Grammar.Abs.TVoid -> failure x
   Grammar.Abs.TList type_ -> failure x
-  Grammar.Abs.TStruct ident -> failure x
   Grammar.Abs.TLambda typeorrefs type_ -> failure x
 
 transTypeOrRef :: Grammar.Abs.TypeOrRef -> Result
@@ -106,7 +103,7 @@ transExpr x = case x of
   Grammar.Abs.EFalse -> failure x
   Grammar.Abs.EEmptyList type_ -> failure x
   Grammar.Abs.EString string -> failure x
-  Grammar.Abs.ELambda idents typeorrefs type_ block -> failure x
+  Grammar.Abs.ELambda idents args type_ block -> failure x
   Grammar.Abs.EListLen expr -> failure x
   Grammar.Abs.EListAt expr1 expr2 -> failure x
 
@@ -114,7 +111,3 @@ transExprOrRef :: Grammar.Abs.ExprOrRef -> Result
 transExprOrRef x = case x of
   Grammar.Abs.EorRExpr expr -> failure x
   Grammar.Abs.EorRRef ident -> failure x
-
-transStructItem :: Grammar.Abs.StructItem -> Result
-transStructItem x = case x of
-  Grammar.Abs.StructItem type_ ident -> failure x

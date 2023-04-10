@@ -7,3 +7,5 @@ lambda<() -> string> var3 = [ ] () -> string { return "hello"; };
 bool t = var1();
 int two = var2();
 string hi = var3();
+
+printEndl(t, two, hi);

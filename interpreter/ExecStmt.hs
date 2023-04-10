@@ -1,8 +1,8 @@
 module ExecStmt where
     import Grammar.Abs
 
-    import Data.Map as Map
-    import Data.Maybe
+    import qualified Data.Map.Strict as Map
+    import Data.List as List
 
     import Control.Monad.Reader
     import Control.Monad.State
@@ -10,19 +10,47 @@ module ExecStmt where
 
     import Types
     import Memory
-    import TypeChecker
     import EvalExpr
 
-    execStmt :: Stmt -> Interpreter (Env, ReturnRes)
+    
+-- Declarations
+    defaultValue :: Type -> Expr
+    defaultValue TInt = EInt 0
+    defaultValue TBool = EFalse
+    defaultValue TString = EString ""
+    defaultValue (TList t) = EEmptyList t
+    
 
-    execStmt (SExpr stmt) = do
-        evalExpr stmt
+    initalised :: Type -> Ident -> Expr -> Interpreter (Env, ReturnRes)
+    initalised _ ident expr = do
+        evaledExpr <- evalExpr expr
+        new_env <- addIdentToMem ident evaledExpr
+        return (new_env, Nothing)
+
+    execStmt :: Stmt -> Interpreter (Env, ReturnRes)
+    execStmt (Decl typ i) = do
+        case i of
+            NoInit ident -> initalised typ ident (defaultValue typ)
+            Init ident expr -> initalised typ ident expr
+
+    execStmt (FunDef ident args typ (Block block)) = do
+        -- todo
+        returnNothing
+
+    execStmt (SListPush ident expr) = do
+        evaledExpr <- evalExpr expr
+        -- add push
+        updateIdentInMem ident evaledExpr
         returnNothing
 
 -- assignment
-    execStmt (Assign id expr) = do
+    execStmt (Assign ident expr) = do
         evaledExpr <- evalExpr expr
-        updateIdentInMem id evaledExpr
+        updateIdentInMem ident evaledExpr
+        returnNothing
+
+    execStmt (SExpr expr) = do
+        evalExpr expr
         returnNothing
 
 -- return
@@ -34,6 +62,7 @@ module ExecStmt where
         env <- ask
         val <- evalExpr expr
         return (env, Just val)
+
     
 -- conditions
     execStmt (If cond (Block block)) = do
@@ -54,33 +83,33 @@ module ExecStmt where
     execStmt (While cond (Block block)) = do
         VBool evaledCond <- evalExpr cond
         if evaledCond then do
-                (env, returned) <- execList block
-                case returned of
-                    Nothing -> returnNothing
-                    otherwise -> execStmt (While cond (Block block))
+            (_, returned) <- execList block
+            case returned of
+                Nothing -> returnNothing
+                _ -> execStmt (While cond (Block block))
         else 
             returnNothing
 
 
-    execStmt (For id start end (Block block)) = do
+    execStmt (For ident start end (Block block)) = do
         VInt evaledStart <- evalExpr start
         VInt evaledEnd <- evalExpr end
-        updateIdentInMem id (VInt evaledStart)
-        let plusOne = [Assign id (EAdd (EInt 1) Plus (EVar id))]
+        updateIdentInMem ident (VInt evaledStart)
+        let plusOne = [Assign ident (EAdd (EInt 1) Plus (EVar ident))]
         let forBlock = Block (block ++ plusOne)
-        execStmt $ While (ERel (EVar id) LE (EInt evaledEnd)) forBlock
+        execStmt $ While (ERel (EVar ident) LE (EInt evaledEnd)) forBlock
         
         
-    execStmt (ForInList id list (Block block)) = do
+    execStmt (ForInList ident list (Block block)) = do
         VList (TInt, evaledList) <- evalExpr list
-        loopList id evaledList block
+        loopList ident evaledList block
         where
             loopList :: Ident -> [VMemory] -> [Stmt] -> Interpreter (Env, ReturnRes)
-            loopList id [] _ = returnNothing
-            loopList id (h:t) block = do
-                updateIdentInMem id h
-                execList block
-                loopList id t block
+            loopList _ [] _ = returnNothing
+            loopList i (h:t) b = do
+                updateIdentInMem i h
+                execList b
+                loopList i t b
 
 -- print
     execStmt (Print e) = 
@@ -94,15 +123,14 @@ module ExecStmt where
     execStmt (PrintEndl e) = do
         execStmt (Print (e ++ [EString "\n"])) 
 
-
+        
     vToString :: VMemory -> String
     vToString (VInt x) = show x
     vToString (VBool x) = show x
     vToString (VString s) = s
-    vToString (VFun (args, typ, stmts, env)) = "Function (" ++ show args ++ ") -> " ++ show typ
-    vToString (VList (typ, elems)) = "[" ++ (Prelude.foldl (\a b -> a ++ (vToString b) ++ ", " ) "" elems) ++ "]"
+    vToString (VFun (args, typ, _, _)) = "Function (" ++ show args ++ ") -> " ++ show typ
+    vToString (VList (_, elements)) = "[" ++ (foldl' (\a b -> a ++ (vToString b) ++ ", " ) "" elements) ++ "]"
     vToString e = show e
-
 
     returnNothing :: Interpreter (Env, ReturnRes)
     returnNothing = do
@@ -117,4 +145,5 @@ module ExecStmt where
             Nothing -> local (const env) (execList t)
             _ -> return (env, ret)
 
+    runProgram :: [Stmt] -> IO (Either RuntimeExceptions ((Env, ReturnRes), Store))
     runProgram program = runExceptT $ runStateT (runReaderT (execList program) Map.empty) (Map.empty, 0)

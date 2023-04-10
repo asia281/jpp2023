@@ -6,7 +6,7 @@ int y = 0;
 int z = 5 % y;
 
 fun div(int a, int b) -> int {
-    return a / b
+    return a / b;
 }
 
 int u = div(4, y);

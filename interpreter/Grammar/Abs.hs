@@ -31,13 +31,12 @@ data Stmt
     | Assign Ident Expr
     | FunDef Ident [Arg] Type Block
     | SListPush Ident Expr
-    | StructDef Ident [StructItem]
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Item = NoInit Ident | Init Ident Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data Arg = Arg Type Ident | ArgRef Type Ident
+data Arg = Arg TypeOrRef Ident
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Type
@@ -46,7 +45,6 @@ data Type
     | TString
     | TVoid
     | TList Type
-    | TStruct Ident
     | TLambda [TypeOrRef] Type
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
@@ -77,15 +75,12 @@ data Expr
     | EFalse
     | EEmptyList Type
     | EString String
-    | ELambda [Ident] [TypeOrRef] Type Block
+    | ELambda [Ident] [Arg] Type Block
     | EListLen Expr
     | EListAt Expr Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data ExprOrRef = EorRExpr Expr | EorRRef Ident
-  deriving (C.Eq, C.Ord, C.Show, C.Read)
-
-data StructItem = StructItem Type Ident
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 newtype Ident = Ident String

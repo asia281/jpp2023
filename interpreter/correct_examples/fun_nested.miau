@@ -1,23 +1,22 @@
 //  12 (funkcje zagnieżdżone ze statycznym wiązaniem)
 
 fun increment(int n) -> int {
-	fun ident(int x) -> Fun<int()> {
+	fun ident(int x) -> lambda<() -> int> {
 		return [x] () -> int { return x; };
-	};
-
+	}
 	return ident(n)() + 1;
-};
+}
 
-fun ident(int n) -> Fun<int()> {
-	fun increment(ref int x) -> Fun<int()> {
+fun ident(int n) -> lambda<() -> int> {
+	fun increment(& int x) -> lambda<() -> int> {
 		return [x] () -> int { return x + 1; };
-	};
+	}
 
-	return increment(ref n);
-};
+	return increment(& n);
+}
 
 printEndl(increment(7));
-Fun<int()> id = ident(2);
+lambda<() -> int> id = ident(2);
 int i;
 for (i from 1 to 20){
 	print(id(), ", ");

@@ -1,22 +1,9 @@
 module EvalExpr(evalExpr) where
     import Grammar.Abs
-
-    import Data.Map as Map
-    import Data.Maybe
-
-    import Control.Monad.Reader
-    import Control.Monad.State
     import Control.Monad.Except
-
+    import Data.Map as Map
     import Types
     import Memory
-    import TypeChecker
-
-    defaultValue :: Type -> Expr
-    defaultValue TInt = EInt 0
-    defaultValue TBool = EFalse
-    defaultValue TString = EString ""
-    defaultValue (TList t) = EEmptyList t
 
 -- EXPRESSION --
     evalAddOp Minus e1 e2 = e1 - e2
@@ -80,24 +67,33 @@ module EvalExpr(evalExpr) where
         else 
             return $ VInt $ evalMulOp op done1 done2
 
-
 -- lists
     evalExpr (EListLen l) = do
-        VList (_, elems) <- evalExpr l
-        return $ VInt $ fromIntegral $ length elems
+        VList (_, elements) <- evalExpr l
+        return $ VInt $ fromIntegral $ length elements
 
     evalExpr (EListAt l pos) = do
         VInt idx <- evalExpr pos
-        VList (_, elems) <- evalExpr l
-        if idx < 0 || length elems >= fromIntegral idx then
+        VList (_, elements) <- evalExpr l
+        if idx < 0 || length elements >= fromIntegral idx then
             throwError $ OutOfRangeExeption idx
         else 
-            return $ elems !! fromIntegral idx
+            return $ elements !! fromIntegral idx
 
--- structs
+    evalExpr (EApp expr vars) = do 
+        VFun f <- evalExpr expr
+        --ensureArgsTypes argt vars
+        return $ VFun f
 
 -- lambda
-    -- evalExpr (ELambda capture args returnType (Block stmts)) = do
-    --     argsList <- mapM argToFunArg args
-    --     captureGroup <- mapM constructCaptureGroup capture
-    --     return $ FunVal (stmts, Map.empty, argsList, returnType, captureGroup)
+    evalExpr (ELambda idents args typ (Block block)) = do 
+        conv_args <- argsToFun args []
+        --return $ VFun $ conv_args typ block Map.empty 
+        return $ VInt 1
+
+    argsToFun :: [Arg] -> FunArgList -> Interpreter FunArgList
+    argsToFun [] acc = return acc
+    argsToFun ((Arg (TRType t) i):xs) acc = argsToFun xs ((ByValue, t, i):acc)
+    argsToFun ((Arg (TRRef t) i):xs) acc = argsToFun xs ((ByReference, t, i):acc)
+
+-- structs

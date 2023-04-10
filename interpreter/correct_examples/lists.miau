@@ -9,7 +9,7 @@ printEndl(lista.len(), lista.at(2));
 
 lista.push(10);
 
-printEndl(lista.at(2), lista.at(lista.len()-1));
+printEndl(lista.at(2), lista.at(0));
 
 list<bool> bool_lista;
 bool_lista.push(true);

@@ -14,7 +14,8 @@ ALEX_OPTS  = --ghc
 
 # Default goal.
 
-all : Grammar/Test
+all: Grammar/Test
+	ghc -Wall main.hs
 
 # Rules for building the parser.
 
@@ -31,7 +32,6 @@ Grammar/Test : Grammar/Abs.hs Grammar/Lex.hs Grammar/Par.hs Grammar/Print.hs Gra
 	${GHC} ${GHC_OPTS} $@
 
 # Rules for cleaning generated files.
-
 clean :
 	-rm -f Grammar/*.hi Grammar/*.o Grammar/*.log Grammar/*.aux Grammar/*.dvi
 

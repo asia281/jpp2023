@@ -2,7 +2,6 @@ module Types where
     import Grammar.Abs
 
     import Data.Map as Map
-    import Data.Maybe
 
     import Control.Monad.Reader
     import Control.Monad.State
@@ -21,11 +20,8 @@ module Types where
     -- How to pass an argument to function
     data PassArgType = ByValue | ByReference deriving Show 
 
-    -- Type with information if it's passed by reference or value
-    type TypeToPass = (Type, PassArgType)
-
     -- Argument passed to function (name, type of variable, way of passing argument)
-    type FunArg = (Name, Type, PassArgType)
+    type FunArg = (PassArgType, Type, Ident)
     -- list of arguments passed to function
     type FunArgList = [FunArg]
 

@@ -35,13 +35,12 @@ The reserved words used in grammar are the following:
   | ``if`` | ``in`` | ``int`` | ``lambda``
   | ``list`` | ``not`` | ``or`` | ``print``
   | ``printEndl`` | ``push`` | ``return`` | ``string``
-  | ``struct`` | ``to`` | ``true`` | ``void``
-  | ``while`` |  |  |
+  | ``to`` | ``true`` | ``void`` | ``while``
 
 The symbols used in grammar are the following:
-  | { | } | ; | =
-  | , | ( | ) | ->
-  | & | < | > | +
+  | { | } | = | ,
+  | ; | ( | ) | ->
+  | < | > | & | +
   | - | * | / | %
   | <= | >= | == | !=
   | [] | [ | ] | .
@@ -59,26 +58,24 @@ All other symbols are terminals.
   | //Program// | -> | //[Stmt]//
   | //Block// | -> | ``{`` //[Stmt]// ``}``
   | //[Stmt]// | -> | **eps**
-  |  |  **|**  | //Stmt//
-  |  |  **|**  | //Stmt// ``;`` //[Stmt]//
+  |  |  **|**  | //Stmt// //[Stmt]//
   |  |  **|**  | **eps**
   |  |  **|**  | //Stmt//
   |  |  **|**  | //Stmt// ``;`` //[Stmt]//
   | //Stmt// | -> | //Type// //Item//
-  |  |  **|**  | //Expr//
+  |  |  **|**  | //Expr// ``;``
   |  |  **|**  | ``if`` ``(`` //Expr// ``)`` //Block//
   |  |  **|**  | ``if`` ``(`` //Expr// ``)`` //Block// ``else`` //Block//
   |  |  **|**  | ``while`` ``(`` //Expr// ``)`` //Block//
   |  |  **|**  | ``for`` ``(`` //Ident// ``from`` //Expr// ``to`` //Expr// ``)`` //Block//
   |  |  **|**  | ``for`` ``(`` //Ident// ``in`` //Expr// ``)`` //Block//
-  |  |  **|**  | ``print`` ``(`` //[Expr]// ``)``
-  |  |  **|**  | ``printEndl`` ``(`` //[Expr]// ``)``
-  |  |  **|**  | ``return`` //Expr//
-  |  |  **|**  | ``return``
-  |  |  **|**  | //Ident// ``=`` //Expr//
+  |  |  **|**  | ``print`` ``(`` //[Expr]// ``)`` ``;``
+  |  |  **|**  | ``printEndl`` ``(`` //[Expr]// ``)`` ``;``
+  |  |  **|**  | ``return`` //Expr// ``;``
+  |  |  **|**  | ``return`` ``;``
+  |  |  **|**  | //Ident// ``=`` //Expr// ``;``
   |  |  **|**  | ``fun`` //Ident// ``(`` //[Arg]// ``)`` ``->`` //Type// //Block//
   |  |  **|**  | //Ident// ``.`` ``push`` ``(`` //Expr// ``)``
-  |  |  **|**  | ``struct`` //Ident// ``{`` //[StructItem]// ``}``
   | //Item// | -> | //Ident//
   |  |  **|**  | //Ident// ``=`` //Expr//
   | //[Item]// | -> | //Item//
@@ -89,8 +86,7 @@ All other symbols are terminals.
   |  |  **|**  | **eps**
   |  |  **|**  | //Expr//
   |  |  **|**  | //Expr// ``,`` //[Expr]//
-  | //Arg// | -> | //Type// //Ident//
-  |  |  **|**  | ``&`` //Type// //Ident//
+  | //Arg// | -> | //TypeOrRef// //Ident//
   | //[Arg]// | -> | **eps**
   |  |  **|**  | //Arg//
   |  |  **|**  | //Arg// ``,`` //[Arg]//
@@ -99,7 +95,6 @@ All other symbols are terminals.
   |  |  **|**  | ``string``
   |  |  **|**  | ``void``
   |  |  **|**  | ``list`` ``<`` //Type// ``>``
-  |  |  **|**  | ``struct`` //Ident//
   |  |  **|**  | ``lambda`` ``<`` ``(`` //[TypeOrRef]// ``)`` ``->`` //Type// ``>``
   | //[Type]// | -> | **eps**
   |  |  **|**  | //Type//
@@ -143,7 +138,7 @@ All other symbols are terminals.
   |  |  **|**  | ``false``
   |  |  **|**  | //Type// ``[]``
   |  |  **|**  | //String//
-  |  |  **|**  | ``[`` //[Ident]// ``]`` ``(`` //[TypeOrRef]// ``)`` ``->`` //Type// //Block//
+  |  |  **|**  | ``[`` //[Ident]// ``]`` ``(`` //[Arg]// ``)`` ``->`` //Type// //Block//
   |  |  **|**  | ``(`` //Expr// ``)``
   | //[Ident]// | -> | **eps**
   |  |  **|**  | //Ident//
@@ -153,10 +148,6 @@ All other symbols are terminals.
   | //[ExprOrRef]// | -> | **eps**
   |  |  **|**  | //ExprOrRef//
   |  |  **|**  | //ExprOrRef// ``,`` //[ExprOrRef]//
-  | //StructItem// | -> | //Type// //Ident//
-  | //[StructItem]// | -> | **eps**
-  |  |  **|**  | //StructItem//
-  |  |  **|**  | //StructItem// ``;`` //[StructItem]//
 
 
 

@@ -2,8 +2,8 @@
 
 fun inc(& int num, int num2) -> void{
 	num = num + 1;
-	num2 = num2 + 1
-};
+	num2 = num2 + 1;
+}
 
 int x = 10;
 int y = 10;

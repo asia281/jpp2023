@@ -152,27 +152,25 @@ instance Print [Grammar.Abs.Stmt] where
   prt _ [] = concatD []
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
-  prt _ [x] = concatD [prt 0 x]
-  prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
+  prt _ (x:xs) = concatD [prt 0 x, prt 0 xs]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
 instance Print Grammar.Abs.Stmt where
   prt i = \case
     Grammar.Abs.Decl type_ item -> prPrec i 0 (concatD [prt 0 type_, prt 0 item])
-    Grammar.Abs.SExpr expr -> prPrec i 0 (concatD [prt 0 expr])
+    Grammar.Abs.SExpr expr -> prPrec i 0 (concatD [prt 0 expr, doc (showString ";")])
     Grammar.Abs.If expr block -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 block])
     Grammar.Abs.IfElse expr block1 block2 -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 block1, doc (showString "else"), prt 0 block2])
     Grammar.Abs.While expr block -> prPrec i 0 (concatD [doc (showString "while"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 block])
     Grammar.Abs.For id_ expr1 expr2 block -> prPrec i 0 (concatD [doc (showString "for"), doc (showString "("), prt 0 id_, doc (showString "from"), prt 0 expr1, doc (showString "to"), prt 0 expr2, doc (showString ")"), prt 0 block])
     Grammar.Abs.ForInList id_ expr block -> prPrec i 0 (concatD [doc (showString "for"), doc (showString "("), prt 0 id_, doc (showString "in"), prt 0 expr, doc (showString ")"), prt 0 block])
-    Grammar.Abs.Print exprs -> prPrec i 0 (concatD [doc (showString "print"), doc (showString "("), prt 0 exprs, doc (showString ")")])
-    Grammar.Abs.PrintEndl exprs -> prPrec i 0 (concatD [doc (showString "printEndl"), doc (showString "("), prt 0 exprs, doc (showString ")")])
-    Grammar.Abs.Return expr -> prPrec i 0 (concatD [doc (showString "return"), prt 0 expr])
-    Grammar.Abs.ReturnVoid -> prPrec i 0 (concatD [doc (showString "return")])
-    Grammar.Abs.Assign id_ expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "="), prt 0 expr])
+    Grammar.Abs.Print exprs -> prPrec i 0 (concatD [doc (showString "print"), doc (showString "("), prt 0 exprs, doc (showString ")"), doc (showString ";")])
+    Grammar.Abs.PrintEndl exprs -> prPrec i 0 (concatD [doc (showString "printEndl"), doc (showString "("), prt 0 exprs, doc (showString ")"), doc (showString ";")])
+    Grammar.Abs.Return expr -> prPrec i 0 (concatD [doc (showString "return"), prt 0 expr, doc (showString ";")])
+    Grammar.Abs.ReturnVoid -> prPrec i 0 (concatD [doc (showString "return"), doc (showString ";")])
+    Grammar.Abs.Assign id_ expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "="), prt 0 expr, doc (showString ";")])
     Grammar.Abs.FunDef id_ args type_ block -> prPrec i 0 (concatD [doc (showString "fun"), prt 0 id_, doc (showString "("), prt 0 args, doc (showString ")"), doc (showString "->"), prt 0 type_, prt 0 block])
     Grammar.Abs.SListPush id_ expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "."), doc (showString "push"), doc (showString "("), prt 0 expr, doc (showString ")")])
-    Grammar.Abs.StructDef id_ structitems -> prPrec i 0 (concatD [doc (showString "struct"), prt 0 id_, doc (showString "{"), prt 0 structitems, doc (showString "}")])
 
 instance Print Grammar.Abs.Item where
   prt i = \case
@@ -194,8 +192,7 @@ instance Print [Grammar.Abs.Expr] where
 
 instance Print Grammar.Abs.Arg where
   prt i = \case
-    Grammar.Abs.Arg type_ id_ -> prPrec i 0 (concatD [prt 0 type_, prt 0 id_])
-    Grammar.Abs.ArgRef type_ id_ -> prPrec i 0 (concatD [doc (showString "&"), prt 0 type_, prt 0 id_])
+    Grammar.Abs.Arg typeorref id_ -> prPrec i 0 (concatD [prt 0 typeorref, prt 0 id_])
 
 instance Print [Grammar.Abs.Arg] where
   prt _ [] = concatD []
@@ -209,7 +206,6 @@ instance Print Grammar.Abs.Type where
     Grammar.Abs.TString -> prPrec i 0 (concatD [doc (showString "string")])
     Grammar.Abs.TVoid -> prPrec i 0 (concatD [doc (showString "void")])
     Grammar.Abs.TList type_ -> prPrec i 0 (concatD [doc (showString "list"), doc (showString "<"), prt 0 type_, doc (showString ">")])
-    Grammar.Abs.TStruct id_ -> prPrec i 0 (concatD [doc (showString "struct"), prt 0 id_])
     Grammar.Abs.TLambda typeorrefs type_ -> prPrec i 0 (concatD [doc (showString "lambda"), doc (showString "<"), doc (showString "("), prt 0 typeorrefs, doc (showString ")"), doc (showString "->"), prt 0 type_, doc (showString ">")])
 
 instance Print [Grammar.Abs.Type] where
@@ -263,7 +259,7 @@ instance Print Grammar.Abs.Expr where
     Grammar.Abs.EFalse -> prPrec i 7 (concatD [doc (showString "false")])
     Grammar.Abs.EEmptyList type_ -> prPrec i 7 (concatD [prt 0 type_, doc (showString "[]")])
     Grammar.Abs.EString str -> prPrec i 7 (concatD [printString str])
-    Grammar.Abs.ELambda ids typeorrefs type_ block -> prPrec i 7 (concatD [doc (showString "["), prt 0 ids, doc (showString "]"), doc (showString "("), prt 0 typeorrefs, doc (showString ")"), doc (showString "->"), prt 0 type_, prt 0 block])
+    Grammar.Abs.ELambda ids args type_ block -> prPrec i 7 (concatD [doc (showString "["), prt 0 ids, doc (showString "]"), doc (showString "("), prt 0 args, doc (showString ")"), doc (showString "->"), prt 0 type_, prt 0 block])
     Grammar.Abs.EListLen expr -> prPrec i 5 (concatD [prt 6 expr, doc (showString "."), doc (showString "len()")])
     Grammar.Abs.EListAt expr1 expr2 -> prPrec i 5 (concatD [prt 6 expr1, doc (showString "."), doc (showString "at"), doc (showString "("), prt 6 expr2, doc (showString ")")])
 
@@ -281,12 +277,3 @@ instance Print [Grammar.Abs.ExprOrRef] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
-
-instance Print Grammar.Abs.StructItem where
-  prt i = \case
-    Grammar.Abs.StructItem type_ id_ -> prPrec i 0 (concatD [prt 0 type_, prt 0 id_])
-
-instance Print [Grammar.Abs.StructItem] where
-  prt _ [] = concatD []
-  prt _ [x] = concatD [prt 0 x]
-  prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]

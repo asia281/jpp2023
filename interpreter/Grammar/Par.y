@@ -66,13 +66,12 @@ import Grammar.Lex
   'push'      { PT _ (TS _ 41) }
   'return'    { PT _ (TS _ 42) }
   'string'    { PT _ (TS _ 43) }
-  'struct'    { PT _ (TS _ 44) }
-  'to'        { PT _ (TS _ 45) }
-  'true'      { PT _ (TS _ 46) }
-  'void'      { PT _ (TS _ 47) }
-  'while'     { PT _ (TS _ 48) }
-  '{'         { PT _ (TS _ 49) }
-  '}'         { PT _ (TS _ 50) }
+  'to'        { PT _ (TS _ 44) }
+  'true'      { PT _ (TS _ 45) }
+  'void'      { PT _ (TS _ 46) }
+  'while'     { PT _ (TS _ 47) }
+  '{'         { PT _ (TS _ 48) }
+  '}'         { PT _ (TS _ 49) }
   L_Ident     { PT _ (TV $$)   }
   L_integ     { PT _ (TI $$)   }
   L_quoted    { PT _ (TL $$)   }
@@ -97,8 +96,7 @@ Block : '{' ListStmt '}' { Grammar.Abs.Block $2 }
 ListStmt :: { [Grammar.Abs.Stmt] }
 ListStmt
   : {- empty -} { [] }
-  | Stmt { (:[]) $1 }
-  | Stmt ';' ListStmt { (:) $1 $3 }
+  | Stmt ListStmt { (:) $1 $2 }
   | {- empty -} { [] }
   | Stmt { (:[]) $1 }
   | Stmt ';' ListStmt { (:) $1 $3 }
@@ -106,20 +104,19 @@ ListStmt
 Stmt :: { Grammar.Abs.Stmt }
 Stmt
   : Type Item { Grammar.Abs.Decl $1 $2 }
-  | Expr { Grammar.Abs.SExpr $1 }
+  | Expr ';' { Grammar.Abs.SExpr $1 }
   | 'if' '(' Expr ')' Block { Grammar.Abs.If $3 $5 }
   | 'if' '(' Expr ')' Block 'else' Block { Grammar.Abs.IfElse $3 $5 $7 }
   | 'while' '(' Expr ')' Block { Grammar.Abs.While $3 $5 }
   | 'for' '(' Ident 'from' Expr 'to' Expr ')' Block { Grammar.Abs.For $3 $5 $7 $9 }
   | 'for' '(' Ident 'in' Expr ')' Block { Grammar.Abs.ForInList $3 $5 $7 }
-  | 'print' '(' ListExpr ')' { Grammar.Abs.Print $3 }
-  | 'printEndl' '(' ListExpr ')' { Grammar.Abs.PrintEndl $3 }
-  | 'return' Expr { Grammar.Abs.Return $2 }
-  | 'return' { Grammar.Abs.ReturnVoid }
-  | Ident '=' Expr { Grammar.Abs.Assign $1 $3 }
+  | 'print' '(' ListExpr ')' ';' { Grammar.Abs.Print $3 }
+  | 'printEndl' '(' ListExpr ')' ';' { Grammar.Abs.PrintEndl $3 }
+  | 'return' Expr ';' { Grammar.Abs.Return $2 }
+  | 'return' ';' { Grammar.Abs.ReturnVoid }
+  | Ident '=' Expr ';' { Grammar.Abs.Assign $1 $3 }
   | 'fun' Ident '(' ListArg ')' '->' Type Block { Grammar.Abs.FunDef $2 $4 $7 $8 }
   | Ident '.' 'push' '(' Expr ')' { Grammar.Abs.SListPush $1 $5 }
-  | 'struct' Ident '{' ListStructItem '}' { Grammar.Abs.StructDef $2 $4 }
 
 Item :: { Grammar.Abs.Item }
 Item
@@ -139,9 +136,7 @@ ListExpr
   | Expr ',' ListExpr { (:) $1 $3 }
 
 Arg :: { Grammar.Abs.Arg }
-Arg
-  : Type Ident { Grammar.Abs.Arg $1 $2 }
-  | '&' Type Ident { Grammar.Abs.ArgRef $2 $3 }
+Arg : TypeOrRef Ident { Grammar.Abs.Arg $1 $2 }
 
 ListArg :: { [Grammar.Abs.Arg] }
 ListArg
@@ -156,7 +151,6 @@ Type
   | 'string' { Grammar.Abs.TString }
   | 'void' { Grammar.Abs.TVoid }
   | 'list' '<' Type '>' { Grammar.Abs.TList $3 }
-  | 'struct' Ident { Grammar.Abs.TStruct $2 }
   | 'lambda' '<' '(' ListTypeOrRef ')' '->' Type '>' { Grammar.Abs.TLambda $4 $7 }
 
 ListType :: { [Grammar.Abs.Type] }
@@ -233,7 +227,7 @@ Expr7
   | 'false' { Grammar.Abs.EFalse }
   | Type '[]' { Grammar.Abs.EEmptyList $1 }
   | String { Grammar.Abs.EString $1 }
-  | '[' ListIdent ']' '(' ListTypeOrRef ')' '->' Type Block { Grammar.Abs.ELambda $2 $5 $8 $9 }
+  | '[' ListIdent ']' '(' ListArg ')' '->' Type Block { Grammar.Abs.ELambda $2 $5 $8 $9 }
   | '(' Expr ')' { $2 }
 
 ListIdent :: { [Grammar.Abs.Ident] }
@@ -252,15 +246,6 @@ ListExprOrRef
   : {- empty -} { [] }
   | ExprOrRef { (:[]) $1 }
   | ExprOrRef ',' ListExprOrRef { (:) $1 $3 }
-
-StructItem :: { Grammar.Abs.StructItem }
-StructItem : Type Ident { Grammar.Abs.StructItem $1 $2 }
-
-ListStructItem :: { [Grammar.Abs.StructItem] }
-ListStructItem
-  : {- empty -} { [] }
-  | StructItem { (:[]) $1 }
-  | StructItem ';' ListStructItem { (:) $1 $3 }
 
 {
 

@@ -1,10 +1,11 @@
-module TypeChecker where
+module TypeChecker(runProgramCheck) where
     import Types
     import Grammar.Abs
     import Memory
     import Control.Monad.Reader
     import Control.Monad.Except
     import Control.Monad.Identity
+    import Data.List as List
 
     import qualified Data.Map.Strict as Map
 
@@ -18,8 +19,8 @@ module TypeChecker where
 
     checkTypeExpr :: Type -> Expr -> TypeCheck ()
     checkTypeExpr t e = do
-        ex <- evalExprType e
-        checkType ex t
+        expr <- evalExprType e
+        checkType expr t
 
 
     evalTwoExpr :: Type -> Expr -> Expr -> TypeCheck Type
@@ -30,16 +31,16 @@ module TypeChecker where
 
 -- base
     evalExprType :: Expr -> TypeCheck Type
-    evalExprType (EVar id) = getTypeOfVarFromEnv id
+    evalExprType (EVar ident) = getTypeOfVarFromEnv ident
     evalExprType EInt {} = return TInt
     evalExprType (EString _) = return TString
     evalExprType ETrue  = return TBool
     evalExprType EFalse = return TBool
     evalExprType (EOr e1 e2) = evalTwoExpr TBool e1 e2
     evalExprType (EAnd e1 e2) = evalTwoExpr TBool e1 e2
-    evalExprType (ERel e1 op e2) = evalTwoExpr TBool e1 e2
-    evalExprType (EAdd e1 op e2) = evalTwoExpr TInt e1 e2
-    evalExprType (EMul e1 op e2) = evalTwoExpr TInt e1 e2
+    evalExprType (ERel e1 _ e2) = evalTwoExpr TBool e1 e2
+    evalExprType (EAdd e1 _ e2) = evalTwoExpr TInt e1 e2
+    evalExprType (EMul e1 _ e2) = evalTwoExpr TInt e1 e2
     evalExprType (ENot e) = do 
         checkTypeExpr TBool e
         return TBool
@@ -47,9 +48,17 @@ module TypeChecker where
         checkTypeExpr TBool e
         return TBool
 
--- lambda
- --   evalExprType (ELambda id args typ block) = do
+    evalExprType (EApp expr vars) = do 
+        TLambda argt typ <- evalExprType expr
+        --ensureArgsTypes argt vars
+        return typ
 
+-- lambda
+    evalExprType (ELambda idents args typ (Block block)) = do 
+        (block_env, Just ret_typ) <- checkList block 
+        checkType typ ret_typ
+        let argt = foldl' (\acc (Arg t i) -> (t:acc)) [] args
+        return $ TLambda argt typ
 
 -- lists
     evalExprType (EEmptyList t) = return $ TList t
@@ -69,13 +78,8 @@ module TypeChecker where
         typ <- evalExprType expr
         case typ of
             TList ltyp -> return ltyp
-            otherwise -> throwError $ NotListException typ
+            _ -> throwError $ NotListException typ
 
-    evalListExprType :: [Expr] -> TypeCheck Type
-    evalListExprType [] = return TVoid
-    evalListExprType (h:t) = do
-        evalExprType h
-        evalListExprType t
 
     type TypeCheckResult = Maybe Type
 
@@ -85,21 +89,30 @@ module TypeChecker where
         return (env, Nothing)
 
     checkTypeOfId :: Type -> Ident -> TypeCheck (TypeCheckEnv, TypeCheckResult)
-    checkTypeOfId typ id = do 
-        got <- getTypeOfVarFromEnv id
+    checkTypeOfId typ ident = do 
+        got <- getTypeOfVarFromEnv ident
         checkType typ got
         returnOk
 
     getTypeOfVarFromEnv :: Ident -> TypeCheck Type
-    getTypeOfVarFromEnv (Ident id) = do
+    getTypeOfVarFromEnv (Ident ident) = do
         env <- ask
-        case Map.lookup id env of
-            Nothing -> throwError $ IdentifierNotExistException id
+        case Map.lookup ident env of
+            Nothing -> throwError $ IdentifierNotExistException ident
             Just typ -> return typ
 
     check :: Stmt -> TypeCheck (TypeCheckEnv, TypeCheckResult)
--- If
+    check (SExpr expr) = do
+        evalExprType expr
+        returnOk
 
+    check (FunDef ident args typ (Block block)) = do
+        -- todo ident and args
+        (block_env, Just ret_typ) <- checkList block 
+        checkType typ ret_typ
+        checkList block
+
+-- If
     check (If cond (Block block)) = do
         checkTypeExpr TBool cond
         checkList block
@@ -110,15 +123,15 @@ module TypeChecker where
         checkList block2
 
 -- While/for
-    check (For id start end (Block block)) = do
+    check (For ident start end (Block block)) = do
         checkTypeExpr TInt start 
         checkTypeExpr TInt end 
-        checkTypeOfId TInt id
+        checkTypeOfId TInt ident
         checkList block
         
-    check (ForInList id list (Block block)) = do
+    check (ForInList ident list (Block block)) = do
         checkTypeExpr (TList TInt) list  
-        checkTypeOfId TInt id
+        checkTypeOfId TInt ident
         checkList block
 
     check (While cond (Block block)) = do
@@ -129,14 +142,14 @@ module TypeChecker where
 
 -- Lists
 
-    check (SListPush id expr) = do
+    check (SListPush ident expr) = do
         typ <- evalExprType expr
-        checkTypeOfId (TList typ) id
+        checkTypeOfId (TList typ) ident
 
 -- Assign
-    check (Assign id expr) = do
+    check (Assign ident expr) = do
         val <- evalExprType expr
-        checkTypeOfId val id
+        checkTypeOfId val ident
 
 -- Return
     check ReturnVoid = do
@@ -147,12 +160,31 @@ module TypeChecker where
         env <- ask
         val <- evalExprType expr
         return (env, Just val)
+
+    check (Decl typ ident) = do
+        case ident of 
+            NoInit (Ident i) -> do
+                unless (isValidVType False typ) $ throwError $ DeclarationInvTypeException typ
+                env <- ask
+                return (Map.insert i typ env, Nothing)
+
+            Init (Ident i) expr -> do
+                unless (isValidVType True typ) $ throwError $ DeclarationInvTypeException typ
+                evalExprType expr
+                env <- ask
+                return (Map.insert i typ env, Nothing)
 -- Print
+    check (PrintEndl expr) = check (Print expr)
+
     check (Print expr) = do
-        t <- evalListExprType expr
+        evalListExprType expr
         returnOk
 
-    check (PrintEndl expr) = check (Print expr)
+    evalListExprType :: [Expr] -> TypeCheck Type
+    evalListExprType [] = return TVoid
+    evalListExprType (h:t) = do
+        evalExprType h
+        evalListExprType t
 
 -- Check for prog
     checkList :: [Stmt] -> TypeCheck (TypeCheckEnv, TypeCheckResult)
@@ -164,15 +196,18 @@ module TypeChecker where
         (env, typ) <- check h
         case typ of
             Nothing -> checkList t -- TODO 
-            Just t -> return (env, Just t)
+            Just ok_typ -> return (env, Just ok_typ)
 
 -- Check number of 
-    isValidVType :: Type -> Bool -> TypeCheck Bool
-    isValidVType TInt _  = return True
-    isValidVType TBool _  = return True
-    isValidVType TString _ = return True
-    isValidVType TList {} _ = return True
-    isValidVType TLambda {} isInit = return isInit
-    isValidVType _ _ = return False
+    isValidVType :: Bool -> Type  -> Bool
+    isValidVType inited t =
+        case (inited, t) of
+            (_, TInt)  -> True
+            (_, TBool)  -> True
+            (_, TString) -> True
+            (_, TList {}) -> True
+            (isInit, TLambda {}) -> isInit
+            _ -> False
 
+    runProgramCheck :: [Stmt] -> IO (Either TypeCheckerExceptions (TypeCheckEnv, TypeCheckResult))
     runProgramCheck program = runExceptT $ runReaderT (checkList program) Map.empty
