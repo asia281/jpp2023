@@ -1,8 +1,8 @@
-lambda<() -> bool> var1 = [ ] () -> bool { return true; };
+lambda<() -> bool> var1 = () -> bool { return true; }
 
-lambda<() -> int> var2 = [ ] () -> int { return 2; };
+lambda<() -> int> var2 = () -> int { return 2; }
 
-lambda<() -> string> var3 = [ ] () -> string { return "hello"; };
+lambda<() -> string> var3 = () -> string { return "hello"; }
 
 bool t = var1();
 int two = var2();

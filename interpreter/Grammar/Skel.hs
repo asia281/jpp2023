@@ -103,7 +103,7 @@ transExpr x = case x of
   Grammar.Abs.EFalse -> failure x
   Grammar.Abs.EEmptyList type_ -> failure x
   Grammar.Abs.EString string -> failure x
-  Grammar.Abs.ELambda idents args type_ block -> failure x
+  Grammar.Abs.ELambda args type_ block -> failure x
   Grammar.Abs.EListLen expr -> failure x
   Grammar.Abs.EListAt expr1 expr2 -> failure x
 

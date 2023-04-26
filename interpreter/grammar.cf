@@ -80,7 +80,7 @@ ETrue.     Expr7 ::= "true" ;
 EFalse.    Expr7 ::= "false" ;
 EEmptyList. Expr7 ::= Type "[]" ;
 EString.   Expr7 ::= String;
-ELambda.   Expr7 ::= "[" [Ident] "]" "(" [Arg] ")" "->" Type Block ;
+ELambda.   Expr7 ::= "(" [Arg] ")" "->" Type Block ;
 separator  Ident "," ;
 
 

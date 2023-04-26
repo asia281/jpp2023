@@ -19,15 +19,15 @@ fun printer(lambda <(int) -> bool> cond) -> void{
 	for(i from -5 to 5){
 		if (cond(i)){
 			printEndl(i);
-		};
-	};	
+		}
+	}
 }
 
 printer(isEven);
 
 
 fun addToMap(lambda<(int)->int> map, int key, int val) -> lambda<(int)->int> {
-    return [map, key, val] (int i) -> int{
+    return (int i) -> int {
         if (i == key){
             return value;
         }
@@ -35,9 +35,9 @@ fun addToMap(lambda<(int)->int> map, int key, int val) -> lambda<(int)->int> {
             return map(i);
         }
     };
-};
+}
 
-lambda<(int)->int> m = [ ] (int i) -> int { return 0; };
+lambda<(int)->int> m = (int i) -> int { return 0; }
 
 addToMap(m, 3, 4);
 addToMap(m, 4, 5);

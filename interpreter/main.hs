@@ -27,7 +27,7 @@ module Main where
     main = do
         file <- getArgs
         case file of
-            [] -> error "No args provided!"
+            [] -> error "No path to file provided."
             f:_ -> do
                 program <- readFile f
                 let parser = pProgram . myLexer

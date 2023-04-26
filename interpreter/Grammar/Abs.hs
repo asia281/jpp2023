@@ -75,7 +75,7 @@ data Expr
     | EFalse
     | EEmptyList Type
     | EString String
-    | ELambda [Ident] [Arg] Type Block
+    | ELambda [Arg] Type Block
     | EListLen Expr
     | EListAt Expr Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)

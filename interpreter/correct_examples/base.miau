@@ -1,2 +1,15 @@
 
 int x;
+x = 6;
+
+fun factorial(int x) -> int {
+    int i;
+    int res = 1;
+    for (i from 1 to x){
+        res = res * i;
+    }
+    return res;
+}
+
+int fac = factorial(6);
+printEndl(fac);

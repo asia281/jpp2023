@@ -2,14 +2,14 @@
 
 fun increment(int n) -> int {
 	fun ident(int x) -> lambda<() -> int> {
-		return [x] () -> int { return x; };
+		return () -> int { return x; };
 	}
 	return ident(n)() + 1;
 }
 
 fun ident(int n) -> lambda<() -> int> {
 	fun increment(& int x) -> lambda<() -> int> {
-		return [x] () -> int { return x + 1; };
+		return () -> int { return x + 1; };
 	}
 
 	return increment(& n);

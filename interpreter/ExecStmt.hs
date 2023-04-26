@@ -19,7 +19,9 @@ module ExecStmt where
     defaultValue TBool = EFalse
     defaultValue TString = EString ""
     defaultValue (TList t) = EEmptyList t
-    
+    defaultValue TVoid = undefined
+    defaultValue (TLambda _ _) = undefined
+
 
     initalised :: Type -> Ident -> Expr -> Interpreter (Env, ReturnRes)
     initalised _ ident expr = do
@@ -27,13 +29,18 @@ module ExecStmt where
         new_env <- addIdentToMem ident evaledExpr
         return (new_env, Nothing)
 
+    noReturnExecStmt :: Stmt -> Interpreter ()
+    noReturnExecStmt stmt = do
+        _ <- execStmt stmt
+        return ()
+
     execStmt :: Stmt -> Interpreter (Env, ReturnRes)
     execStmt (Decl typ i) = do
         case i of
             NoInit ident -> initalised typ ident (defaultValue typ)
             Init ident expr -> initalised typ ident expr
 
-    execStmt (FunDef ident args typ (Block block)) = do
+    execStmt (FunDef ident args typ (Block block)) = do 
         -- todo
         returnNothing
 
@@ -50,7 +57,7 @@ module ExecStmt where
         returnNothing
 
     execStmt (SExpr expr) = do
-        evalExpr expr
+        noReturnEvalExpr expr
         returnNothing
 
 -- return
@@ -85,8 +92,8 @@ module ExecStmt where
         if evaledCond then do
             (_, returned) <- execList block
             case returned of
-                Nothing -> returnNothing
-                _ -> execStmt (While cond (Block block))
+                Nothing -> execStmt (While cond (Block block))
+                _ -> returnNothing
         else 
             returnNothing
 
@@ -108,7 +115,7 @@ module ExecStmt where
             loopList _ [] _ = returnNothing
             loopList i (h:t) b = do
                 updateIdentInMem i h
-                execList b
+                _ <- execList b
                 loopList i t b
 
 -- print

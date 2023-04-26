@@ -1,6 +1,6 @@
 Język Miauler (fr., czyt. miule), jezyk imperatywny. Rozszerzenie: .miau.
 -------------------------------------------------------------------
-  01 Typy:
+  01 (typy):
 Trzy typy: int, bool oraz string. Dodatkowo void 
 -------------------------------------------------------------------
   02 (literały, arytmetyka, porównania)
@@ -138,9 +138,10 @@ gdzie pojedynczy element to: [typ] [nazwa_zmiennej];
   17 (4) (funkcje wyższego rzędu, anonimowe, domknięcia)
 
 Funkcje anonimowe:
-lambda <([typ]) -> typ_zwracany> nazwa 
+lambda <([typ]) -> typ_zwracany> nazwa = (argumenty) -> typ_zwracany {}
 
-Funkcje wyzszego rzedu (funkcje jako parametry) będą.
+Lambda dostanie cale srodowisko. 
+Funkcje wyzszego rzedu (funkcje jako parametry) będą. 
 
   18 (3) (generatory)
 

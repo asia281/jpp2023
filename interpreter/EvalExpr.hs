@@ -1,4 +1,4 @@
-module EvalExpr(evalExpr) where
+module EvalExpr(evalExpr, noReturnEvalExpr) where
     import Grammar.Abs
     import Control.Monad.Except
     import Data.Map as Map
@@ -19,6 +19,11 @@ module EvalExpr(evalExpr) where
     evalRelOp GE e1 e2 = e1 >= e2
     evalRelOp Grammar.Abs.EQ e1 e2 = e1 == e2
     evalRelOp NEQ e1 e2 = e1 /= e2
+
+    noReturnEvalExpr :: Expr -> Interpreter ()
+    noReturnEvalExpr expr = do
+        _ <- evalExpr expr
+        return ()
 
     evalExpr :: Expr -> Interpreter VMemory
 
@@ -86,7 +91,7 @@ module EvalExpr(evalExpr) where
         return $ VFun f
 
 -- lambda
-    evalExpr (ELambda idents args typ (Block block)) = do 
+    evalExpr (ELambda args typ (Block block)) = do 
         conv_args <- argsToFun args []
         --return $ VFun $ conv_args typ block Map.empty 
         return $ VInt 1
