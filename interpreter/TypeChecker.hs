@@ -11,6 +11,7 @@ module TypeChecker(runProgramCheck) where
     type TypeCheckEnv = Map.Map Name Type
     type TypeCheck = ReaderT TypeCheckEnv (ExceptT TypeCheckerExceptions IO)
 
+
     checkType :: Type -> Type -> TypeCheck ()
     checkType expected got = unless (expected == got) $ throwError (TypeCheckException expected got)
 
@@ -18,7 +19,6 @@ module TypeChecker(runProgramCheck) where
     checkTypeExpr t e = do
         expr <- evalExprType e
         checkType expr t
-
 
     evalTwoExpr :: Type -> Expr -> Expr -> Type -> TypeCheck Type
     evalTwoExpr expected e1 e2 ret = do
@@ -99,9 +99,7 @@ module TypeChecker(runProgramCheck) where
             Nothing -> throwError $ IdentifierNotExistException ident
 
     check :: Stmt -> TypeCheck (TypeCheckEnv, TypeCheckResult)
-    check (SExpr expr) = do
-        _ <- evalExprType expr
-        returnOk
+    check (SExpr expr) = evalExprType expr >> returnOk
 
     check (FunDef ident args typ (Block block)) = do
         -- todo ident and args
@@ -117,11 +115,11 @@ module TypeChecker(runProgramCheck) where
 
     check (IfElse cond (Block block1) (Block block2)) = do
         checkTypeExpr TBool cond
-        t1 <- checkList block1
-        t2 <- checkList block2
-        case (t1, t2) of
-            (Nothing, Nothing) -> returnNothing
-            (Nothing, Nothing) -> returnNothing
+        (_, t1) <- checkList block1
+        (_, t2) <- checkList block2
+        unless (t1 == t2) $ throwError (ReturnTypeMismatchException t1 t2)
+        env <- ask
+        return (env, t1)
 
 -- While/for
     check (For ident start end (Block block)) = do
@@ -162,24 +160,12 @@ module TypeChecker(runProgramCheck) where
         val <- evalExprType expr
         return (env, Just val)
 
-    check (Decl typ ident) = do
-        case ident of 
-            NoInit (Ident i) -> do
-                unless (isValidVType False typ) $ throwError $ DeclarationInvTypeException typ
-                env <- ask
-                return (Map.insert i typ env, Nothing)
-
-            Init (Ident i) expr -> do
-                unless (isValidVType True typ) $ throwError $ DeclarationInvTypeException typ
-                _ <- evalExprType expr
-                env <- ask
-                return (Map.insert i typ env, Nothing)
+    check (Decl typ ident) = checkDecl typ ident
+        
 -- Print
     check (PrintEndl expr) = check (Print expr)
 
-    check (Print expr) = do
-        _ <- evalListExprType expr
-        returnOk
+    check (Print expr) = evalListExprType expr >> returnOk
 
     evalListExprType :: [Expr] -> TypeCheck Type
     evalListExprType [] = return TVoid
@@ -189,9 +175,7 @@ module TypeChecker(runProgramCheck) where
 
 -- Check for prog
     checkList :: [Stmt] -> TypeCheck (TypeCheckEnv, TypeCheckResult)
-    checkList [] = do
-        env <- ask
-        return (env, Nothing)
+    checkList [] = returnOk
 
     checkList (h:t) = do
         (env, typ) <- check h
@@ -199,16 +183,21 @@ module TypeChecker(runProgramCheck) where
             Just ok_typ -> return (env, Just ok_typ)
             Nothing -> local (const env) (checkList t)
 
--- Check number of 
+    checkDecl :: Type -> Item -> TypeCheck (TypeCheckEnv, TypeCheckResult)
+    checkDecl typ (NoInit (Ident i)) = do
+        unless (isValidVType False typ) $ throwError $ DeclarationInvTypeException typ
+        env <- ask
+        return (Map.insert i typ env, Nothing)
+
+    checkDecl typ (Init (Ident i) expr) = do
+        unless (isValidVType True typ) $ throwError $ DeclarationInvTypeException typ
+        _ <- evalExprType expr
+        env <- ask
+        return (Map.insert i typ env, Nothing)
+
     isValidVType :: Bool -> Type  -> Bool
-    isValidVType inited t =
-        case (inited, t) of
-            (_, TInt)  -> True
-            (_, TBool)  -> True
-            (_, TString) -> True
-            (_, TList {}) -> True
-            (isInit, TLambda {}) -> isInit
-            _ -> False
+    isValidVType inited TLambda {} = inited
+    isValidVType _ _ = True
 
     runProgramCheck :: [Stmt] -> IO (Either TypeCheckerExceptions (TypeCheckEnv, TypeCheckResult))
     runProgramCheck program = runExceptT $ runReaderT (checkList program) Map.empty

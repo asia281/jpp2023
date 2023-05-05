@@ -20,10 +20,10 @@ else {
 	}
 }
 
-printEndl(x, x-1);
+print(x, x-1);
 
 while (x < 16) {
 	x = x + 1;
 }
 
-print(x);
+print(x, "\n");

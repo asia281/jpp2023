@@ -1,18 +1,20 @@
-module EvalExpr(evalExpr, noReturnEvalExpr) where
+module EvalExpr(evalExpr) where
     import Grammar.Abs
     import Control.Monad.Except
-    import Data.Map as Map
     import Types
     import Memory
 
 -- EXPRESSION --
+    evalAddOp :: AddOp -> Integer -> Integer -> Integer
     evalAddOp Minus e1 e2 = e1 - e2
     evalAddOp Plus e1 e2 = e1 + e2
 
+    evalMulOp :: MulOp -> Integer -> Integer -> Integer
     evalMulOp Mul e1 e2 = e1 * e2
     evalMulOp Div e1 e2 = div e1 e2
     evalMulOp Mod e1 e2 = e1 `mod` e2
 
+    evalRelOp :: RelOp -> Integer -> Integer -> Bool
     evalRelOp LTH e1 e2 = e1 < e2
     evalRelOp LE e1 e2 = e1 <= e2
     evalRelOp GTH e1 e2 = e1 > e2
@@ -20,14 +22,8 @@ module EvalExpr(evalExpr, noReturnEvalExpr) where
     evalRelOp Grammar.Abs.EQ e1 e2 = e1 == e2
     evalRelOp NEQ e1 e2 = e1 /= e2
 
-    noReturnEvalExpr :: Expr -> Interpreter ()
-    noReturnEvalExpr expr = do
-        _ <- evalExpr expr
-        return ()
-
     evalExpr :: Expr -> Interpreter VMemory
-
-    evalExpr (EVar ident) = getVFromIdent ident
+    evalExpr (EVar ident) = getValueFromIdent ident
     evalExpr ETrue = return $ VBool True
     evalExpr EFalse = return $ VBool False
     evalExpr (EInt var) = return $ VInt var
@@ -80,8 +76,9 @@ module EvalExpr(evalExpr, noReturnEvalExpr) where
     evalExpr (EListAt l pos) = do
         VInt idx <- evalExpr pos
         VList (_, elements) <- evalExpr l
-        if idx < 0 || length elements >= fromIntegral idx then
-            throwError $ OutOfRangeExeption idx
+        let listLen = fromIntegral (length elements)
+        if idx < 0 || listLen <= idx then
+            throwError $ OutOfRangeExeption listLen idx
         else 
             return $ elements !! fromIntegral idx
 

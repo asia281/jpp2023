@@ -29,11 +29,6 @@ module ExecStmt where
         new_env <- addIdentToMem ident evaledExpr
         return (new_env, Nothing)
 
-    noReturnExecStmt :: Stmt -> Interpreter ()
-    noReturnExecStmt stmt = do
-        _ <- execStmt stmt
-        return ()
-
     execStmt :: Stmt -> Interpreter (Env, ReturnRes)
     execStmt (Decl typ i) = do
         case i of
@@ -46,8 +41,9 @@ module ExecStmt where
 
     execStmt (SListPush ident expr) = do
         evaledExpr <- evalExpr expr
-        -- add push
-        updateIdentInMem ident evaledExpr
+        VList (typ, list) <- getValueFromIdent ident
+        let newList = VList (typ, list ++ [evaledExpr])
+        updateIdentInMem ident newList
         returnNothing
 
 -- assignment
@@ -57,7 +53,7 @@ module ExecStmt where
         returnNothing
 
     execStmt (SExpr expr) = do
-        noReturnEvalExpr expr
+        _ <- evalExpr expr
         returnNothing
 
 -- return
@@ -104,7 +100,8 @@ module ExecStmt where
         updateIdentInMem ident (VInt evaledStart)
         let plusOne = [Assign ident (EAdd (EInt 1) Plus (EVar ident))]
         let forBlock = Block (block ++ plusOne)
-        execStmt $ While (ERel (EVar ident) LE (EInt evaledEnd)) forBlock
+        let cond = ERel (EVar ident) LE (EInt evaledEnd)
+        execStmt $ While cond forBlock
         
         
     execStmt (ForInList ident list (Block block)) = do
@@ -124,12 +121,10 @@ module ExecStmt where
             [] -> returnNothing
             h:t -> do
                 expr <- evalExpr h
-                liftIO $ putStr $ vToString expr ++ " "
+                liftIO $ putStr (vToString expr ++ " ")
                 execStmt (Print t)
         
-    execStmt (PrintEndl e) = do
-        execStmt (Print (e ++ [EString "\n"])) 
-
+    execStmt (PrintEndl e) = execStmt (Print (e ++ [EString "\n"])) 
         
     vToString :: VMemory -> String
     vToString (VInt x) = show x

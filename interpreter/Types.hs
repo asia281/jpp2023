@@ -52,7 +52,7 @@ module Types where
 -- Exceptions
     data RuntimeExceptions = NoReturnException 
                             | ZeroDivisionException
-                            | OutOfRangeExeption Integer 
+                            | OutOfRangeExeption Integer Integer
                             | NoStructFieldException String deriving Show
 
     data TypeCheckerExceptions = TypeCheckException Type Type 
@@ -60,7 +60,7 @@ module Types where
                                 | FuncArgsInvTypeException Type 
                                 | NotListException Type 
                                 | IdentifierNotExistException String 
-                                | ReturnTypeMismatchException (Maybe Type) (Maybe Type)  deriving Show
+                                | ReturnTypeMismatchException (Maybe Type) (Maybe Type) deriving Show
 
 
 -- Structs
