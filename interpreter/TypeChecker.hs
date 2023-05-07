@@ -1,7 +1,6 @@
 module TypeChecker(runProgramCheck) where
     import Types
     import Grammar.Abs
-    import Memory
     import Control.Monad.Reader
     import Control.Monad.Except
     import Data.List as List
@@ -18,7 +17,7 @@ module TypeChecker(runProgramCheck) where
     checkTypeExpr :: Type -> Expr -> TypeCheck ()
     checkTypeExpr t e = do
         expr <- evalExprType e
-        checkType expr t
+        checkType t expr
 
     evalTwoExpr :: Type -> Expr -> Expr -> Type -> TypeCheck Type
     evalTwoExpr expected e1 e2 ret = do
@@ -47,10 +46,14 @@ module TypeChecker(runProgramCheck) where
 
 -- lambda
     evalExprType (ELambda args typ (Block block)) = do 
-        (block_env, Just ret_typ) <- checkList block 
-        checkType typ ret_typ
         let argt = foldl' (\acc (Arg t _) -> (t:acc)) [] args
-        return $ TLambda argt typ
+        (_, retTyp) <- checkList block 
+        case (retTyp, typ) of
+            (Nothing, TVoid) -> return $ TLambda argt TVoid
+            (Nothing, _) -> throwError $ ReturnTypeMismatchException TVoid typ
+            (Just vRet, _) -> do
+                unless (vRet == typ) $ throwError $ ReturnTypeMismatchException vRet typ
+                return $ TLambda argt typ
 
 -- lists
     evalExprType (EEmptyList t) = return $ TList t
@@ -69,6 +72,7 @@ module TypeChecker(runProgramCheck) where
         mapMTwo argt vars
         return typ
 
+    mapMTwo :: [TypeOrRef] -> [ExprOrRef] -> TypeCheck ()
     mapMTwo [] [] = return ()
     mapMTwo (arg : argt) (var : t) = do
         _ <- checkArgs arg var
@@ -83,6 +87,8 @@ module TypeChecker(runProgramCheck) where
                 checkType typ exprTyp
 
             checkArgs _ _ = throwError InvalidTypesInApplication
+
+    mapMTwo _ _ = undefined
 
 
     evalListType :: Expr -> TypeCheck Type
@@ -103,7 +109,7 @@ module TypeChecker(runProgramCheck) where
     checkTypeOfId :: Type -> Ident -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     checkTypeOfId typ ident = do 
         got <- getTypeOfVarFromEnv ident
-        checkType typ got
+        checkType got typ
         returnOk
 
     getTypeOfVarFromEnv :: Ident -> TypeCheck Type
@@ -113,27 +119,34 @@ module TypeChecker(runProgramCheck) where
             Just typ -> return typ
             Nothing -> throwError $ IdentifierNotExistException ident
 
+    checkUniqueness :: [Char] -> [Arg] -> [[Char]] -> TypeCheck()
+    checkUniqueness _ [] _ = return ()
+    checkUniqueness ident ((Arg _ (Ident x)):xs) acc = do
+        if elem x acc
+            then throwError $ NonUniqueArgName ident x
+            else checkUniqueness ident xs (x : acc)
 
     check :: Stmt -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     check (SExpr expr) = evalExprType expr >> returnOk
 
     check (FunDef (Ident ident) args typ (Block block)) = do
-        begEnv <- ask
+        checkUniqueness ident args []
         let argt = foldl' (\acc (Arg t _) -> (t:acc)) [] args
         let fun = TLambda argt typ
+        begEnv <- ask
         newEnv <- foldM addArgTypesToEnv begEnv args
 
         let envAfterFuncDef = Map.insert ident fun newEnv
         (env, retTyp) <- local (const envAfterFuncDef) (checkList block)
         case (retTyp, typ) of
-            (Nothing, TVoid) -> return (env, Nothing)
+            (Nothing, TVoid) -> return (Map.insert ident fun env, Nothing)
             (Nothing, _) -> throwError $ ReturnTypeMismatchException TVoid typ
-            (Just vRet, _) -> do
+            (Just vRet, _) -> do 
                 unless (vRet == typ) $ throwError $ ReturnTypeMismatchException vRet typ
-                return (env, Just vRet)
+                return (Map.insert ident fun env, Just vRet)
         where 
-            addArgTypesToEnv prevEnv (Arg (TRRef typ) (Ident ident)) = return $ Map.insert ident typ prevEnv
-            addArgTypesToEnv prevEnv (Arg (TRType typ) (Ident ident)) = return $ Map.insert ident typ prevEnv
+            addArgTypesToEnv prevEnv (Arg (TRRef trtyp) (Ident i)) = return $ Map.insert i trtyp prevEnv
+            addArgTypesToEnv prevEnv (Arg (TRType trtyp) (Ident i)) = return $ Map.insert i trtyp prevEnv
 
 -- If
     check (If cond (Block block)) = do

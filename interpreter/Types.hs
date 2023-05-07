@@ -55,6 +55,7 @@ module Types where
                                 | FuncArgsInvTypeException Type 
                                 | NotListException Type 
                                 | InvalidTypesInApplication
+                                | NonUniqueArgName String String
                                 | IdentifierNotExistException String 
                                 | ReturnTypeMismatchException Type Type deriving Show
 

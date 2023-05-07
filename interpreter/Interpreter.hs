@@ -1,4 +1,4 @@
-module ExecStmt where
+module Interpreter(runProgram) where
     import Grammar.Abs
 
     import qualified Data.Map.Strict as Map
@@ -188,7 +188,6 @@ module ExecStmt where
         env <- ask
         val <- evalExpr expr
         return (env, Just val)
-
     
 -- conditions
     execStmt (If cond (Block block)) = do
@@ -253,7 +252,7 @@ module ExecStmt where
     vToString (VInt x) = show x
     vToString (VBool x) = show x
     vToString (VString s) = s
-    vToString (VList (_, elements)) = "[" ++ (foldl' (\a b -> a ++ (vToString b) ++ ", " ) "" elements) ++ "]"
+    vToString (VList (typ, elements)) = "Type of list: " ++ show typ ++ ", [" ++ (foldl' (\a b -> a ++ (vToString b) ++ ", " ) "" elements) ++ "]"
     vToString  _ = undefined 
 
     returnNothing :: Interpreter (Env, ReturnRes)

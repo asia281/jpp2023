@@ -8,7 +8,7 @@ module Main where
     import Grammar.Abs
     import Grammar.ErrM
     import TypeChecker
-    import ExecStmt
+    import Interpreter
     import Exceptions
 
     run :: [Stmt] -> IO ()

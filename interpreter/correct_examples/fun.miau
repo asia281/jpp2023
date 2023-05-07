@@ -23,18 +23,18 @@ fun printer() -> void{
 	}
 }
 
-printer();
+printer(); # 0 2 4 
 
 fun printerLambda(lambda<(int)->bool> cond) -> void{
 	int i;
-	for(i from -10 to 5){
+	for(i from -3 to 5){
 		if (cond(i)){
 			printEndl(i);
 		}
 	}
 }
 
-printerLambda(isEven);
+printerLambda(isEven); # -2 0 2 4
 
 fun addToMap(lambda<(int)->int> map, int key, int val) -> lambda<(int)->int> {
     return (int i) -> int {
@@ -47,7 +47,7 @@ fun addToMap(lambda<(int)->int> map, int key, int val) -> lambda<(int)->int> {
     };
 }
 
-lambda<(int)->int> m = (int i) -> int { return 0; }
+lambda<(int)->int> m = (int i) -> int { return i; }
 
 addToMap(m, 3, 4);
 addToMap(m, 4, 5);
