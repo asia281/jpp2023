@@ -29,6 +29,13 @@ module ExecStmt where
         new_env <- addIdentToMem ident evaledExpr
         return (new_env, Nothing)
 
+    argsToFunArgs :: [Arg] -> FunArgList
+    argsToFunArgs [] = []
+    argsToFunArgs (h:t) = 
+        case h of
+            (Arg (TRType typ) i) -> [(ByValue, typ, i)] ++ (argsToFunArgs t)
+            (Arg (TRRef typ) i) -> [(ByReference, typ, i)] ++ (argsToFunArgs t)
+
     execStmt :: Stmt -> Interpreter (Env, ReturnRes)
     execStmt (Decl typ i) = do
         case i of
@@ -37,7 +44,11 @@ module ExecStmt where
 
     execStmt (FunDef ident args typ (Block block)) = do 
         -- todo
-        returnNothing
+        let conv_args = argsToFunArgs args 
+        new_env <- addIdentToMem ident VVoid
+        -- zachowaj poprawny env dla funkcji  
+        local (const new_env) (updateIdentInMem ident (VFun (conv_args, typ, block, funEnv)))
+        return (new_env, Nothing)
 
     execStmt (SListPush ident expr) = do
         evaledExpr <- evalExpr expr

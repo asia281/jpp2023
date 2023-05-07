@@ -26,7 +26,7 @@ module Types where
     type FunArgList = [FunArg]
 
     -- Function - function body, environment of function, return type
-    type FuncDef = (FunArgList, Type, [Stmt], Env)
+    type FuncDef = ([FunArgList] -> Interpreter VMemory)
 
     -- List definition - hold type and list of values
     type ListDef = (Type, [VMemory])
