@@ -137,7 +137,9 @@ module TypeChecker(runProgramCheck) where
         newEnv <- foldM addArgTypesToEnv begEnv args
 
         let envAfterFuncDef = Map.insert ident fun newEnv
-        (env, retTyp) <- local (const envAfterFuncDef) (checkList block)
+        (_, retTyp) <- local (const envAfterFuncDef) (checkList block)
+        env <- ask
+
         case (retTyp, typ) of
             (Nothing, TVoid) -> return (Map.insert ident fun env, Nothing)
             (Nothing, _) -> throwError $ ReturnTypeMismatchException TVoid typ
@@ -171,7 +173,8 @@ module TypeChecker(runProgramCheck) where
         checkTypeExpr TInt start 
         checkTypeExpr TInt end 
         _ <- checkTypeOfId TInt ident
-        checkList block
+        env <- ask
+        local (const env) (checkList block)
         
     check (ForInList ident list (Block block)) = do
         checkTypeExpr (TList TInt) list  
@@ -224,6 +227,8 @@ module TypeChecker(runProgramCheck) where
 
     checkList (h:t) = do
         (env, typ) <- check h
+        liftIO $ print (Map.toList env)
+        
         case typ of
             Just ok_typ -> return (env, Just ok_typ)
             Nothing -> local (const env) (checkList t)
