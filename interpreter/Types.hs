@@ -17,16 +17,11 @@ module Types where
     -- Return value of block of statements, no return = nothing, otherwise = Just VMemory 
     type ReturnRes = Maybe VMemory
 
-    -- How to pass an argument to function
-    data PassArgType = ByValue | ByReference deriving Show 
-
-    -- Argument passed to function (name, type of variable, way of passing argument)
-    type FunArg = (PassArgType, Type, Ident)
-    -- list of arguments passed to function
-    type FunArgList = [FunArg]
+    -- Ident for passing by ref, vmemory otherwise
+    data FuncVal = ByReference Ident | ByType VMemory
 
     -- Function - function body, environment of function, return type
-    type FuncDef = ([FunArgList] -> Interpreter VMemory)
+    type FuncDef = ([FuncVal] -> Interpreter VMemory)
 
     -- List definition - hold type and list of values
     type ListDef = (Type, [VMemory])
@@ -44,7 +39,7 @@ module Types where
                 | VFun FuncDef 
                 | VList ListDef 
                 | VStruct StructDef 
-                | VStructType StructType deriving Show
+                | VStructType StructType
 
     -- state in memory, next free location and 
     type Store = (StateInMemory, Loc)
@@ -59,8 +54,9 @@ module Types where
                                 | DeclarationInvTypeException Type 
                                 | FuncArgsInvTypeException Type 
                                 | NotListException Type 
+                                | InvalidTypesInApplication
                                 | IdentifierNotExistException String 
-                                | ReturnTypeMismatchException (Maybe Type) (Maybe Type) deriving Show
+                                | ReturnTypeMismatchException Type Type deriving Show
 
 
 -- Structs

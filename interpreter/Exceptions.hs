@@ -12,6 +12,7 @@ module Exceptions(printTypeCheckError, printRuntimeError) where
             DeclarationInvTypeException t -> die $ "Wrong type of a declared element: " ++ show t
             FuncArgsInvTypeException t -> die $ "Wrong type of argument in function: " ++ show t
             NotListException t -> die $ "Element is not a list: " ++ show t
+            InvalidTypesInApplication -> die $ "Function application got mismatching argument types"
             IdentifierNotExistException str -> die $ "No such identifier: " ++ show str 
             ReturnTypeMismatchException t1 t2 -> die $ "Mismatch in returned type, expected: " ++ show t1 ++ ", got: " ++ show t2
 

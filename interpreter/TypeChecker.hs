@@ -13,7 +13,7 @@ module TypeChecker(runProgramCheck) where
 
 
     checkType :: Type -> Type -> TypeCheck ()
-    checkType expected got = unless (expected == got) $ throwError (TypeCheckException expected got)
+    checkType expected got = unless (expected == got) $ throwError $ TypeCheckException expected got
 
     checkTypeExpr :: Type -> Expr -> TypeCheck ()
     checkTypeExpr t e = do
@@ -45,16 +45,11 @@ module TypeChecker(runProgramCheck) where
         checkTypeExpr TBool e
         return TBool
 
-    evalExprType (EApp expr vars) = do 
-        TLambda argt typ <- evalExprType expr
-        --ensureArgsTypes argt vars
-        return typ
-
 -- lambda
     evalExprType (ELambda args typ (Block block)) = do 
         (block_env, Just ret_typ) <- checkList block 
         checkType typ ret_typ
-        let argt = foldl' (\acc (Arg t i) -> (t:acc)) [] args
+        let argt = foldl' (\acc (Arg t _) -> (t:acc)) [] args
         return $ TLambda argt typ
 
 -- lists
@@ -65,10 +60,30 @@ module TypeChecker(runProgramCheck) where
         checkType TInt typ
         evalListType lexpr
 
-
     evalExprType (EListLen lexpr) = do
         _ <- evalListType lexpr 
         return TInt
+    
+    evalExprType (EApp expr vars) = do 
+        TLambda argt typ <- evalExprType expr
+        mapMTwo argt vars
+        return typ
+
+    mapMTwo [] [] = return ()
+    mapMTwo (arg : argt) (var : t) = do
+        _ <- checkArgs arg var
+        mapMTwo argt t
+        where 
+            checkArgs (TRRef typ) (EorRRef ident) = do
+                identType <- getTypeOfVarFromEnv ident
+                checkType typ identType
+
+            checkArgs (TRType typ) (EorRExpr expr) = do
+                exprTyp <- evalExprType expr
+                checkType typ exprTyp
+
+            checkArgs _ _ = throwError InvalidTypesInApplication
+
 
     evalListType :: Expr -> TypeCheck Type
     evalListType expr = do
@@ -98,15 +113,28 @@ module TypeChecker(runProgramCheck) where
             Just typ -> return typ
             Nothing -> throwError $ IdentifierNotExistException ident
 
+
     check :: Stmt -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     check (SExpr expr) = evalExprType expr >> returnOk
 
     check (FunDef ident args typ (Block block)) = do
         -- todo ident and args
+        begEnv <- ask
+        let argt = foldl' (\acc (Arg t _) -> (t:acc)) [] args
+        let fun = TLambda argt typ
+        newEnv <- foldM addArgTypesToEnv begEnv args
 
-        (block_env, Just ret_typ) <- checkList block 
-        checkType typ ret_typ
-        checkList block
+        let envAfterFuncDef = Map.insert ident fun newEnv
+        (env, retTyp) <- local (const envAfterFuncDef) (checkList block)
+        case (retTyp, typ) of
+            (Nothing, TVoid) -> return (env, Nothing)
+            (Nothing, _) -> throwError $ ReturnTypeMismatchException TVoid typ
+            (Just vRet, _) -> do
+                unless (vRet == typ) $ throwError $ ReturnTypeMismatchException vRet typ
+                return (env, Just vRet)
+        where 
+            addArgTypesToEnv prevEnv (Arg (TRRef typ) (Ident ident)) = return $ Map.insert ident typ prevEnv
+            addArgTypesToEnv prevEnv (Arg (TRType typ) (Ident ident)) = return $ Map.insert ident typ prevEnv
 
 -- If
     check (If cond (Block block)) = do
@@ -117,9 +145,14 @@ module TypeChecker(runProgramCheck) where
         checkTypeExpr TBool cond
         (_, t1) <- checkList block1
         (_, t2) <- checkList block2
-        unless (t1 == t2) $ throwError (ReturnTypeMismatchException t1 t2)
         env <- ask
-        return (env, t1)
+        case (t1, t2) of
+            (Nothing, Nothing) -> return (env, Nothing)
+            (Nothing, Just t2') -> throwError $ ReturnTypeMismatchException TVoid t2'
+            (Just t1', Nothing) -> throwError $ ReturnTypeMismatchException t1' TVoid
+            (Just t1', Just t2') -> do
+                unless (t1' == t2') $ throwError $ ReturnTypeMismatchException t1' t2'
+                return (env, t1)
 
 -- While/for
     check (For ident start end (Block block)) = do

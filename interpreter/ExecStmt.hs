@@ -29,12 +29,26 @@ module ExecStmt where
         new_env <- addIdentToMem ident evaledExpr
         return (new_env, Nothing)
 
-    argsToFunArgs :: [Arg] -> FunArgList
-    argsToFunArgs [] = []
-    argsToFunArgs (h:t) = 
-        case h of
-            (Arg (TRType typ) i) -> [(ByValue, typ, i)] ++ (argsToFunArgs t)
-            (Arg (TRRef typ) i) -> [(ByReference, typ, i)] ++ (argsToFunArgs t)
+    argsToFunArgs :: Env -> (Arg, FuncVal) -> Interpreter Env
+    argsToFunArgs prevEnv ((Arg (TRType typ) i), (ByType val)) = do
+        local (const prevEnv) (addIdentToMem i val)
+
+    argsToFunArgs prevEnv ((Arg (TRRef typ) i), (ByReference ident)) = do
+        loc <- local (const prevEnv) (getLocFromIdent i)
+        return (Map.insert i loc prevEnv)
+
+    makeFun :: [Arg] -> [Stmt] -> Type -> Interpreter ([FuncVal] -> Interpreter VMemory)
+    makeFun args block typ = do
+        env <- ask
+        let fun vals = do
+            fun_env <- foldM argsToFunArgs env (zip args vals)
+            (_, retRes)<- local (const env) (execList block)
+            case (retRes, typ) of
+                (Nothing, VVoid) -> return VVoid
+                -- typechecker powinien sprawdzic (_, VVoid)
+                (Just vRetRes, _) -> return vRetRes
+                _ -> throwError $ NoReturnException
+        return fun
 
     execStmt :: Stmt -> Interpreter (Env, ReturnRes)
     execStmt (Decl typ i) = do
@@ -43,12 +57,10 @@ module ExecStmt where
             Init ident expr -> initalised typ ident expr
 
     execStmt (FunDef ident args typ (Block block)) = do 
-        -- todo
-        let conv_args = argsToFunArgs args 
-        new_env <- addIdentToMem ident VVoid
-        -- zachowaj poprawny env dla funkcji  
-        local (const new_env) (updateIdentInMem ident (VFun (conv_args, typ, block, funEnv)))
-        return (new_env, Nothing)
+        fun <- makeFun args block typ
+        env <- addIdentToMem ident fun
+        return (env, Nothing)
+
 
     execStmt (SListPush ident expr) = do
         evaledExpr <- evalExpr expr
