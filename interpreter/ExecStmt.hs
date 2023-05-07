@@ -30,24 +30,25 @@ module ExecStmt where
         return (new_env, Nothing)
 
     argsToFunArgs :: Env -> (Arg, FuncVal) -> Interpreter Env
-    argsToFunArgs prevEnv ((Arg (TRType typ) i), (ByType val)) = do
+    argsToFunArgs prevEnv ((Arg _ i), (ByType val)) = do
         local (const prevEnv) (addIdentToMem i val)
 
-    argsToFunArgs prevEnv ((Arg (TRRef typ) i), (ByReference ident)) = do
-        loc <- local (const prevEnv) (getLocFromIdent i)
+    argsToFunArgs prevEnv ((Arg _ (Ident i)), (ByReference ident)) = do
+        -- sprawdz czy nie pomylilam i z ident
+        loc <- local (const prevEnv) (getLocFromIdent ident)
         return (Map.insert i loc prevEnv)
 
-    makeFun :: [Arg] -> [Stmt] -> Type -> Interpreter ([FuncVal] -> Interpreter VMemory)
+    makeFun :: [Arg] -> [Stmt] -> Type -> Interpreter FuncDef
     makeFun args block typ = do
         env <- ask
         let fun vals = do
-            fun_env <- foldM argsToFunArgs env (zip args vals)
-            (_, retRes)<- local (const env) (execList block)
-            case (retRes, typ) of
-                (Nothing, VVoid) -> return VVoid
-                -- typechecker powinien sprawdzic (_, VVoid)
-                (Just vRetRes, _) -> return vRetRes
-                _ -> throwError $ NoReturnException
+                fun_env <- foldM argsToFunArgs env (zip args vals)
+                (_, retRes)<- local (const fun_env) (execList block)
+                case (retRes, typ) of
+                    (Nothing, TVoid) -> return VVoid
+                    -- typechecker powinien sprawdzic (_, VVoid)
+                    (Just vRetRes, _) -> return vRetRes
+                    _ -> throwError $ NoReturnException
         return fun
 
     execStmt :: Stmt -> Interpreter (Env, ReturnRes)
@@ -58,7 +59,7 @@ module ExecStmt where
 
     execStmt (FunDef ident args typ (Block block)) = do 
         fun <- makeFun args block typ
-        env <- addIdentToMem ident fun
+        env <- addIdentToMem ident (VFun fun)
         return (env, Nothing)
 
 
@@ -153,9 +154,8 @@ module ExecStmt where
     vToString (VInt x) = show x
     vToString (VBool x) = show x
     vToString (VString s) = s
-    vToString (VFun (args, typ, _, _)) = "Function (" ++ show args ++ ") -> " ++ show typ
     vToString (VList (_, elements)) = "[" ++ (foldl' (\a b -> a ++ (vToString b) ++ ", " ) "" elements) ++ "]"
-    vToString e = show e
+    vToString  _ = undefined 
 
     returnNothing :: Interpreter (Env, ReturnRes)
     returnNothing = do

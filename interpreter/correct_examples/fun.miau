@@ -14,17 +14,27 @@ fun isEven(int x) -> bool {
 int x = square(5);
 bool y = isEven(x);
 
-fun printer(lambda <(int) -> bool> cond) -> void{
+fun printer() -> void{
 	int i;
-	for(i from -5 to 5){
+	for(i from 0 to 5){
+		if (isEven(i)){
+			printEndl(i);
+		}
+	}
+}
+
+printer();
+
+fun printerLambda(lambda<(int)->bool> cond) -> void{
+	int i;
+	for(i from -10 to 5){
 		if (cond(i)){
 			printEndl(i);
 		}
 	}
 }
 
-printer(isEven);
-
+printerLambda(isEven);
 
 fun addToMap(lambda<(int)->int> map, int key, int val) -> lambda<(int)->int> {
     return (int i) -> int {

@@ -95,8 +95,8 @@ module EvalExpr(evalExpr) where
         val <- evalExpr expr
         return $ ByType val
 
--- lambda
-    -- evalExpr (ELambda args typ (Block block)) = do 
-    --     return $ VFun $ makeFun args block typ
+lambda
+    evalExpr (ELambda args typ (Block block)) = do 
+        return $ VFun $ makeFun args block typ
 
 -- structs

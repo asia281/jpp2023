@@ -117,8 +117,7 @@ module TypeChecker(runProgramCheck) where
     check :: Stmt -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     check (SExpr expr) = evalExprType expr >> returnOk
 
-    check (FunDef ident args typ (Block block)) = do
-        -- todo ident and args
+    check (FunDef (Ident ident) args typ (Block block)) = do
         begEnv <- ask
         let argt = foldl' (\acc (Arg t _) -> (t:acc)) [] args
         let fun = TLambda argt typ

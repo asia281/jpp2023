@@ -20,7 +20,7 @@ else {
 	}
 }
 
-print(x, x-1);
+printEndl(x, x-1);
 
 while (x < 16) {
 	x = x + 1;

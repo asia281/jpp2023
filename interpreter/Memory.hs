@@ -1,4 +1,4 @@
-module Memory(addIdentToMem, updateIdentInMem, getValueFromIdent) where
+module Memory where
     import Grammar.Abs
 
     import Data.Map as Map
