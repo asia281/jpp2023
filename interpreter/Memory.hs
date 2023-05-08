@@ -48,7 +48,5 @@ module Memory where
     getValueFromIdent ident = do
         (store, _) <- get
         ident_loc <- getLocFromIdent ident
-        liftIO $ print ident_loc
         let Just vmem = Map.lookup ident_loc store
-        liftIO $ print "m"
         return vmem

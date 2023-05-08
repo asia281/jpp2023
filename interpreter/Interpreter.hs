@@ -3,7 +3,6 @@ module Interpreter(runProgram) where
 
     import qualified Data.Map.Strict as Map
     import Data.List as List
-    import Data.Bifunctor
 
     import Control.Monad.Reader
     import Control.Monad.State
@@ -92,15 +91,12 @@ module Interpreter(runProgram) where
 
 --lambda
     evalExpr (ELambda args typ (Block block)) = do 
-        fun <- makeFun (Ident "") args block typ Nothing
+        env <- ask
+        fun <- makeFun args block typ env
         return $ VFun fun
 
     evalExpr (EApp ident vars) = do
-        fun_env <- ask
-        liftIO $ print "map"
-        liftIO $ print (Map.toList fun_env)
         VFun fun <- evalExpr ident
-        liftIO $ print "m"
         values <- mapM evalVarForFun vars
         fun values
 
@@ -141,14 +137,10 @@ module Interpreter(runProgram) where
         -- sprawdz czy nie pomylilam i z ident
         return (Map.insert i loc prevEnv)
 
-    makeFun :: Ident -> [Arg] -> [Stmt] -> Type -> Maybe Loc -> Interpreter FuncDef
-    makeFun (Ident ident) args block typ maybeLoc = do
-        env <- ask
-        liftIO $ print (Map.toList env)
+    makeFun :: [Arg] -> [Stmt] -> Type -> Env -> Interpreter FuncDef
+    makeFun args block typ env = do
         let fun vals = do
                 fun_env <- foldM argsToFunArgs env (zip args vals)
-                liftIO $ print (Map.toList fun_env)
-                fun_env <- addToStore maybeLoc ident fun_env
                 (_, retRes)<- local (const fun_env) (execList block)
                 case (retRes, typ) of
                     (Nothing, TVoid) -> return VVoid
@@ -156,9 +148,6 @@ module Interpreter(runProgram) where
                     (Just vRetRes, _) -> return vRetRes
                     _ -> throwError $ NoReturnException
         return fun
-        where 
-            addToStore Nothing _ fenv = return fenv
-            addToStore (Just loc) ident fenv = return (Map.insert ident loc fenv)
 
     execStmt :: Stmt -> Interpreter (Env, ReturnRes)
     execStmt (Decl typ i) = do
@@ -166,14 +155,15 @@ module Interpreter(runProgram) where
             NoInit ident -> initalised typ ident (defaultValue typ)
             Init ident expr -> initalised typ ident expr
 
-    execStmt (FunDef ident args typ (Block block)) = do 
-        funLoc <- getFunLoc                
-        fun <- makeFun ident args block typ (Just funLoc)
-        env <- ask
+    execStmt (FunDef (Ident ident) args typ (Block block)) = do 
+        funLoc <- getFunLoc         
+        env <- ask       
+        fun_env <- return $ Map.insert ident funLoc env
+        fun <- makeFun args block typ fun_env
         (store, loc) <- get 
         let new_store = Map.insert funLoc (VFun fun) store
         put (new_store, loc)
-        returnNothing
+        return (fun_env, Nothing)
 
 
     execStmt (SListPush ident expr) = do
@@ -266,7 +256,7 @@ module Interpreter(runProgram) where
     vToString (VBool x) = show x
     vToString (VString s) = s
     vToString (VList (typ, elements)) = "Type of list: " ++ show typ ++ ", [" ++ (foldl' (\a b -> a ++ (vToString b) ++ ", " ) "" elements) ++ "]"
-    vToString  _ = "not" 
+    vToString _ = undefined
 
     returnNothing :: Interpreter (Env, ReturnRes)
     returnNothing = do

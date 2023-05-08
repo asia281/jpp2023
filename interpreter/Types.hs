@@ -47,6 +47,7 @@ module Types where
 -- Exceptions
     data RuntimeExceptions = NoReturnException 
                             | ZeroDivisionException
+                            | PrintNotDefined
                             | OutOfRangeExeption Integer Integer
                             | NoStructFieldException String deriving Show
 

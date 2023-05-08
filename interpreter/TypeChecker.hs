@@ -213,14 +213,12 @@ module TypeChecker(runProgramCheck) where
     check (PrintEndl expr) = check (Print expr)
 
     check (Print expr) = do 
-        liftIO $ print "n"
         _ <- evalListExprType expr
         returnOk
 
     evalListExprType :: [Expr] -> TypeCheck Type
     evalListExprType [] = return TVoid
     evalListExprType (h:t) = do
-        liftIO $ print "m"
         _ <- evalExprType h
         evalListExprType t
 
@@ -236,9 +234,7 @@ module TypeChecker(runProgramCheck) where
     checkList [] = returnOk
     checkList (h:t) = do
         begEnv <- ask
-        liftIO $ print h
         (env, typ) <- local (const begEnv) (check h)
-        liftIO $ print typ
         case typ of
             Just ok_typ -> return (env, Just ok_typ)
             Nothing -> local (const env) (checkList t)

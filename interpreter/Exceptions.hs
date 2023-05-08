@@ -22,5 +22,6 @@ module Exceptions(printTypeCheckError, printRuntimeError) where
         case err of
             NoReturnException -> die $ "Missing return."
             ZeroDivisionException -> die $ "Division by zero."
+            PrintNotDefined -> die $ "Print for this type not defined."
             OutOfRangeExeption li i -> die $ "Out of range. List has length: " ++ show li ++ " and you're accessing element number: " ++ show i
            -- | NoStructFieldException String deriving Show

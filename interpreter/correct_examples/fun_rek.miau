@@ -9,3 +9,14 @@ fun pow2(int exp) -> int {
 }
 
 int pow = pow2(5);
+
+printEndl("Expected: 32, got:", pow);
+
+
+fun pow4(int exp) -> int {
+    return pow2(exp * 2);
+}
+
+int pow' = pow4(5);
+
+printEndl("Expected: 1024, got:", pow');
