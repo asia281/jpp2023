@@ -1,0 +1,11 @@
+fun pow2(int exp) -> int {
+    if (exp == 0) {
+        return 1;
+    }
+    if (exp % 2 == 0) {
+        return pow2(exp / 2) * pow2(exp / 2);
+    }
+    return 2 * pow2((exp - 1) / 2) * pow2((exp - 1) / 2);
+}
+
+int pow = pow2(5);

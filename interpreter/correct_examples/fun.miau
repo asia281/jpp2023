@@ -39,7 +39,7 @@ printerLambda(isEven); # -2 0 2 4
 fun addToMap(lambda<(int)->int> map, int key, int val) -> lambda<(int)->int> {
     return (int i) -> int {
         if (i == key){
-            return value;
+            return val;
         }
         else{
             return map(i);
@@ -53,4 +53,13 @@ addToMap(m, 3, 4);
 addToMap(m, 4, 5);
 addToMap(m, 5, 6);
 
-print(m(4));
+printEndl(m(4));
+
+fun pow2(int exp) -> bool {
+    if (exp % 2 == 0) {
+        return isEven(exp / 2);
+    }
+    return isEven((exp - 1) / 2);
+}
+
+printEndl(pow2(9), pow2(15));

@@ -1,16 +1,5 @@
-
-int x;
-x = 6;
-
-fun factorial(int x) -> int {
-    int i;
-    int res = 1;
-    for (i from 1 to x){
-        res = res * i;
-        printEndl(res);
-    }
-    return res;
+fun isEven(int x) -> bool {
+    return x % 2 == 0;
 }
 
-int fac = factorial(6);
-printEndl(fac);
+print(-1 % 2);

@@ -10,14 +10,23 @@ fun parity(int x) -> bool {
 
 bool par2 = parity(11);
 
-printEndl(par1, par2);
+printEndl("Expected: True False, got:", par1, par2);
 
 fun parity(& int x) -> bool {
+    bool ret = (x < 5);
     x = 5;
-    return true;
+    return ret;
 }
 
 int par3 = 4;
 bool par4 = parity(& par3);
 
-print(par3, par4);
+printEndl("Expected: 5 True, got:", par3, par4);
+
+fun parity(& int x) -> bool {
+    int x = 4;
+    return x % 2 == 0;
+}
+
+bool par5 = parity(& par3);
+printEndl("Expected: 5 True, got:", par3, par5);

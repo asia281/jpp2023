@@ -89,24 +89,24 @@ module Interpreter(runProgram) where
         else 
             return $ elements !! fromIntegral idx
 
-    evalExpr (EApp ident vars) = do
-        VFun fun <- evalExpr ident
-        values <- mapM evalVarForFun vars
-        fun values
 --lambda
     evalExpr (ELambda args typ (Block block)) = do 
         fun <- makeFun args block typ
         return $ VFun fun
 
+    evalExpr (EApp ident vars) = do
+        VFun fun <- evalExpr ident
+        values <- mapM evalVarForFun vars
+        fun values
+
     evalVarForFun :: ExprOrRef -> Interpreter FuncVal
     evalVarForFun (EorRRef ident) = do
-        return $ ByReference ident
+        loc <- getLocFromIdent ident
+        return $ ByReference loc
 
     evalVarForFun (EorRExpr expr) = do
         val <- evalExpr expr
         return $ ByType val
-
-
 
 -- structs
 
@@ -132,9 +132,8 @@ module Interpreter(runProgram) where
     argsToFunArgs prevEnv ((Arg _ i), (ByType val)) = do
         local (const prevEnv) (addIdentToMem i val)
 
-    argsToFunArgs prevEnv ((Arg _ (Ident i)), (ByReference ident)) = do
+    argsToFunArgs prevEnv ((Arg _ (Ident i)), (ByReference loc)) = do
         -- sprawdz czy nie pomylilam i z ident
-        loc <- local (const prevEnv) (getLocFromIdent ident)
         return (Map.insert i loc prevEnv)
 
     makeFun :: [Arg] -> [Stmt] -> Type -> Interpreter FuncDef
@@ -204,7 +203,6 @@ module Interpreter(runProgram) where
         else 
             execList block2  
 -- loops
--- tocheck
     execStmt (While cond (Block block)) = do
         VBool evaledCond <- evalExpr cond
         if evaledCond then do
@@ -253,12 +251,14 @@ module Interpreter(runProgram) where
     vToString (VBool x) = show x
     vToString (VString s) = s
     vToString (VList (typ, elements)) = "Type of list: " ++ show typ ++ ", [" ++ (foldl' (\a b -> a ++ (vToString b) ++ ", " ) "" elements) ++ "]"
-    vToString  _ = undefined 
+    vToString  _ = "not" 
 
     returnNothing :: Interpreter (Env, ReturnRes)
     returnNothing = do
         env <- ask
         return (env, Nothing)
+
+
 
     execList :: [Stmt] -> Interpreter (Env, ReturnRes)
     execList [] = returnNothing
@@ -267,6 +267,8 @@ module Interpreter(runProgram) where
         case ret of
             Nothing -> local (const env) (execList t)
             _ -> return (env, ret)
+
+    
 
     runProgram :: [Stmt] -> IO (Either RuntimeExceptions ((Env, ReturnRes), Store))
     runProgram program = runExceptT $ runStateT (runReaderT (execList program) Map.empty) (Map.empty, 0)

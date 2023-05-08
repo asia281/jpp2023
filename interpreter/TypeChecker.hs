@@ -41,13 +41,15 @@ module TypeChecker(runProgramCheck) where
         checkTypeExpr TBool e
         return TBool
     evalExprType (ENeg e) = do 
-        checkTypeExpr TBool e
-        return TBool
+        checkTypeExpr TInt e
+        return TInt
 
 -- lambda
-    evalExprType (ELambda args typ (Block block)) = do 
+    evalExprType (ELambda args typ block) = do 
+        env <- ask
+        newEnv <- foldM addArgTypesToEnv env args
+        (_, retTyp) <- local (const newEnv) (checkListEnv block) 
         let argt = foldl' (\acc (Arg t _) -> (t:acc)) [] args
-        (_, retTyp) <- checkList block 
         case (retTyp, typ) of
             (Nothing, TVoid) -> return $ TLambda argt TVoid
             (Nothing, _) -> throwError $ ReturnTypeMismatchException TVoid typ
@@ -126,40 +128,38 @@ module TypeChecker(runProgramCheck) where
             then throwError $ NonUniqueArgName ident x
             else checkUniqueness ident xs (x : acc)
 
+    addArgTypesToEnv :: TypeCheckEnv -> Arg -> TypeCheck (TypeCheckEnv)
+    addArgTypesToEnv prevEnv (Arg (TRRef trtyp) (Ident i)) = return $ Map.insert i trtyp prevEnv
+    addArgTypesToEnv prevEnv (Arg (TRType trtyp) (Ident i)) = return $ Map.insert i trtyp prevEnv
+
     check :: Stmt -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     check (SExpr expr) = evalExprType expr >> returnOk
 
-    check (FunDef (Ident ident) args typ (Block block)) = do
+    check (FunDef (Ident ident) args typ block) = do
         checkUniqueness ident args []
-        let argt = foldl' (\acc (Arg t _) -> (t:acc)) [] args
+        let argt = reverse $ foldl' (\acc (Arg t _) -> (t:acc)) [] args
         let fun = TLambda argt typ
         begEnv <- ask
         newEnv <- foldM addArgTypesToEnv begEnv args
 
         let envAfterFuncDef = Map.insert ident fun newEnv
-        (_, retTyp) <- local (const envAfterFuncDef) (checkList block)
-        env <- ask
-
+        (finEnv, retTyp) <- local (const envAfterFuncDef) (checkListEnv block)
         case (retTyp, typ) of
-            (Nothing, TVoid) -> return (Map.insert ident fun env, Nothing)
+            (Nothing, TVoid) -> return (Map.insert ident fun finEnv, Nothing)
             (Nothing, _) -> throwError $ ReturnTypeMismatchException TVoid typ
             (Just vRet, _) -> do 
                 unless (vRet == typ) $ throwError $ ReturnTypeMismatchException vRet typ
-                return (Map.insert ident fun env, Just vRet)
-        where 
-            addArgTypesToEnv prevEnv (Arg (TRRef trtyp) (Ident i)) = return $ Map.insert i trtyp prevEnv
-            addArgTypesToEnv prevEnv (Arg (TRType trtyp) (Ident i)) = return $ Map.insert i trtyp prevEnv
+                return (Map.insert ident fun finEnv, Nothing)
 
 -- If
-    check (If cond (Block block)) = do
+    check (If cond block) = do
         checkTypeExpr TBool cond
-        checkList block
+        checkListEnv block
 
-    check (IfElse cond (Block block1) (Block block2)) = do
+    check (IfElse cond block1 block2) = do
         checkTypeExpr TBool cond
-        (_, t1) <- checkList block1
-        (_, t2) <- checkList block2
-        env <- ask
+        (_, t1) <- checkListEnv block1
+        (env, t2) <- checkListEnv block2
         case (t1, t2) of
             (Nothing, Nothing) -> return (env, Nothing)
             (Nothing, Just t2') -> throwError $ ReturnTypeMismatchException TVoid t2'
@@ -169,21 +169,20 @@ module TypeChecker(runProgramCheck) where
                 return (env, t1)
 
 -- While/for
-    check (For ident start end (Block block)) = do
+    check (For ident start end block) = do
         checkTypeExpr TInt start 
         checkTypeExpr TInt end 
         _ <- checkTypeOfId TInt ident
-        env <- ask
-        local (const env) (checkList block)
+        checkListEnv block
         
-    check (ForInList ident list (Block block)) = do
+    check (ForInList ident list block) = do
         checkTypeExpr (TList TInt) list  
         _ <- checkTypeOfId TInt ident
-        checkList block
+        checkListEnv block
 
-    check (While cond (Block block)) = do
+    check (While cond block) = do
         checkTypeExpr TBool cond
-        checkList block
+        checkListEnv block
 
 -- Structs
 
@@ -213,22 +212,33 @@ module TypeChecker(runProgramCheck) where
 -- Print
     check (PrintEndl expr) = check (Print expr)
 
-    check (Print expr) = evalListExprType expr >> returnOk
+    check (Print expr) = do 
+        liftIO $ print "n"
+        _ <- evalListExprType expr
+        returnOk
 
     evalListExprType :: [Expr] -> TypeCheck Type
     evalListExprType [] = return TVoid
     evalListExprType (h:t) = do
+        liftIO $ print "m"
         _ <- evalExprType h
         evalListExprType t
 
 -- Check for prog
+
+    checkListEnv :: Block -> TypeCheck (TypeCheckEnv, TypeCheckResult)
+    checkListEnv (Block stmts) = do
+        (_, t) <- checkList stmts
+        env <- ask
+        return (env, t)
+
     checkList :: [Stmt] -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     checkList [] = returnOk
-
     checkList (h:t) = do
-        (env, typ) <- check h
-        liftIO $ print (Map.toList env)
-        
+        begEnv <- ask
+        liftIO $ print h
+        (env, typ) <- local (const begEnv) (check h)
+        liftIO $ print typ
         case typ of
             Just ok_typ -> return (env, Just ok_typ)
             Nothing -> local (const env) (checkList t)
@@ -241,7 +251,7 @@ module TypeChecker(runProgramCheck) where
 
     checkDecl typ (Init (Ident i) expr) = do
         unless (isValidVType True typ) $ throwError $ DeclarationInvTypeException typ
-        _ <- evalExprType expr
+        checkTypeExpr typ expr
         env <- ask
         return (Map.insert i typ env, Nothing)
 

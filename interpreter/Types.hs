@@ -18,7 +18,7 @@ module Types where
     type ReturnRes = Maybe VMemory
 
     -- Ident for passing by ref, vmemory otherwise
-    data FuncVal = ByReference Ident | ByType VMemory
+    data FuncVal = ByReference Loc | ByType VMemory
 
     -- Function - function body, environment of function, return type
     type FuncDef = ([FuncVal] -> Interpreter VMemory)
