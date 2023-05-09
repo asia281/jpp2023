@@ -21,6 +21,6 @@ fun ident(int n) -> lambda<() -> int> {
 
 printEndl(increment(7));
 lambda<() -> int> id = ident(2);
-for (i from 1 to 20){
-	print(id());
+for (i from 1 to 10){
+	printEndl(id());
 }

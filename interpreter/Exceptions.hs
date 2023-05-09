@@ -2,9 +2,6 @@ module Exceptions(printTypeCheckError, printRuntimeError) where
     import Types
     import System.Exit (die)
 
-    -- data ParseErr a = {location:Int, reason:String}
-    -- type Error a = Either ParseErr a
-
     printTypeCheckError :: TypeCheckerExceptions -> IO ()
     printTypeCheckError err =
         case err of
@@ -14,6 +11,7 @@ module Exceptions(printTypeCheckError, printRuntimeError) where
             NotListException t -> die $ "Element is not a list: " ++ show t
             NonUniqueArgName fun t -> die $ "In function: " ++ show fun ++ " the following arg name occurs more than once: " ++ show t
             InvalidTypesInApplication -> die $ "Function application got mismatching argument types"
+            IncorrectNumberOfArguments t1 t2 -> die $ "Number of required arguments to the function: " ++ show t1 ++ ", got: " ++ show t2
             IdentifierNotExistException str -> die $ "No such identifier: " ++ show str 
             ReturnTypeMismatchException t1 t2 -> die $ "Mismatch in returned types, first: " ++ show t1 ++ ", second: " ++ show t2
 
@@ -24,4 +22,3 @@ module Exceptions(printTypeCheckError, printRuntimeError) where
             ZeroDivisionException -> die $ "Division by zero."
             PrintNotDefined -> die $ "Print for this type not defined."
             OutOfRangeExeption li i -> die $ "Out of range. List has length: " ++ show li ++ " and you're accessing element number: " ++ show i
-           -- | NoStructFieldException String deriving Show

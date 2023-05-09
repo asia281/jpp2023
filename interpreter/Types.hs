@@ -38,8 +38,6 @@ module Types where
                 | VVoid 
                 | VFun FuncDef 
                 | VList ListDef 
-                | VStruct StructDef 
-                | VStructType StructType
 
     -- state in memory, next free location and 
     type Store = (StateInMemory, Loc)
@@ -49,24 +47,17 @@ module Types where
                             | ZeroDivisionException
                             | PrintNotDefined
                             | OutOfRangeExeption Integer Integer
-                            | NoStructFieldException String deriving Show
 
     data TypeCheckerExceptions = TypeCheckException Type Type 
                                 | DeclarationInvTypeException Type 
                                 | FuncArgsInvTypeException Type 
                                 | NotListException Type 
                                 | InvalidTypesInApplication
+                                | IncorrectNumberOfArguments Int Int
                                 | NonUniqueArgName String String
                                 | IdentifierNotExistException String 
                                 | ReturnTypeMismatchException Type Type deriving Show
 
-
--- Structs
-    type StructFieldName = String
-    -- struct definition - field name and its value
-    type StructDef = Map.Map StructFieldName VMemory
-    -- struct description - field name and its type
-    type StructType = Map.Map StructFieldName Type
 
 -- Monad type of interpreter
     type Interpreter = ReaderT Env (StateT Store (ExceptT RuntimeExceptions IO))

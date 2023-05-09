@@ -108,10 +108,6 @@ module Interpreter(runProgram) where
     evalVarForFun (EorRExpr expr) = do
         val <- evalExpr expr
         return $ ByType val
-
--- structs
-
-
     
 -- Declarations
     defaultValue :: Type -> Expr
@@ -246,7 +242,11 @@ module Interpreter(runProgram) where
             [] -> returnNothing
             h:t -> do
                 expr <- evalExpr h
-                liftIO $ putStr (vToString expr ++ " ")
+                if t == [] then do
+                    liftIO $ putStr (vToString expr)
+                else do
+                    liftIO $ putStr (vToString expr ++ " ")
+                
                 execStmt (Print t)
         
     execStmt (PrintEndl e) = execStmt (Print (e ++ [EString "\n"])) 
@@ -262,7 +262,6 @@ module Interpreter(runProgram) where
     returnNothing = do
         env <- ask
         return (env, Nothing)
-
 
 
     execList :: [Stmt] -> Interpreter (Env, ReturnRes)

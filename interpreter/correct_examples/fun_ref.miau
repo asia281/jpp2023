@@ -12,4 +12,4 @@ bool b = true;
 
 inc(& x, y, & b);
 
-print("x = ", x, ", y =", y, ", b = ", b);
+print("11 =", x, " 10 =", y, " False =", b);

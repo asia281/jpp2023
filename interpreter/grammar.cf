@@ -42,7 +42,6 @@ TBool.      Type ::= "bool" ;
 TString.    Type ::= "string" ;
 TVoid.      Type ::= "void" ;
 TList.      Type ::= "list" "<" Type ">" ;
---TStruct.    Type ::= "struct" Ident ;
 TLambda.    Type ::= "lambda" "<" "(" [TypeOrRef] ")" "->" Type ">" ;
 separator   Type "," ;
 
@@ -83,9 +82,7 @@ EString.   Expr7 ::= String;
 ELambda.   Expr7 ::= "(" [Arg] ")" "->" Type Block ;
 separator  Ident "," ;
 
-
 coercions  Expr 7 ;
-
 separator  Expr "," ;
 
 EorRExpr.	   ExprOrRef ::= Expr ;
@@ -97,13 +94,6 @@ separator      ExprOrRef "," ;
 SListPush.  Stmt ::= Ident "." "push" "(" Expr ")" ;
 EListLen.   Expr5 ::= Expr6 "." "len()" ;
 EListAt.    Expr5 ::= Expr6 "." "at" "(" Expr6 ")" ;
-
-
--- Structs -------------------------------------------------
-
--- StructDef. Stmt ::= "struct" Ident "{" [StructItem] "}" ;
--- StructItem. StructItem ::= Type Ident ;
--- separator StructItem ";" ;
 
 
 -- Comments ------------------------------------------------

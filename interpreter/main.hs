@@ -1,6 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleContexts #-}
-
 module Main where
     import System.Environment ( getArgs )
 
@@ -27,7 +24,7 @@ module Main where
     main = do
         file <- getArgs
         case file of
-            [] -> error "No path to file provided."
+            [] -> error "No path to the file provided."
             f:_ -> do
                 program <- readFile f
                 let parser = pProgram . myLexer
@@ -36,3 +33,4 @@ module Main where
                         run p
                         return ()
                     Bad e -> error e
+                    _ -> undefined

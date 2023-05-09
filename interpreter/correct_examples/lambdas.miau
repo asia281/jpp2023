@@ -12,3 +12,14 @@ string hi = var3();
 int four = var4(1, 3);
 
 printEndl("Expected: True 2 hello 4, got:", t, two, hi, four);
+
+lambda<(lambda<() -> int>) -> int> var5 = (lambda<() -> int> l) -> int { return l(); }
+
+int five = var5(() -> int { return 5; });
+
+
+lambda<(lambda<() -> int>) -> (lambda<() -> int>)> var5 = (lambda<() -> int> l) -> (lambda<() -> int>) { return ; }
+
+int five = var5(() -> int { return 5; });
+
+printEndl("Expected: 5, got:", five);

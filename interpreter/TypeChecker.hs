@@ -61,8 +61,7 @@ module TypeChecker(runProgramCheck) where
     evalExprType (EEmptyList t) = return $ TList t
 
     evalExprType (EListAt lexpr expr) = do
-        typ <- evalExprType expr
-        checkType TInt typ
+        checkTypeExpr TInt expr
         evalListType lexpr
 
     evalExprType (EListLen lexpr) = do
@@ -71,8 +70,13 @@ module TypeChecker(runProgramCheck) where
     
     evalExprType (EApp expr vars) = do 
         TLambda argt typ <- evalExprType expr
-        mapMTwo argt vars
-        return typ
+        let lenArg = length argt
+        let lenVar = length vars
+        if lenArg /= lenVar 
+            then throwError $ IncorrectNumberOfArguments lenArg lenVar
+            else do 
+                mapMTwo argt vars
+                return typ
 
     mapMTwo :: [TypeOrRef] -> [ExprOrRef] -> TypeCheck ()
     mapMTwo [] [] = return ()
@@ -133,6 +137,7 @@ module TypeChecker(runProgramCheck) where
     addArgTypesToEnv prevEnv (Arg (TRType trtyp) (Ident i)) = return $ Map.insert i trtyp prevEnv
 
     check :: Stmt -> TypeCheck (TypeCheckEnv, TypeCheckResult)
+
     check (SExpr expr) = evalExprType expr >> returnOk
 
     check (FunDef (Ident ident) args typ block) = do
@@ -175,7 +180,7 @@ module TypeChecker(runProgramCheck) where
         _ <- checkTypeOfId TInt ident
         checkListEnv block
         
-    check (ForInList ident list block) = do
+    check (ForInList ident list block) = do -- ??
         checkTypeExpr (TList TInt) list  
         _ <- checkTypeOfId TInt ident
         checkListEnv block
@@ -184,10 +189,7 @@ module TypeChecker(runProgramCheck) where
         checkTypeExpr TBool cond
         checkListEnv block
 
--- Structs
-
 -- Lists
-
     check (SListPush ident expr) = do
         typ <- evalExprType expr
         checkTypeOfId (TList typ) ident
@@ -211,19 +213,17 @@ module TypeChecker(runProgramCheck) where
         
 -- Print
     check (PrintEndl expr) = check (Print expr)
-
     check (Print expr) = do 
-        _ <- evalListExprType expr
+        evalListExprType expr
         returnOk
+        where
+            evalListExprType :: [Expr] -> TypeCheck ()
+            evalListExprType [] = return ()
+            evalListExprType (h:t) = do
+                _ <- evalExprType h
+                evalListExprType t
 
-    evalListExprType :: [Expr] -> TypeCheck Type
-    evalListExprType [] = return TVoid
-    evalListExprType (h:t) = do
-        _ <- evalExprType h
-        evalListExprType t
-
--- Check for prog
-
+-- Block
     checkListEnv :: Block -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     checkListEnv (Block stmts) = do
         (_, t) <- checkList stmts
@@ -240,13 +240,14 @@ module TypeChecker(runProgramCheck) where
             Nothing -> local (const env) (checkList t)
 
     checkDecl :: Type -> Item -> TypeCheck (TypeCheckEnv, TypeCheckResult)
+    checkDecl TVoid _ = throwError $ DeclarationInvTypeException TVoid
     checkDecl typ (NoInit (Ident i)) = do
-        unless (isValidVType False typ) $ throwError $ DeclarationInvTypeException typ
+        unless (typ /= TLambda {}) $ throwError $ DeclarationInvTypeException typ
         env <- ask
         return (Map.insert i typ env, Nothing)
 
     checkDecl typ (Init (Ident i) expr) = do
-        unless (isValidVType True typ) $ throwError $ DeclarationInvTypeException typ
+        unless (typ /= TVoid) $ throwError $ DeclarationInvTypeException typ
         checkTypeExpr typ expr
         env <- ask
         return (Map.insert i typ env, Nothing)
