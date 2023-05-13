@@ -179,11 +179,6 @@ module TypeChecker(runProgramCheck) where
         checkTypeExpr TInt end 
         _ <- checkTypeOfId TInt ident
         checkListEnv block
-        
-    check (ForInList ident list block) = do -- ??
-        checkTypeExpr (TList TInt) list  
-        _ <- checkTypeOfId TInt ident
-        checkListEnv block
 
     check (While cond block) = do
         checkTypeExpr TBool cond
