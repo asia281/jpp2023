@@ -1,5 +1,0 @@
-fun isEven(int x) -> bool {
-    return x % 2 == 0;
-}
-
-print(-1 % 2);

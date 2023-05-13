@@ -242,19 +242,19 @@ module TypeChecker(runProgramCheck) where
     checkDecl :: Type -> Item -> TypeCheck (TypeCheckEnv, TypeCheckResult)
     checkDecl TVoid _ = throwError $ DeclarationInvTypeException TVoid
     checkDecl typ (NoInit (Ident i)) = do
-        unless (typ /= TLambda {}) $ throwError $ DeclarationInvTypeException typ
+        unless (isValidVType typ) $ throwError $ DeclarationInvTypeException typ
         env <- ask
         return (Map.insert i typ env, Nothing)
+        where
+            isValidVType :: Type  -> Bool
+            isValidVType TLambda {} = False
+            isValidVType _ = True
 
     checkDecl typ (Init (Ident i) expr) = do
-        unless (typ /= TVoid) $ throwError $ DeclarationInvTypeException typ
         checkTypeExpr typ expr
         env <- ask
         return (Map.insert i typ env, Nothing)
 
-    isValidVType :: Bool -> Type  -> Bool
-    isValidVType inited TLambda {} = inited
-    isValidVType _ _ = True
 
     runProgramCheck :: [Stmt] -> IO (Either TypeCheckerExceptions (TypeCheckEnv, TypeCheckResult))
     runProgramCheck program = runExceptT $ runReaderT (checkList program) Map.empty

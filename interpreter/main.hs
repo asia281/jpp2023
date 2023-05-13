@@ -8,6 +8,9 @@ module Main where
     import Interpreter
     import Exceptions
 
+    runFile :: (Print a, Show a) => Verbosity -> ParseFun a -> FilePath -> IO ()
+    runFile v p f = putStrLn f >> readFile f >>= run v p
+
     run :: [Stmt] -> IO ()
     run p = do
         check <- runProgramCheck p
@@ -24,7 +27,7 @@ module Main where
     main = do
         file <- getArgs
         case file of
-            [] -> error "No path to the file provided."
+            [] -> liftIO getContents >>= run pProgram
             f:_ -> do
                 program <- readFile f
                 let parser = pProgram . myLexer

@@ -8,7 +8,7 @@ module Memory where
 
     import Types
     -- we have mappings env: ident -> loc and store: loc -> vmem
-    
+
     addIdentToMem :: Ident -> VMemory -> Interpreter Env
     addIdentToMem (Ident ident) vmem = do
         env <- ask

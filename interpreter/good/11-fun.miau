@@ -49,11 +49,11 @@ fun addToMap(lambda<(int)->int> map, int key, int val) -> lambda<(int)->int> {
 
 lambda<(int)->int> m = (int i) -> int { return i; }
 
-addToMap(m, 3, 4);
-addToMap(m, 4, 5);
-addToMap(m, 5, 6);
+m = addToMap(m, 3, 4);
+m = addToMap(m, 4, 5);
+m = addToMap(m, 5, 6);
 
-printEndl(m(4));
+printEndl("Expected: 5 6 4 10, got", m(4), m(5), m(3), m(10));
 
 fun pow2(int exp) -> bool {
     if (exp % 2 == 0) {

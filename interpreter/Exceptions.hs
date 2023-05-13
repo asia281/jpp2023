@@ -1,7 +1,6 @@
 module Exceptions(printTypeCheckError, printRuntimeError) where
     import Types
     import System.Exit (die)
-
     printTypeCheckError :: TypeCheckerExceptions -> IO ()
     printTypeCheckError err =
         case err of
