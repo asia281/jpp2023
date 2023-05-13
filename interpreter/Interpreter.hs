@@ -223,18 +223,6 @@ module Interpreter(runProgram) where
         let forBlock = Block (block ++ plusOne)
         let cond = ERel (EVar ident) LE (EInt evaledEnd)
         execStmt $ While cond forBlock
-        
-        
-    execStmt (ForInList ident list (Block block)) = do
-        VList (TInt, evaledList) <- evalExpr list
-        loopList ident evaledList block
-        where
-            loopList :: Ident -> [VMemory] -> [Stmt] -> Interpreter (Env, ReturnRes)
-            loopList _ [] _ = returnNothing
-            loopList i (h:t) b = do
-                updateIdentInMem i h
-                _ <- execList b
-                loopList i t b
 
 -- print
     execStmt (Print e) = 
