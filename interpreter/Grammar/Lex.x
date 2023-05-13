@@ -171,19 +171,18 @@ resWords =
              (b "<" 14 (b ";" 13 N N) N) (b "==" 17 (b "=" 16 N N) N))
           (b "and" 21
              (b "[]" 20 (b ">=" 19 N N) N) (b "bool" 23 (b "at" 22 N N) N))))
-    (b "or" 36
-       (b "in" 30
+    (b "print" 36
+       (b "int" 30
           (b "from" 27
              (b "for" 26 (b "false" 25 N N) N) (b "if" 29 (b "fun" 28 N N) N))
-          (b "len()" 33
-             (b "lambda" 32 (b "int" 31 N N) N)
-             (b "not" 35 (b "list" 34 N N) N)))
-       (b "to" 42
-          (b "push" 39
-             (b "printEndl" 38 (b "print" 37 N N) N)
-             (b "string" 41 (b "return" 40 N N) N))
-          (b "while" 45
-             (b "void" 44 (b "true" 43 N N) N) (b "}" 47 (b "{" 46 N N) N))))
+          (b "list" 33
+             (b "len()" 32 (b "lambda" 31 N N) N)
+             (b "or" 35 (b "not" 34 N N) N)))
+       (b "true" 42
+          (b "return" 39
+             (b "push" 38 (b "printEndl" 37 N N) N)
+             (b "to" 41 (b "string" 40 N N) N))
+          (b "{" 45 (b "while" 44 (b "void" 43 N N) N) (b "}" 46 N N))))
   where
   b s n = B bs (TS bs n)
     where

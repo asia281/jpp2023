@@ -35,7 +35,6 @@ transStmt x = case x of
   Grammar.Abs.IfElse expr block1 block2 -> failure x
   Grammar.Abs.While expr block -> failure x
   Grammar.Abs.For ident expr1 expr2 block -> failure x
-  Grammar.Abs.ForInList ident expr block -> failure x
   Grammar.Abs.Print exprs -> failure x
   Grammar.Abs.PrintEndl exprs -> failure x
   Grammar.Abs.Return expr -> failure x

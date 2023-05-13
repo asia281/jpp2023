@@ -1,3 +1,28 @@
+      |    |     | Na 15 punktów                                   |
+      |----+-----+-------------------------------------------------|
+      | 01 |     | (trzy typy)                                     |
+      | 02 |     | (literały, arytmetyka, porównania)              |
+      | 03 |     | (zmienne, przypisanie)                          |
+      | 04 |     | (print)                                         |
+      | 05 |     | (while, if)                                     |
+      | 06 |     | (funkcje lub procedury, rekurencja)             |
+      | 07 |     | (referencje)                                    |
+      |----+-----+-------------------------------------------------|
+      |    |     | Na 20 punktów                                   |
+      |----+-----+-------------------------------------------------|
+      | 09 |     | (przesłanianie i statyczne wiązanie)            |
+      | 10 |     | (obsługa błędów wykonania)                      |
+      | 11 |     | (funkcje zwracające wartość)                    |
+      |----+-----+-------------------------------------------------|
+      |    |     | Na 30 punktów                                   |
+      |----+-----+-------------------------------------------------|
+      | 12 |  4  | (statyczne typowanie)                           |
+      | 13 |  2  | (funkcje zagnieżdżone ze statycznym wiązaniem)  |
+      | 14 |  1  | listy                                           |
+      | 17 |  4  | (funkcje wyższego rzędu, anonimowe, domknięcia) |
+
+      Razem: 20 + 4 + 2 + 1 + 4 = 31
+
 Język Miauler (fr., czyt. miule), jezyk imperatywny. Rozszerzenie: .miau.
 -------------------------------------------------------------------
   01 (typy):
@@ -35,9 +60,11 @@ list = []
 
 -------------------------------------------------------------------
   04 (print)
-print([Stmt])
+print([Expr])
+printEndl([Expr])
 
-Wyliczenie Stmt i wypisanie na standardowe wyjście.
+Wyliczenie Expr od lewej do prawej i wypisanie na standardowe wyjście.
+printEndl ma na koncu dodatkowy endline.
 
 -------------------------------------------------------------------
   05 (while, if)
@@ -87,12 +114,6 @@ for([var] from [Expr] to [Expr]){
   [Stmt]
 }
 
-and for in list:
-
-for([var] in [Expr]){
-  [Stmt]
-};
-
   Na 20 punktów
 -------------------------------------------------------------------
   09 (przesłanianie i statyczne wiązanie)
@@ -101,21 +122,24 @@ Będzie.
 -------------------------------------------------------------------
   10 (obsługa błędów wykonania)
 Mozliwe bledy wykonania:
-  data RuntimeExceptions = NoReturnException 
+    data RuntimeExceptions = NoReturnException 
                             | ZeroDivisionException
-                            | OutOfRangeExeption Integer 
-                            | NoStructFieldException String deriving Show
+                            | PrintNotDefined
+                            | OutOfRangeExeption Integer Integer
 
-  data TypeCheckerExceptions = TypeCheckException Type Type 
-                            | DeclarationInvTypeException Type 
-                            | FuncArgsInvTypeException Type 
-                            | NotListException Type 
-                            | IdentifierNotExistException String 
-                            | ReturnTypeMismatchException (Maybe Type) (Maybe Type)  deriving Show
+    data TypeCheckerExceptions = TypeCheckException Type Type 
+                                | DeclarationInvTypeException Type 
+                                | FuncArgsInvTypeException Type 
+                                | NotListException Type 
+                                | InvalidTypesInApplication
+                                | IncorrectNumberOfArguments Int Int
+                                | NonUniqueArgName String String
+                                | IdentifierNotExistException String 
+                                | ReturnTypeMismatchException Type Type deriving Show
 
 -------------------------------------------------------------------
   11 (funkcje zwracające wartość)
-return [Stmt]
+return Expr
 
   Na 30 punktów
 -------------------------------------------------------------------
@@ -127,11 +151,7 @@ Typowanie będzie statyczne.
 Będą.
 -------------------------------------------------------------------
   14 (1/2) (rekordy/listy/tablice/tablice wielowymiarowe)
-list<[typ]>
-struct [Id]{ 
-  [elementy] 
-}
-gdzie pojedynczy element to: [typ] [nazwa_zmiennej];
+Listy będą.
 
   15 (2) (krotki z przypisaniem)
   16 (1) (break, continue)
@@ -143,7 +163,3 @@ lambda <([typ]) -> typ_zwracany> nazwa = (argumenty) -> typ_zwracany {}
 Lambda dostanie cale srodowisko. 
 Funkcje wyzszego rzedu (funkcje jako parametry) będą. 
 
-  18 (3) (generatory)
-
-  
-Razem: 30

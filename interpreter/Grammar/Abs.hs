@@ -23,7 +23,6 @@ data Stmt
     | IfElse Expr Block Block
     | While Expr Block
     | For Ident Expr Expr Block
-    | ForInList Ident Expr Block
     | Print [Expr]
     | PrintEndl [Expr]
     | Return Expr

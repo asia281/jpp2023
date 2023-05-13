@@ -52,24 +52,23 @@ import Grammar.Lex
   'from'      { PT _ (TS _ 27) }
   'fun'       { PT _ (TS _ 28) }
   'if'        { PT _ (TS _ 29) }
-  'in'        { PT _ (TS _ 30) }
-  'int'       { PT _ (TS _ 31) }
-  'lambda'    { PT _ (TS _ 32) }
-  'len()'     { PT _ (TS _ 33) }
-  'list'      { PT _ (TS _ 34) }
-  'not'       { PT _ (TS _ 35) }
-  'or'        { PT _ (TS _ 36) }
-  'print'     { PT _ (TS _ 37) }
-  'printEndl' { PT _ (TS _ 38) }
-  'push'      { PT _ (TS _ 39) }
-  'return'    { PT _ (TS _ 40) }
-  'string'    { PT _ (TS _ 41) }
-  'to'        { PT _ (TS _ 42) }
-  'true'      { PT _ (TS _ 43) }
-  'void'      { PT _ (TS _ 44) }
-  'while'     { PT _ (TS _ 45) }
-  '{'         { PT _ (TS _ 46) }
-  '}'         { PT _ (TS _ 47) }
+  'int'       { PT _ (TS _ 30) }
+  'lambda'    { PT _ (TS _ 31) }
+  'len()'     { PT _ (TS _ 32) }
+  'list'      { PT _ (TS _ 33) }
+  'not'       { PT _ (TS _ 34) }
+  'or'        { PT _ (TS _ 35) }
+  'print'     { PT _ (TS _ 36) }
+  'printEndl' { PT _ (TS _ 37) }
+  'push'      { PT _ (TS _ 38) }
+  'return'    { PT _ (TS _ 39) }
+  'string'    { PT _ (TS _ 40) }
+  'to'        { PT _ (TS _ 41) }
+  'true'      { PT _ (TS _ 42) }
+  'void'      { PT _ (TS _ 43) }
+  'while'     { PT _ (TS _ 44) }
+  '{'         { PT _ (TS _ 45) }
+  '}'         { PT _ (TS _ 46) }
   L_Ident     { PT _ (TV $$)   }
   L_integ     { PT _ (TI $$)   }
   L_quoted    { PT _ (TL $$)   }
@@ -107,7 +106,6 @@ Stmt
   | 'if' '(' Expr ')' Block 'else' Block { Grammar.Abs.IfElse $3 $5 $7 }
   | 'while' '(' Expr ')' Block { Grammar.Abs.While $3 $5 }
   | 'for' '(' Ident 'from' Expr 'to' Expr ')' Block { Grammar.Abs.For $3 $5 $7 $9 }
-  | 'for' '(' Ident 'in' Expr ')' Block { Grammar.Abs.ForInList $3 $5 $7 }
   | 'print' '(' ListExpr ')' ';' { Grammar.Abs.Print $3 }
   | 'printEndl' '(' ListExpr ')' ';' { Grammar.Abs.PrintEndl $3 }
   | 'return' Expr ';' { Grammar.Abs.Return $2 }
