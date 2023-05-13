@@ -20,4 +20,5 @@ module Exceptions(printTypeCheckError, printRuntimeError) where
             NoReturnException -> die $ "Missing return."
             ZeroDivisionException -> die $ "Division by zero."
             PrintNotDefined -> die $ "Print for this type not defined."
+            VarDoesntExist -> die $ "Var you're accesing doesn't exist." -- shouldnt be thrown due to TypeChecker
             OutOfRangeExeption li i -> die $ "Out of range. List has length: " ++ show li ++ " and you're accessing element number: " ++ show i

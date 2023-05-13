@@ -9,7 +9,7 @@ fun increment(int n) -> int {
 	return ident(n)() + 1;
 }
 
-printEndl(i);
+printEndl("Expected: 0 got:", i);
 
 fun ident(int n) -> lambda<() -> int> {
 	fun increment(& int x) -> lambda<() -> int> {
@@ -19,8 +19,9 @@ fun ident(int n) -> lambda<() -> int> {
 	return increment(& n);
 }
 
-printEndl(increment(7));
+printEndl("Expected: 8 got:", increment(7));
+
 lambda<() -> int> id = ident(2);
 for (i from 1 to 10){
-	printEndl(id());
+	printEndl(i, id());
 }

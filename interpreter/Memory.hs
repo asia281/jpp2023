@@ -5,6 +5,7 @@ module Memory where
     import Data.Bifunctor
     import Control.Monad.Reader
     import Control.Monad.State
+    import Control.Monad.Except
 
     import Types
     -- we have mappings env: ident -> loc and store: loc -> vmem
@@ -32,22 +33,26 @@ module Memory where
         env <- ask
         (store, loc) <- get 
         -- get location from env
-        let Just ident_location = Map.lookup ident env
-        -- and change the V in store
-        let new_store = Map.insert ident_location vmem store
-        put (new_store, loc)
-        return ()
+        case Map.lookup ident env of
+            Just ident_location -> do
+                let new_store = Map.insert ident_location vmem store
+                -- and change the V in store
+                put (new_store, loc)
+                return ()
+            _ -> throwError VarDoesntExist
 
 
     getLocFromIdent :: Ident -> Interpreter Loc
     getLocFromIdent (Ident ident) = do
         env <- ask
-        let Just loc = Map.lookup ident env
-        return loc
+        case Map.lookup ident env of
+            Just ident_location -> return ident_location
+            _ -> throwError VarDoesntExist
 
     getValueFromIdent :: Ident -> Interpreter VMemory
     getValueFromIdent ident = do
         (store, _) <- get
         ident_loc <- getLocFromIdent ident
-        let Just vmem = Map.lookup ident_loc store
-        return vmem
+        case Map.lookup ident_loc store of
+            Just vmem -> return vmem
+            _ -> throwError VarDoesntExist

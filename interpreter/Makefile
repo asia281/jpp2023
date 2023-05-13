@@ -15,7 +15,7 @@ ALEX_OPTS  = --ghc
 # Default goal.
 
 all: Grammar/Test
-	ghc -Wall main.hs
+	ghc -Wall interpreter.hs
 
 # Rules for building the parser.
 

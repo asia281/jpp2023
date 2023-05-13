@@ -11,7 +11,6 @@ fun factorial(int x) -> int {
 }
 
 int fac = factorial(6);
-printEndl(fac);
 
 fun pow(int x, int exp) -> int {
     int i;
@@ -24,7 +23,7 @@ fun pow(int x, int exp) -> int {
 }
 
 int y = pow(2, 4);
-printEndl(y);
+printEndl("Expected: 720 16, got:", fac, y);
 
 int i;
 
@@ -32,6 +31,6 @@ for (i from y to 20){
     if (i % 4 == 1) {
         i = i + 2;
     }
-    printEndl(i);
+    printEndl(i); # 16, 19, 20
 }
 
