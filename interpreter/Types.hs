@@ -46,6 +46,7 @@ module Types where
     data RuntimeExceptions = NoReturnException 
                             | ZeroDivisionException
                             | PrintNotDefined
+                            | VarDoesntExist
                             | OutOfRangeExeption Integer Integer
 
     data TypeCheckerExceptions = TypeCheckException Type Type 
