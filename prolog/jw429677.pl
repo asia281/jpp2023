@@ -30,16 +30,25 @@ readAll :-
     read(Koniec),
     Koniec \= koniec,
     !,
-    parseWarunki(Warunki).
+    parseWarunki(Dlugosc, Rodzaje),
+    write(Dlugosc),
+    write(Rodzaje).
 
 readAll :- write('Koniec programu. Milych wedrowek!'), nl.
 
-parseWarunki(Warunki) :- 
+parseWarunki(Dlugosc, Rodzaje) :- 
     write('Podaj warunki: '),
     read(Wars),
     readWarunki(Wars, Warunki),
     sprawdzWarunki(Warunki, 0),
-    !.
+    !,
+    separateWarunki(Warunki, Dlugosc, Rodzaje).
+
+separateWarunki([], _, _).
+separateWarunki([rodzaj(R)|Warunki], Dlugosc, Rodzaje) :-
+    separateWarunki(Warunki, Dlugosc, [rodzaj(R)|Rodzaje]).
+separateWarunki([dlugosc(Eq, W)|Warunki], _, Rodzaje) :-
+    separateWarunki(Warunki, dlugosc(Eq, W), Rodzaje).
 
 parseWarunki(Warunki) :- 
     writeln('Podaj jeszcze raz.'),    
@@ -76,6 +85,7 @@ comp(gt).
 comp(ge).
 
 sprawdzDlugosc(eq, K, K).
+sprawdzDlugosc(not, _, _).
 sprawdzDlugosc(lt, K, Km) :- Km < K.
 sprawdzDlugosc(le, K, Km) :- Km =< K.
 sprawdzDlugosc(gt, K, Km) :- Km > K.
@@ -96,19 +106,15 @@ wyswietlTrasy([Trasa|Trasy]) :-
     wyswietlTrasy(Trasy).
 
 
-find_all(_, _, Acc).
-find_all(Warunki, [Trasa|Y], Acc) :- 
-    find_all(Warunki, Y, NewAcc),
-    (spelniaWarunki(Trasa, Warunki), Acc = NewAcc + Trasa, Acc = NewAcc).
-
 findalll(Pr, Acc, L) :- call(Pr, X), \+(member(X, Acc)), !, findalll(Pr, [X|Acc], L).
 findalll(_, L, L).
 findallll(Predykat, Lista) :- findalll(Predykat, [], Lista).
 
 % Predykat znajdujący wyprawy spełniające podane warunki
-find_routes(WszystkieTrasy, Start, Koniec, Warunki, ZnalezioneTrasy) :-
-    findall(Trasa, (
-        member(Trasa, WszystkieTrasy),
+find_routes(Rodzaje, Dlugosc, WszystkieTrasy, Start, Koniec, Warunki, ZnalezioneTrasy) :-
+    findalll(Trasa, (
+        member(Trasa, Rodzaje),
         Trasa = trasa(_, Start, Koniec, _, _, _),
         spelniaWarunki(Trasa, Warunki)
-    ), ZnalezioneTrasy).
+    ), ZnalezioneTrasy),
+    wyswietlTrasy(ZnalezioneTrasy).
