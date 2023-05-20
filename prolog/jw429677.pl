@@ -4,18 +4,12 @@
 
 :- ensure_loaded(library(lists)).
 
-wyprawy :-
+wyprawy :- 
     current_prolog_flag(argv, [Sciezka|_]),
     wczytajPlik(Sciezka, Trasy),
     write(Trasy), nl,
-    write('Podaj miejsce startu: '), read(Start),
-    write('Podaj miejsce koncowe: '), read(Koniec),
-    write('Podaj warunki: '), read(Warunki),
-    (Warunki == koniec -> write('Koniec programu. Milych wedrowek!'), nl, ! ;
-     sprawdzWarunki(Warunki),
-     find_routes(Trasy, Start, Koniec, Warunki, ZnalezioneTrasy)),
-    wyswietlTrasy(ZnalezioneTrasy).
-    
+    readAll.
+
 wczytajPlik(NazwaPliku, Trasy) :-
     open(NazwaPliku, read, Strumien),
     wczytajTrasy(Strumien, Trasy),
@@ -28,16 +22,64 @@ wczytajTrasy(Strumien, [Trasa | Trasy]) :-
     read(Strumien, Trasa),
     wczytajTrasy(Strumien, Trasy).
 
-sprawdzWarunki([]).
+readAll :-
+    write('Podaj miejsce startu: '), 
+    read(Start),
+    Start \= koniec,
+    write('Podaj miejsce koncowe: '),
+    read(Koniec),
+    Koniec \= koniec,
+    !,
+    parseWarunki(Warunki).
 
-sprawdzWarunki([Warunek|Warunki]) :-
-    functor(Warunek, rodzaj, 1),
-    sprawdzWarunki(Warunki).
+readAll :- write('Koniec programu. Milych wedrowek!'), nl.
 
-sprawdzWarunki([Warunek|Warunki]) :-
-    functor(Warunek, dlugosc, 2),
-    sprawdzWarunki(Warunki).
+parseWarunki(Warunki) :- 
+    write('Podaj warunki: '),
+    read(Wars),
+    readWarunki(Wars, Warunki),
+    sprawdzWarunki(Warunki, 0),
+    !.
 
+parseWarunki(Warunki) :- 
+    writeln('Podaj jeszcze raz.'),    
+    parseWarunki(Warunki).
+
+readWarunki(nil, []).
+readWarunki((Warunek, Warunki), [Warunek|Acc]) :-
+    !,
+    readWarunki(Warunki, Acc).
+readWarunki(X, [X]).
+
+sprawdzWarunki([], _).
+
+sprawdzWarunki([rodzaj(_)|Warunki], N) :-
+    !,
+    sprawdzWarunki(Warunki, N).
+
+sprawdzWarunki([dlugosc(Comp, Num)|Warunki], 0) :-
+    comp(Comp),
+    number(Num),
+    Num >= 0,
+    !,
+    sprawdzWarunki(Warunki, 1).
+
+sprawdzWarunki([ZlyWarunek|_], _) :-
+    write('Error: niepoprawny warunek - '), write(ZlyWarunek), nl,
+    fail.
+
+
+comp(eq).
+comp(lt).
+comp(le).
+comp(gt).
+comp(ge).
+
+sprawdzDlugosc(eq, K, K).
+sprawdzDlugosc(lt, K, Km) :- Km < K.
+sprawdzDlugosc(le, K, Km) :- Km =< K.
+sprawdzDlugosc(gt, K, Km) :- Km > K.
+sprawdzDlugosc(ge, K, Km) :- Km >= K.
 
 spelniaWarunki(_, nil).
 spelniaWarunki(Trasa, Warunki) :-
@@ -46,12 +88,6 @@ spelniaWarunki(Trasa, Warunki) :-
     member(dlugosc(War, K), Warunki),
     Trasa = trasa(_, _, _, Rodzaj, _, Km),
     sprawdzDlugosc(War, K, Km).
-
-sprawdzDlugosc(eq, K, K).
-sprawdzDlugosc(lt, K, Km) :- Km < K.
-sprawdzDlugosc(le, K, Km) :- Km =< K.
-sprawdzDlugosc(gt, K, Km) :- Km > K.
-sprawdzDlugosc(ge, K, Km) :- Km >= K.
 
 wyswietlTrasy([]).
 wyswietlTrasy([Trasa|Trasy]) :-
