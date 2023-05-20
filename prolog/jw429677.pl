@@ -6,9 +6,9 @@
 
 wyprawy :- 
     current_prolog_flag(argv, [Sciezka|_]),
-    wczytajPlik(Sciezka, Trasy),
-    write(Trasy), nl,
-    readAll.
+    wczytajPlik(Sciezka, WszystkieTrasy),
+    writeln(WszystkieTrasy),
+    readAll(WszystkieTrasy).
 
 wczytajPlik(NazwaPliku, Trasy) :-
     open(NazwaPliku, read, Strumien),
@@ -22,7 +22,7 @@ wczytajTrasy(Strumien, [Trasa | Trasy]) :-
     read(Strumien, Trasa),
     wczytajTrasy(Strumien, Trasy).
 
-readAll :-
+readAll(WszystkieTrasy) :-
     write('Podaj miejsce startu: '), 
     read(Start),
     Start \= koniec,
@@ -31,10 +31,12 @@ readAll :-
     Koniec \= koniec,
     !,
     parseWarunki(Dlugosc, Rodzaje),
-    write(Dlugosc),
-    write(Rodzaje).
+    find_routes(WszystkieTrasy, Rodzaje, Dlugosc, Start, Koniec). 
+readAll(_) :- write('Koniec programu. Milych wedrowek!'), nl.
 
-readAll :- write('Koniec programu. Milych wedrowek!'), nl.
+find_routes(Rodzaje, Dlugosc, WszystkieTrasy, Start, Koniec) :-
+    dolaczTrase(WszystkieTrasy, Rodzaje, [], 0, Dlugosc, Start, Koniec, ZnalezioneTrasy),
+    wyswietlMultiTrasy(ZnalezioneTrasy).
 
 parseWarunki(Dlugosc, Rodzaje) :- 
     write('Podaj warunki: '),
@@ -42,13 +44,16 @@ parseWarunki(Dlugosc, Rodzaje) :-
     readWarunki(Wars, Warunki),
     sprawdzWarunki(Warunki, 0),
     !,
+    separateWarunki(Warunki, Dlugosc, Rodzaje),
+    writeln(Dlugosc),
+    writeln(Rodzaje).
+
+separateWarunki([], nil, []).
+separateWarunki([rodzaj(R)|Warunki], Dlugosc, [R|Rodzaje]) :-
     separateWarunki(Warunki, Dlugosc, Rodzaje).
 
-separateWarunki([], _, _).
-separateWarunki([rodzaj(R)|Warunki], Dlugosc, Rodzaje) :-
-    separateWarunki(Warunki, Dlugosc, [rodzaj(R)|Rodzaje]).
-separateWarunki([dlugosc(Eq, W)|Warunki], _, Rodzaje) :-
-    separateWarunki(Warunki, dlugosc(Eq, W), Rodzaje).
+separateWarunki([dlugosc(A, B)|Warunki], dlugosc(A, B), Rodzaje) :-
+    separateWarunki(Warunki, nil, Rodzaje).
 
 parseWarunki(Warunki) :- 
     writeln('Podaj jeszcze raz.'),    
@@ -61,17 +66,14 @@ readWarunki((Warunek, Warunki), [Warunek|Acc]) :-
 readWarunki(X, [X]).
 
 sprawdzWarunki([], _).
-
-sprawdzWarunki([rodzaj(_)|Warunki], N) :-
-    !,
-    sprawdzWarunki(Warunki, N).
+sprawdzWarunki([rodzaj(_)|Warunki], N) :- 
+    !, sprawdzWarunki(Warunki, N).
 
 sprawdzWarunki([dlugosc(Comp, Num)|Warunki], 0) :-
     comp(Comp),
     number(Num),
     Num >= 0,
-    !,
-    sprawdzWarunki(Warunki, 1).
+    !, sprawdzWarunki(Warunki, 1).
 
 sprawdzWarunki([ZlyWarunek|_], _) :-
     write('Error: niepoprawny warunek - '), write(ZlyWarunek), nl,
@@ -84,37 +86,44 @@ comp(le).
 comp(gt).
 comp(ge).
 
-sprawdzDlugosc(eq, K, K).
-sprawdzDlugosc(not, _, _).
-sprawdzDlugosc(lt, K, Km) :- Km < K.
-sprawdzDlugosc(le, K, Km) :- Km =< K.
-sprawdzDlugosc(gt, K, Km) :- Km > K.
-sprawdzDlugosc(ge, K, Km) :- Km >= K.
+sprawdzDlugosc(dlugosc(eq, K), K).
+sprawdzDlugosc(nil, _).
+sprawdzDlugosc(dlugosc(lt, K), Km) :- Km < K.
+sprawdzDlugosc(dlugosc(le, K), Km) :- Km =< K.
+sprawdzDlugosc(dlugosc(gt, K), Km) :- Km > K.
+sprawdzDlugosc(dlugosc(ge, K), Km) :- Km >= K.
 
-spelniaWarunki(_, nil).
-spelniaWarunki(Trasa, Warunki) :-
-    Warunki \= nil, 
-    member(rodzaj(Rodzaj), Warunki),
-    member(dlugosc(War, K), Warunki),
-    Trasa = trasa(_, _, _, Rodzaj, _, Km),
-    sprawdzDlugosc(War, K, Km).
+dolaczTrase(_, _, [], _, _, _, _, _).
 
-wyswietlTrasy([]).
-wyswietlTrasy([Trasa|Trasy]) :-
-    Trasa = trasa(Tid, Start, Koniec, Rodzaj, _, Dlugosc),
-    format('~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n', [Start, Tid, Rodzaj, Koniec, Dlugosc]),
-    wyswietlTrasy(Trasy).
+dolaczTrase(_, _, Sciezka, Suma, Dlugosc, NastStart, Koniec, [(Sciezka, Suma)|Rest]) :- 
+    writeln(Sciezka),
+    Koniec is NastStart,
+    sprawdzDlugosc(Dlugosc, Suma),
+    \+member((Sciezka, Suma), Rest).
+
+dolaczTrase(WszystkieTrasy, Rodzaje, [Trasa|AktSciezka], Suma, Dlugosc, NastStart, Koniec, Acc) :- 
+    dolaczTrase(WszystkieTrasy, Rodzaje, AktSciezka, PrevSuma, Dlugosc, Start, Koniec, Acc),
+    member(Trasa, WszystkieTrasy),
+    \+member(Trasa, AktSciezka),
+    Trasa = trasa(_, Start, NastStart, Rodzaj, _, Km),
+    Suma is PrevSuma + Km,
+    member(Rodzaj, Rodzaje).
+
 
 
 findalll(Pr, Acc, L) :- call(Pr, X), \+(member(X, Acc)), !, findalll(Pr, [X|Acc], L).
 findalll(_, L, L).
 findallll(Predykat, Lista) :- findalll(Predykat, [], Lista).
 
-% Predykat znajdujący wyprawy spełniające podane warunki
-find_routes(Rodzaje, Dlugosc, WszystkieTrasy, Start, Koniec, Warunki, ZnalezioneTrasy) :-
-    findalll(Trasa, (
-        member(Trasa, Rodzaje),
-        Trasa = trasa(_, Start, Koniec, _, _, _),
-        spelniaWarunki(Trasa, Warunki)
-    ), ZnalezioneTrasy),
-    wyswietlTrasy(ZnalezioneTrasy).
+
+wyswietlMultiTrasy([]).
+wyswietlMultiTrasy([(Trasa, Suma)|Trasy]) :- 
+    wyswietlTrasy(Trasa, Suma),
+    wyswietlMultiTrasy(Trasy).
+
+wyswietlTrasy([], Dlugosc) :-
+    format('~nDlugosc trasy: ~w.~n', [Dlugosc]).
+wyswietlTrasy([Trasa|Trasy], Dlugosc) :-
+    Trasa = trasa(Tid, Start, Koniec, Rodzaj, _, _),
+    format('~w -(~w,~w)-> ~w', [Start, Tid, Rodzaj, Koniec]),
+    wyswietlTrasy(Trasy, Dlugosc).
