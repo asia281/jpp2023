@@ -93,11 +93,37 @@ sprawdzDlugosc(dlugosc(le, K), Km) :- Km =< K.
 sprawdzDlugosc(dlugosc(gt, K), Km) :- Km > K.
 sprawdzDlugosc(dlugosc(ge, K), Km) :- Km >= K.
 
+find_path(Edges, nil, nil, Rodzaje, Dlugosc, Suma, ([Trasa], Suma)) :-
+    member(Trasa, Edges),
+    Trasa = trasa(_, _, _, Rodzaj, _, _),
+    sprawdzDlugosc(Dlugosc, Suma),
+    memberOrEmpty(Rodzaj, Rodzaje).
+
+find_path(Edges, Source, nil, Rodzaje, Dlugosc, Suma, ([Trasa], Suma)) :-
+    member(Trasa, Edges),
+    Trasa = trasa(_, Source, _, Rodzaj, _, _),
+    sprawdzDlugosc(Dlugosc, Suma),
+    memberOrEmpty(Rodzaj, Rodzaje).
+
+find_path(Edges, nil, Destination, Rodzaje, Dlugosc, Suma, ([Trasa], Suma)) :-
+    member(Trasa, Edges),
+    Trasa = trasa(_, _, Destination, Rodzaj, _, _),
+    sprawdzDlugosc(Dlugosc, Suma),
+    memberOrEmpty(Rodzaj, Rodzaje).
+
 find_path(Edges, Source, Destination, Rodzaje, Dlugosc, Suma, ([Trasa], Suma)) :-
     member(Trasa, Edges),
     Trasa = trasa(_, Source, Destination, Rodzaj, _, _),
     sprawdzDlugosc(Dlugosc, Suma),
     memberOrEmpty(Rodzaj, Rodzaje).
+
+find_path(Edges, nil, Destination, Rodzaje, Dlugosc, PrevSuma, ([Trasa|Path], SumAcc)) :-
+    member(Trasa, Edges),
+    Trasa = trasa(_, _, Intermediate, Rodzaj, _, Km),
+    memberOrEmpty(Rodzaj, Rodzaje),
+    Intermediate \== Destination,
+    Suma is PrevSuma + Km,
+    find_path(Edges, Intermediate, Destination, Rodzaje, Dlugosc, Suma, (Path, SumAcc)).
 
 % Recursive case: Find a path from Source to Destination
 find_path(Edges, Source, Destination, Rodzaje, Dlugosc, PrevSuma, ([Trasa|Path], SumAcc)) :-
