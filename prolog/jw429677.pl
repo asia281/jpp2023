@@ -8,7 +8,6 @@ wyprawy :-
     readEdges(Stream, PrevEdges),
     close(Stream),
     parseEdges(PrevEdges, Edges),
-    writeln(Edges),
     readAndFind(Edges).
 
 % Read edges from file.
@@ -52,9 +51,7 @@ parseConditions(Length, Types) :-
     read(Cond),
     readConditions(Cond, Conditions),
     checkConditions(Conditions, 0, Length, Types),
-    !,
-    writeln(Length),
-    writeln(Types).
+    !.
 
 parseConditions(Conditions) :- 
     writeln('Podaj jeszcze raz.'),    
@@ -98,60 +95,56 @@ checkLength(dlugosc(le, K), Km) :- Km =< K.
 checkLength(dlugosc(gt, K), Km) :- Km > K.
 checkLength(dlugosc(ge, K), Km) :- Km >= K.
 
-%checkAllConds() :- 
+checkCondsNotLen(Edge, Vis, Type, Types) :- 
+    \+ member(Edge, Vis),
+    checkType(Type, Types).
+
+checkAllConds(Edge, Vis, Length, Sum, Type, Types) :- 
+    checkLength(Length, Sum),
+    checkCondsNotLen(Edge, Vis, Type, Types).
 
 % Find any edge.
 findPath(Edges, nil, nil, Types, Length, 0, Vis, ([Edge], Sum)) :-
-    Edge = edge(_, _, _, Type, Sum),
     member(Edge, Edges),
-    \+ member(Edge, Vis),
-    checkLength(Length, Sum),
-    checkType(Type, Types).
+    Edge = edge(_, _, _, Type, Sum),
+    checkAllConds(Edge, Vis, Length, Sum, Type, Types).
 
 % Find an edge from Source.
 findPath(Edges, Source, nil, Types, Length, PrevSum, Vis, ([Edge], Sum)) :-
-    Edge = edge(_, Source, _, Type, Km),
     member(Edge, Edges),
-    \+ member(Edge, Vis),
+    Edge = edge(_, Source, _, Type, Km),
     Sum is PrevSum + Km,
-    checkLength(Length, Sum),
-    checkType(Type, Types).
+    checkAllConds(Edge, Vis, Length, Sum, Type, Types).
 
 % Find an edge to Destination.
 findPath(Edges, nil, Destination, Types, Length, 0, Vis, ([Edge], Sum)) :-
-    Edge = edge(_, _, Destination, Type, Sum),
     member(Edge, Edges),
-    \+ member(Edge, Vis),
-    checkLength(Length, Sum),
-    checkType(Type, Types).
+    Edge = edge(_, _, Destination, Type, Sum),
+    checkAllConds(Edge, Vis, Length, Sum, Type, Types).
 
 % Find an edge from Source to Destination.
 findPath(Edges, Source, Destination, Types, Length, PrevSum, Vis, ([Edge], Sum)) :-
-    Edge = edge(_, Source, Destination, Type, Km),
     member(Edge, Edges),
+    Edge = edge(_, Source, Destination, Type, Km),
     Sum is PrevSum + Km,
-    \+ member(Edge, Vis),
-    checkLength(Length, Sum),
-    checkType(Type, Types).
+    checkAllConds(Edge, Vis, Length, Sum, Type, Types).
 
 % Find a path to Destination.
 findPath(Edges, nil, Destination, Types, Length, PrevSum, Vis, ([Edge|Path], Sumcc)) :-
     Edge = edge(_, _, Intermediate, Type, Km),
     member(Edge, Edges),
-    checkType(Type, Types),
     Intermediate \== Destination,
     Sum is PrevSum + Km,
-    \+ member(Edge, Vis),
+    checkCondsNotLen(Edge, Vis, Type, Types),
     findPath(Edges, Intermediate, Destination, Types, Length, Sum, [Edge|Vis], (Path, Sumcc)).
 
 % Find a path from Source to Destination.
 findPath(Edges, Source, Destination, Types, Length, PrevSum, Vis, ([Edge|Path], Sumcc)) :-
     member(Edge, Edges),
     Edge = edge(_, Source, Intermediate, Type, Km),
-    checkType(Type, Types),
     Intermediate \== Destination,
     Sum is PrevSum + Km,
-    \+ member(Edge, Vis),
+    checkCondsNotLen(Edge, Vis, Type, Types),
     findPath(Edges, Intermediate, Destination, Types, Length, Sum, [Edge|Vis], (Path, Sumcc)).
 
 % Check if route has a given type.
