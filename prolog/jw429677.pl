@@ -20,26 +20,15 @@ readEdges(Stream, [Edge | Edges]) :-
     readEdges(Stream, Edges).
 
 parseEdges([], []).
-parseEdges([Trasa|Rest], [Added1,Added2,Added3,Added4,Added5,Added6,Added7|Acc]) :- 
-    Trasa = trasa(Tid, Source, Destination, Type, oba, Km),
-    Added1 = edge(Tid, nil, Destination, Type, Km),
-    Added2 = edge(Tid, nil, Source, Type, Km),
-    Added3 = edge(Tid, Source, nil, Type, Km),
-    Added4 = edge(Tid, Destination, nil, Type, Km),
-    Added5 = edge(Tid, nil, nil, Type, Km),
-    Added6 = edge(Tid, Source, Destination, Type, Km),
-    Added7 = edge(Tid, Destination, Source, Type, Km),
+parseEdges([end_of_file], []).
+parseEdges([trasa(Tid, Source, Destination, Type, oba, Km)|Rest], [Added1,Added2|Acc]) :- 
+    Added1 = edge(Tid, Source, Destination, Type, Km),
+    Added2 = edge(Tid, Destination, Source, Type, Km),
     parseEdges(Rest, Acc).
 
-parseEdges([Trasa|Rest], [Added1,Added2,Added3,Added4|Acc]) :- 
-    Trasa = trasa(Tid, Source, Destination, Type, jeden, Km),
-    Added1 = edge(Tid, nil, Destination, Type, Km),
-    Added2 = edge(Tid, Source, nil, Type, Km),
-    Added3 = edge(Tid, nil, nil, Type, Km),
-    Added4 = edge(Tid, Source, Destination, Type, Km),
+parseEdges([trasa(Tid, Source, Destination, Type, jeden, Km)|Rest], [Added|Acc]) :- 
+    Added = edge(Tid, Source, Destination, Type, Km),
     parseEdges(Rest, Acc).
-
-
 
 % Read input and find all routes satisfying conditions.
 readAndFind(Edges) :-
@@ -109,24 +98,81 @@ checkLength(dlugosc(le, K), Km) :- Km =< K.
 checkLength(dlugosc(gt, K), Km) :- Km > K.
 checkLength(dlugosc(ge, K), Km) :- Km >= K.
 
-% Find an edge from Source to Destination.
-findPath(Edges, Source, Destination, Types, Length, PrevSum, ([Edge], Sum)) :-
+% Find any edge.
+findPath(Edges, nil, nil, Types, Length, 0, Vis, ([Edge], Sum)) :-
     member(Edge, Edges),
-    Edge = edge(_, Source, Destination, Type, Km),
+    writeln('nn1'),
+    writeln(Edge),
+    Edge = edge(_, _, _, Type, Sum),
+    \+ member(Edge, Vis),
+    checkLength(Length, Sum),
+    checkType(Type, Types).
+
+% Find an edge from Source.
+findPath(Edges, Source, nil, Types, Length, PrevSum, Vis, ([Edge], Sum)) :-
+    member(Edge, Edges),
+    writeln('sn1'),
+    writeln(Edge),
+    writeln(PrevSum),
+    Edge = edge(_, Source, _, Type, Km),
+    \+ member(Edge, Vis),
     Sum is PrevSum + Km,
     checkLength(Length, Sum),
     checkType(Type, Types).
 
+% Find an edge to Destination.
+findPath(Edges, nil, Destination, Types, Length, 0, Vis, ([Edge], Km)) :-
+    member(Edge, Edges),
+    writeln('nd1'),
+    writeln(Edge),
+    writeln(Destination),
+    Edge = edge(_, _, Destination, Type, Km),
+    \+ member(Edge, Vis),
+    checkLength(Length, Km),
+    checkType(Type, Types).
+
+% Find an edge from Source to Destination.
+findPath(Edges, Source, Destination, Types, Length, PrevSum, Vis, ([Edge], Sum)) :-
+    member(Edge, Edges),
+    Edge = edge(_, Source, Destination, Type, Km),
+    \+ member(Edge, Vis),
+    writeln('sd1'),
+    writeln(Edge),
+    writeln(Destination),
+    writeln(PrevSum),
+    Sum is PrevSum + Km,
+    checkLength(Length, Sum),
+    checkType(Type, Types).
+
+% Find a path to Destination.
+findPath(Edges, nil, Destination, Types, Length, PrevSum, Vis, ([Edge|Path], Sumcc)) :-
+    member(Edge, Edges),
+    Edge = edge(_, _, Intermediate, Type, Km),
+    checkType(Type, Types),
+    Intermediate \== Destination,
+    Sum is PrevSum + Km,
+    \+ member(Edge, Vis),
+    findPath(Edges, Intermediate, Destination, Types, Length, Sum, [Edge|Vis], (Path, Sumcc)),
+    writeln('nd2'),
+    writeln(Path),
+    writeln(Destination),
+    writeln(PrevSum),
+    writeln(Edge).
+
 % Find a path from Source to Destination.
-findPath(Edges, Source, Destination, Types, Length, PrevSum, ([Edge|Path], Sumcc)) :-
+findPath(Edges, Source, Destination, Types, Length, PrevSum, Vis, ([Edge|Path], Sumcc)) :-
     member(Edge, Edges),
     Edge = edge(_, Source, Intermediate, Type, Km),
     checkType(Type, Types),
     Intermediate \== Destination,
-    Intermediate \== nil,
     Sum is PrevSum + Km,
-    findPath(Edges, Intermediate, Destination, Types, Length, Sum, (Path, Sumcc)),
-    \+ member(Edge, Path).
+    \+ member(Edge, Vis),
+    findPath(Edges, Intermediate, Destination, Types, Length, Sum, [Edge|Vis], (Path, Sumcc)),
+    writeln('sd2'),
+    writeln(Path),
+    writeln(Destination),
+    writeln(PrevSum),
+    writeln(Edge).
 
 % Check if route has a given type.
 checkType(_, []).
@@ -134,7 +180,7 @@ checkType(Type, L) :- member(Type, L).
 
 % Find all paths between Source and Destination
 findPaths(Edges, Source, Destination, Types, Length, FoundRoutes) :-
-    findalll(findPath(Edges, Source, Destination, Types, Length, 0), FoundRoutes).
+    findalll(findPath(Edges, Source, Destination, Types, Length, 0, []), FoundRoutes).
 
 findalll(Pr, Acc, L) :- call(Pr, X), \+(member(X, Acc)), !, findalll(Pr, [X|Acc], L).
 findalll(_, L, L).
