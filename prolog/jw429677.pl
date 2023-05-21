@@ -64,15 +64,15 @@ readConditions((Cond, Conditions), [Cond|Acc]) :-
 readConditions(X, [X]).
 
 checkConditions([], _, nil, []).
+
 % Append rodzaj condition.
 checkConditions([rodzaj(R)|Conditions], N, Length, [R|Types]) :- 
     !, checkConditions(Conditions, N, Length, Types).
 
-% Check dlugosc condition and at it to accumulator.
+% Check dlugosc condition and append it to accumulator.
 checkConditions([dlugosc(Comp, N)|Conditions], 0, dlugosc(Comp, N), Types) :-
     checkComp(Comp),
-    number(N),
-    N >= 0,
+    number(N), N >= 0,
     !, checkConditions(Conditions, 1, nil, Types).
 
 % Check inncorect condition.
@@ -139,6 +139,7 @@ findPath(Edges, nil, Destination, Types, Length, PrevSum, Vis, ([Edge|Path], Sum
     findPath(Edges, Intermediate, Destination, Types, Length, Sum, [Edge|Vis], (Path, Sumcc)).
 
 % Find a path from Source to Destination.
+% Stores sum of edges until now in PrevSum and visited edges in Vis.
 findPath(Edges, Source, Destination, Types, Length, PrevSum, Vis, ([Edge|Path], Sumcc)) :-
     member(Edge, Edges),
     Edge = edge(_, Source, Intermediate, Type, Km),
@@ -166,12 +167,12 @@ printMultiRoutes([(Route, Sum)|Routes]) :-
     printMultiRoutes(Routes).
 
 % Print single route.
-printRoutes([Edge|[]], Length) :-
+printRoutes([Edge|[]], Sum) :-
     Edge = edge(Tid, Source, Destination, Type, _),
     format('~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n', 
-    [Source, Tid, Type, Destination, Length]).
+    [Source, Tid, Type, Destination, Sum]).
 
-printRoutes([Edge|Routes], Length) :-
+printRoutes([Edge|Routes], Sum) :-
     Edge = edge(Tid, Source, _, Type, _),
     format('~w -(~w,~w)-> ', [Source, Tid, Type]),
-    printRoutes(Routes, Length).
+    printRoutes(Routes, Sum).
