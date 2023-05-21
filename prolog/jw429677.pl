@@ -109,28 +109,6 @@ checkLength(dlugosc(le, K), Km) :- Km =< K.
 checkLength(dlugosc(gt, K), Km) :- Km > K.
 checkLength(dlugosc(ge, K), Km) :- Km >= K.
 
-% Find any edge.
-findPath(Edges, nil, nil, Types, Length, _, ([Edge], Sum)) :-
-    member(Edge, Edges),
-    Edge = edge(_, _, _, Type, Sum),
-    checkLength(Length, Sum),
-    checkType(Type, Types).
-
-% Find an edge from Source.
-findPath(Edges, Source, nil, Types, Length, PrevSum, ([Edge], Sum)) :-
-    member(Edge, Edges),
-    Edge = edge(_, Source, _, Type, Km),
-    Sum is PrevSum + Km,
-    checkLength(Length, Sum),
-    checkType(Type, Types).
-
-% Find an edge to Destination.
-findPath(Edges, nil, Destination, Types, Length, _, ([Edge], Km)) :-
-    member(Edge, Edges),
-    Edge = edge(_, _, Destination, Type, Km),
-    checkLength(Length, Km),
-    checkType(Type, Types).
-
 % Find an edge from Source to Destination.
 findPath(Edges, Source, Destination, Types, Length, PrevSum, ([Edge], Sum)) :-
     member(Edge, Edges),
@@ -139,22 +117,13 @@ findPath(Edges, Source, Destination, Types, Length, PrevSum, ([Edge], Sum)) :-
     checkLength(Length, Sum),
     checkType(Type, Types).
 
-% Find a path to Destination.
-findPath(Edges, nil, Destination, Types, Length, PrevSum, ([Edge|Path], Sumcc)) :-
-    member(Edge, Edges),
-    Edge = edge(_, _, Intermediate, Type, Km),
-    checkType(Type, Types),
-    Intermediate \== Destination,
-    Sum is PrevSum + Km,
-    findPath(Edges, Intermediate, Destination, Types, Length, Sum, (Path, Sumcc)),
-    \+ member(Edge, Path).
-
 % Find a path from Source to Destination.
 findPath(Edges, Source, Destination, Types, Length, PrevSum, ([Edge|Path], Sumcc)) :-
     member(Edge, Edges),
     Edge = edge(_, Source, Intermediate, Type, Km),
     checkType(Type, Types),
     Intermediate \== Destination,
+    Intermediate \== nil,
     Sum is PrevSum + Km,
     findPath(Edges, Intermediate, Destination, Types, Length, Sum, (Path, Sumcc)),
     \+ member(Edge, Path).
