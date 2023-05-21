@@ -96,20 +96,19 @@ sprawdzDlugosc(dlugosc(ge, K), Km) :- Km >= K.
 checkDlugosc(Dlugosc, Trasa) :- 
     sumList(Trasa, Suma),
     sprawdzDlugosc(Dlugosc, Suma).
+
 sumList([], 0).
-sumList([trasa(_, _, _, _, _, Km)|Rest], Suma) :- 
+sumList([T|Rest], Suma) :- 
+    T = trasa(_, _, _, _, _, Km),
     sumList(Rest, PrevSuma),
     Suma is PrevSuma + Km.
 
-memberOrEmpty(_, []) :- !.
-memberOrEmpty(A, B) :- 
-    member(A, B).
 
 find_path(Edges, Source, Destination, Rodzaje, Dlugosc, [Trasa]) :-
     member(Trasa, Edges),
- %   checkDlugosc(Dlugosc, Trasa),
+    checkDlugosc(Dlugosc, Trasa),
     Trasa = trasa(_, Source, Destination, Rodzaj, _, _),
-    memberOrEmpty(Rodzaj, Rodzaje).
+    member(Rodzaj, Rodzaje).
 
 % Recursive case: Find a path from Source to Destination
 find_path(Edges, Source, Destination, Rodzaje, Dlugosc, [Trasa|Path]) :-
@@ -119,13 +118,19 @@ find_path(Edges, Source, Destination, Rodzaje, Dlugosc, [Trasa|Path]) :-
     Intermediate \== Destination,
     find_path(Edges, Intermediate, Destination, Rodzaje, Dlugosc, Path).
 
+memberOrEmpty(_, []).
+memberOrEmpty(_, nil).
+memberOrEmpty(A, B) :- 
+    member(A, B).
+
 % Find all paths between Source and Destination
 find_all_paths(Edges, Source, Destination, Rodzaje, Dlugosc, Paths) :-
-    bagof(Path, find_path(Edges, Source, Destination, Rodzaje, Dlugosc, Path), Paths).
+    findalll(find_path(Edges, Source, Destination, Rodzaje, Dlugosc), Paths).
+
 
 findalll(Pr, Acc, L) :- call(Pr, X), \+(member(X, Acc)), !, findalll(Pr, [X|Acc], L).
 findalll(_, L, L).
-findallll(Predykat, Lista) :- findalll(Predykat, [], Lista).
+findalll(Predykat, Lista) :- findalll(Predykat, [], Lista).
 
 % Wyswietla wszystkie znalezione trasy.
 wyswietlMultiTrasy([]).
