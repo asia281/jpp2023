@@ -30,13 +30,12 @@ readAll(WszystkieTrasy) :-
     !,
     parseWarunki(Dlugosc, Rodzaje),
     find_routes(WszystkieTrasy, Rodzaje, Dlugosc, Start, Koniec). 
-
 readAll(_) :- write('Koniec programu. Milych wedrowek!'), nl.
 
 find_routes(WszystkieTrasy, Rodzaje, Dlugosc, Start, Koniec) :-
-    find_all_paths(WszystkieTrasy, Start, Koniec, Rodzaje, Dlugosc, ZnalezioneTrasy),
-    write(ZnalezioneTrasy).
-%    wyswietlMultiTrasy(ZnalezioneTrasy).
+%     dolaczTrase(WszystkieTrasy, Rodzaje, AktSciezka, PrevSuma, Dlugosc, Start, Koniec, Acc),
+    dolaczTrase(WszystkieTrasy, Rodzaje, _, _, Dlugosc, Start, Koniec, ZnalezioneTrasy),
+    wyswietlMultiTrasy(ZnalezioneTrasy).
 
 parseWarunki(Dlugosc, Rodzaje) :- 
     write('Podaj warunki: '),
@@ -93,27 +92,36 @@ sprawdzDlugosc(dlugosc(le, K), Km) :- Km =< K.
 sprawdzDlugosc(dlugosc(gt, K), Km) :- Km > K.
 sprawdzDlugosc(dlugosc(ge, K), Km) :- Km >= K.
 
+dolaczTrase(_, _, [], 0, _, _, _, []) :- !.
+dolaczTrase(_, _, [], 0, _, _, _, _).
 
-
-find_path(Edges, Source, Destination, Rodzaje, Dlugosc, [Trasa]) :-
-    member(Trasa, Edges),
-    Trasa = trasa(_, Source, Destination, Rodzaj, _, _),
-    member(Rodzaj, Rodzaje).
+find_path(Edges, Source, Destination, [Source, Destination]) :-
+    edge(Edges, Source, Destination).
 
 % Recursive case: Find a path from Source to Destination
-find_path(Edges, Source, Destination, Rodzaje, Dlugosc, [Trasa|Path]) :-
-    member(Trasa, Edges),
-    Trasa = trasa(_, Source, Intermediate, Rodzaj, _, _),
-    member(Rodzaj, Rodzaje),
+find_path(Edges, Source, Destination, [Source|Path]) :-
+    edge(Edges, Source, Intermediate),
     Intermediate \== Destination,
-    find_path(Edges, Intermediate, Destination, Rodzaje, Dlugosc, Path).
+    find_path(Edges, Intermediate, Destination, Path).
 
 % Find all paths between Source and Destination
-find_all_paths(Edges, Source, Destination, Rodzaje, Dlugosc, Paths) :-
-    bagof(Path, find_path(Edges, Source, Destination, Rodzaje, Dlugosc, Path), Paths).
+find_all_paths(Edges, Source, Destination, Paths) :-
+    bagof(Path, find_path(Edges, Source, Destination, Path), Paths).
 
-
+dolaczTrase(_, _, Sciezka, Suma, Dlugosc, NastStart, Koniec, [(Sciezka, Suma)|Rest]) :- 
+    dolaczTrase(_, _, Sciezka, Suma, Dlugosc, NastStart, Koniec, Rest),
+    writeln(Sciezka),
+    Koniec is NastStart,
     %sprawdzDlugosc(Dlugosc, Suma),
+    \+member((Sciezka, Suma), Rest).
+
+dolaczTrase(WszystkieTrasy, Rodzaje, [Trasa|AktSciezka], Suma, Dlugosc, NastStart, Koniec, Acc) :- 
+    dolaczTrase(WszystkieTrasy, Rodzaje, AktSciezka, PrevSuma, Dlugosc, Start, Koniec, Acc),
+    member(Trasa, WszystkieTrasy),
+    \+member(Trasa, AktSciezka),
+    Trasa = trasa(_, Start, NastStart, Rodzaj, _, Km),
+    Suma is PrevSuma + Km,
+    member(Rodzaj, Rodzaje).
 
 % Wyswietla wszystkie znalezione trasy.
 wyswietlMultiTrasy([]).
