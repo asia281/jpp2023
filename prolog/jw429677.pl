@@ -4,15 +4,14 @@
 
 wyprawy :- 
     current_prolog_flag(argv, [FileName|_]),
-    readFile(FileName, Edges),
-    writeln(Edges),
-    readAll(Edges).
-
-readFile(FileName, Edges) :-
     open(FileName, read, Stream),
-    readEdges(Stream, Edges),
-    close(Stream).
+    readEdges(Stream, PrevEdges),
+    close(Stream),
+    parseEdges(PrevEdges, Edges),
+    writeln(Edges),
+    readAndFind(Edges).
 
+% Read edges from file.
 readEdges(Stream, []) :-
     at_end_of_stream(Stream).
 
@@ -20,68 +19,89 @@ readEdges(Stream, [Edge | Edges]) :-
     read(Stream, Edge),
     readEdges(Stream, Edges).
 
-readAll(Edges) :-
+parseEdges([], []).
+parseEdges([Trasa|Rest], [Added1,Added2,Added3,Added4,Added5,Added6,Added7|Acc]) :- 
+    Trasa = trasa(Tid, Source, Destination, Type, oba, Km),
+    Added1 = edge(Tid, nil, Destination, Type, Km),
+    Added2 = edge(Tid, nil, Source, Type, Km),
+    Added3 = edge(Tid, Source, nil, Type, Km),
+    Added4 = edge(Tid, Destination, nil, Type, Km),
+    Added5 = edge(Tid, nil, nil, Type, Km),
+    Added6 = edge(Tid, Source, Destination, Type, Km),
+    Added7 = edge(Tid, Destination, Source, Type, Km),
+    parseEdges(Rest, Acc).
+
+parseEdges([Trasa|Rest], [Added1,Added2,Added3,Added4|Acc]) :- 
+    Trasa = trasa(Tid, Source, Destination, Type, jeden, Km),
+    Added1 = edge(Tid, nil, Destination, Type, Km),
+    Added2 = edge(Tid, Source, nil, Type, Km),
+    Added3 = edge(Tid, nil, nil, Type, Km),
+    Added4 = edge(Tid, Source, Destination, Type, Km),
+    parseEdges(Rest, Acc).
+
+
+
+% Read input and find all routes satisfying conditions.
+readAndFind(Edges) :-
     write('Podaj miejsce startu: '), 
     read(Source),
-    Source \= koniec,
+    Source \== koniec,
     write('Podaj miejsce koncowe: '),
     read(Destination),
-    Destination \= koniec,
+    Destination \== koniec,
     !,
     parseConditions(Length, Types),
-    find_all_paths(Edges, Source, Destination, Types, Length, FoundRoutes),
+    findPaths(Edges, Source, Destination, Types, Length, FoundRoutes),
     printMultiRoutes(FoundRoutes),
-    readAll(Edges). 
+    readAndFind(Edges). 
 
-readAll(_) :- writeln('Koniec programu. Milych wedrowek!').
+readAndFind(_) :- writeln('Koniec programu. Milych wedrowek!').
 
+% Read, parse and check conditions on input.
 parseConditions(Length, Types) :- 
     write('Podaj warunki: '),
     read(Cond),
     readConditions(Cond, Conditions),
-    checkConditions(Conditions, 0),
+    checkConditions(Conditions, 0, Length, Types),
     !,
-    separateConditions(Conditions, Length, Types),
     writeln(Length),
     writeln(Types).
-
-separateConditions([], nil, []).
-separateConditions([rodzaj(R)|Conditions], Length, [R|Types]) :-
-    separateConditions(Conditions, Length, Types).
-
-separateConditions([dlugosc(A, B)|Conditions], dlugosc(A, B), Types) :-
-    separateConditions(Conditions, nil, Types).
 
 parseConditions(Conditions) :- 
     writeln('Podaj jeszcze raz.'),    
     parseConditions(Conditions).
 
+% Transform tuple of conditions to the list.
 readConditions(nil, []).
-readConditions((Cond, Conditions), [Cond|Acc]) :-
-    !,
-    readConditions(Conditions, Acc).
+readConditions((Cond, Conditions), [Cond|Acc]) :- 
+    !, readConditions(Conditions, Acc).
 readConditions(X, [X]).
 
-checkConditions([], _).
-checkConditions([rodzaj(_)|Conditions], N) :- 
-    !, checkConditions(Conditions, N).
+checkConditions([], _, nil, []).
+% Append rodzaj condition.
+checkConditions([rodzaj(R)|Conditions], N, Length, [R|Types]) :- 
+    !, checkConditions(Conditions, N, Length, Types).
 
-checkConditions([dlugosc(Comp, Num)|Conditions], 0) :-
+% Check dlugosc condition and at it to accumulator.
+checkConditions([dlugosc(Comp, N)|Conditions], 0, dlugosc(Comp, N), Types) :-
     checkComp(Comp),
-    number(Num),
-    Num >= 0,
-    !, checkConditions(Conditions, 1).
+    number(N),
+    N >= 0,
+    !, checkConditions(Conditions, 1, nil, Types).
 
-checkConditions([BadCond|_], _) :-
-    write('Error: niepoprawny warunek - '), write(BadCond), nl,
+% Check inncorect condition.
+checkConditions([BadCond|_], _, _, _) :-
+    format('Error: niepoprawny warunek - ~w~n', [BadCond]),
     fail.
 
+% Check if comparator sign is one of possible ones.
 checkComp(eq).
 checkComp(lt).
 checkComp(le).
 checkComp(gt).
 checkComp(ge).
 
+% Check dlugosc condition with a total length of a path.
 checkLength(dlugosc(eq, K), K).
 checkLength(nil, _).
 checkLength(dlugosc(lt, K), Km) :- Km < K.
@@ -89,73 +109,81 @@ checkLength(dlugosc(le, K), Km) :- Km =< K.
 checkLength(dlugosc(gt, K), Km) :- Km > K.
 checkLength(dlugosc(ge, K), Km) :- Km >= K.
 
-find_path(Edges, nil, nil, Types, Length, _, ([Route], Sum)) :-
-    member(Route, Edges),
-    Route = trasa(_, _, _, Type, _, Sum),
+% Find any edge.
+findPath(Edges, nil, nil, Types, Length, _, ([Edge], Sum)) :-
+    member(Edge, Edges),
+    Edge = edge(_, _, _, Type, Sum),
     checkLength(Length, Sum),
-    memberOrEmpty(Type, Types).
+    checkType(Type, Types).
 
-find_path(Edges, Source, nil, Types, Length, PrevSum, ([Route], Sum)) :-
-    member(Route, Edges),
-    Route = trasa(_, Source, _, Type, _, Km),
+% Find an edge from Source.
+findPath(Edges, Source, nil, Types, Length, PrevSum, ([Edge], Sum)) :-
+    member(Edge, Edges),
+    Edge = edge(_, Source, _, Type, Km),
     Sum is PrevSum + Km,
     checkLength(Length, Sum),
-    memberOrEmpty(Type, Types).
+    checkType(Type, Types).
 
-find_path(Edges, nil, Destination, Types, Length, _, ([Route], Km)) :-
-    member(Route, Edges),
-    Route = trasa(_, _, Destination, Type, _, Km),
+% Find an edge to Destination.
+findPath(Edges, nil, Destination, Types, Length, _, ([Edge], Km)) :-
+    member(Edge, Edges),
+    Edge = edge(_, _, Destination, Type, Km),
     checkLength(Length, Km),
-    memberOrEmpty(Type, Types).
+    checkType(Type, Types).
 
-find_path(Edges, Source, Destination, Types, Length, PrevSum, ([Route], Sum)) :-
-    member(Route, Edges),
-    Route = trasa(_, Source, Destination, Type, _, Km),
+% Find an edge from Source to Destination.
+findPath(Edges, Source, Destination, Types, Length, PrevSum, ([Edge], Sum)) :-
+    member(Edge, Edges),
+    Edge = edge(_, Source, Destination, Type, Km),
     Sum is PrevSum + Km,
     checkLength(Length, Sum),
-    memberOrEmpty(Type, Types).
+    checkType(Type, Types).
 
-find_path(Edges, nil, Destination, Types, Length, PrevSum, ([Route|Path], Sumcc)) :-
-    member(Route, Edges),
-    Route = trasa(_, _, Intermediate, Type, _, Km),
-    memberOrEmpty(Type, Types),
+% Find a path to Destination.
+findPath(Edges, nil, Destination, Types, Length, PrevSum, ([Edge|Path], Sumcc)) :-
+    member(Edge, Edges),
+    Edge = edge(_, _, Intermediate, Type, Km),
+    checkType(Type, Types),
     Intermediate \== Destination,
     Sum is PrevSum + Km,
-    find_path(Edges, Intermediate, Destination, Types, Length, Sum, (Path, Sumcc)).
+    findPath(Edges, Intermediate, Destination, Types, Length, Sum, (Path, Sumcc)),
+    \+ member(Edge, Path).
 
-% Recursive case: Find a path from Source to Destination
-find_path(Edges, Source, Destination, Types, Length, PrevSum, ([Route|Path], Sumcc)) :-
-    member(Route, Edges),
-    Route = trasa(_, Source, Intermediate, Type, _, Km),
-    memberOrEmpty(Type, Types),
+% Find a path from Source to Destination.
+findPath(Edges, Source, Destination, Types, Length, PrevSum, ([Edge|Path], Sumcc)) :-
+    member(Edge, Edges),
+    Edge = edge(_, Source, Intermediate, Type, Km),
+    checkType(Type, Types),
     Intermediate \== Destination,
     Sum is PrevSum + Km,
-    find_path(Edges, Intermediate, Destination, Types, Length, Sum, (Path, Sumcc)).
+    findPath(Edges, Intermediate, Destination, Types, Length, Sum, (Path, Sumcc)),
+    \+ member(Edge, Path).
 
-memberOrEmpty(_, []).
-memberOrEmpty(A, B) :- 
-    member(A, B).
+% Check if route has a given type.
+checkType(_, []).
+checkType(Type, L) :- member(Type, L).
 
 % Find all paths between Source and Destination
-find_all_paths(Edges, Source, Destination, Types, Length, FoundRoutes) :-
-    findalll(find_path(Edges, Source, Destination, Types, Length, 0), FoundRoutes).
+findPaths(Edges, Source, Destination, Types, Length, FoundRoutes) :-
+    findalll(findPath(Edges, Source, Destination, Types, Length, 0), FoundRoutes).
 
 findalll(Pr, Acc, L) :- call(Pr, X), \+(member(X, Acc)), !, findalll(Pr, [X|Acc], L).
 findalll(_, L, L).
 findalll(Condition, FoundRoutes) :- findalll(Condition, [], FoundRoutes).
 
-% printa wszystkie znalezione Routes.
+% Print all found routes.
 printMultiRoutes([]).
 printMultiRoutes([(Route, Sum)|Routes]) :- 
     printRoutes(Route, Sum),
     printMultiRoutes(Routes).
 
-% printa pojedyncza trase.
-printRoutes([Route|[]], Length) :-
-    Route = trasa(Tid, Source, Destination, Type, _, _),
-    format('~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n', [Source, Tid, Type, Destination, Length]).
+% Print single route.
+printRoutes([Edge|[]], Length) :-
+    Edge = edge(Tid, Source, Destination, Type, _),
+    format('~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n', 
+    [Source, Tid, Type, Destination, Length]).
 
-printRoutes([Route|Routes], Length) :-
-    Route = trasa(Tid, Source, _, Type, _, _),
+printRoutes([Edge|Routes], Length) :-
+    Edge = edge(Tid, Source, _, Type, _),
     format('~w -(~w,~w)-> ', [Source, Tid, Type]),
     printRoutes(Routes, Length).

@@ -1,0 +1,4 @@
+trasa(r3, zakopane, gasienicowa, rower, oba, 10).
+trasa(r2, brzeziny, gasienicowa, rower, jeden, 15).
+trasa(r4, brzeziny, zakopane, rower, jeden, 15).
+trasa(g7, kozia, gasienicowa, gorska, jeden, 7).
