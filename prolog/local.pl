@@ -30,10 +30,10 @@ parseEdges([trasa(Tid, Source, Destination, Type, jeden, Km)|Rest], [Added|Acc])
 
 % Read input for one task and find all routes satisfying given conditions.
 readAndFind(Edges) :-
-    write("Podaj miejsce startu: "), 
+    write('Podaj miejsce startu: '), 
     read(Source),
     Source \== koniec,
-    write("Podaj miejsce koncowe: "),
+    write('Podaj miejsce koncowe: '),
     read(Destination),
     Destination \== koniec,
     !,
@@ -42,18 +42,18 @@ readAndFind(Edges) :-
     printMultiRoutes(FoundRoutes),
     readAndFind(Edges). 
 
-readAndFind(_) :- writeln("Koniec programu. Milych wedrowek!").
+readAndFind(_) :- writeln('Koniec programu. Milych wedrowek!').
 
 % Read, parse and check conditions on input.
 parseConditions(Length, Types) :- 
-    write("Podaj warunki: "),
+    write('Podaj warunki: '),
     read(Cond),
     readConditions(Cond, Conditions),
     checkConditions(Conditions, 0, Length, Types),
     !.
 
 parseConditions(Conditions) :- 
-    writeln("Podaj jeszcze raz."),    
+    writeln('Podaj jeszcze raz.'),    
     parseConditions(Conditions).
 
 % Transform tuple of conditions to the list.
@@ -76,7 +76,7 @@ checkConditions([dlugosc(Comp, N)|Conditions], 0, dlugosc(Comp, N), Types) :-
 
 % Check inncorect condition.
 checkConditions([BadCond|_], _, _, _) :-
-    format("Error: niepoprawny warunek - ~w~n", [BadCond]),
+    format('Error: niepoprawny warunek - ~w~n', [BadCond]),
     fail.
 
 % Check if comparator sign is one of possible ones.
@@ -181,10 +181,10 @@ printMultiRoutes([(Route, Sum)|Routes]) :-
 % Print single route.
 printRoutes([Edge|[]], Sum) :-
     Edge = edge(Tid, Source, Destination, Type, _),
-    format("~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n", 
+    format('~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n', 
     [Source, Tid, Type, Destination, Sum]).
 
 printRoutes([Edge|Routes], Sum) :-
     Edge = edge(Tid, Source, _, Type, _),
-    format("~w -(~w,~w)-> ", [Source, Tid, Type]),
+    format('~w -(~w,~w)-> ', [Source, Tid, Type]),
     printRoutes(Routes, Sum).

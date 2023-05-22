@@ -1,4 +1,5 @@
 % Joanna Wojciechowska 429677
+
 :- ensure_loaded(library(lists)).
 
 wyprawy :- 
@@ -10,12 +11,12 @@ wyprawy :-
     readAndFind(Edges).
 
 % Read edges from file.
-readEdges(Stream, Edges) :-
+readEdges(Stream, []) :-
+    at_end_of_stream(Stream).
+
+readEdges(Stream, [Edge | Edges]) :-
     read(Stream, Edge),
-    (Edge = end_of_file -> Edges = []
-    ;readEdges(Stream, RestEdges),
-    Edges = [Edge|RestEdges]
-    ).
+    readEdges(Stream, Edges).
 
 parseEdges([], []).
 parseEdges([end_of_file], []).
@@ -30,10 +31,10 @@ parseEdges([trasa(Tid, Source, Destination, Type, jeden, Km)|Rest], [Added|Acc])
 
 % Read input for one task and find all routes satisfying given conditions.
 readAndFind(Edges) :-
-    write("Podaj miejsce startu: "), 
+    write('Podaj miejsce startu: '), 
     read(Source),
     Source \== koniec,
-    write("Podaj miejsce koncowe: "),
+    write('Podaj miejsce koncowe: '),
     read(Destination),
     Destination \== koniec,
     !,
@@ -42,18 +43,18 @@ readAndFind(Edges) :-
     printMultiRoutes(FoundRoutes),
     readAndFind(Edges). 
 
-readAndFind(_) :- writeln("Koniec programu. Milych wedrowek!").
+readAndFind(_) :- writeln('Koniec programu. Milych wedrowek!').
 
 % Read, parse and check conditions on input.
 parseConditions(Length, Types) :- 
-    write("Podaj warunki: "),
+    write('Podaj warunki: '),
     read(Cond),
     readConditions(Cond, Conditions),
     checkConditions(Conditions, 0, Length, Types),
     !.
 
 parseConditions(Conditions) :- 
-    writeln("Podaj jeszcze raz."),    
+    writeln('Podaj jeszcze raz.'),    
     parseConditions(Conditions).
 
 % Transform tuple of conditions to the list.
@@ -76,7 +77,7 @@ checkConditions([dlugosc(Comp, N)|Conditions], 0, dlugosc(Comp, N), Types) :-
 
 % Check inncorect condition.
 checkConditions([BadCond|_], _, _, _) :-
-    format("Error: niepoprawny warunek - ~w~n", [BadCond]),
+    format('Error: niepoprawny warunek - ~w~n', [BadCond]),
     fail.
 
 % Check if comparator sign is one of possible ones.
@@ -163,14 +164,11 @@ checkType(Type, L) :- member(Type, L).
 
 % Find all paths between Source and Destination
 findPaths(Edges, Source, Destination, Types, Length, FoundRoutes) :-
-    findAll(findPath(Edges, Source, Destination, Types, Length, 0, []), FoundRoutes).
+    findalll(findPath(Edges, Source, Destination, Types, Length, 0, []), FoundRoutes).
 
-findAll(Condition, Acc, FoundRoutes) :- 
-    call(Condition, X), 
-    \+(member(X, Acc)), 
-    !, findAll(Condition, [X|Acc], FoundRoutes).
-findAll(_, Acc, Acc).
-findAll(Condition, FoundRoutes) :- findAll(Condition, [], FoundRoutes).
+findalll(Pr, Acc, L) :- call(Pr, X), \+(member(X, Acc)), !, findalll(Pr, [X|Acc], L).
+findalll(_, L, L).
+findalll(Condition, FoundRoutes) :- findalll(Condition, [], FoundRoutes).
 
 % Print all found routes.
 printMultiRoutes([]).
@@ -181,10 +179,10 @@ printMultiRoutes([(Route, Sum)|Routes]) :-
 % Print single route.
 printRoutes([Edge|[]], Sum) :-
     Edge = edge(Tid, Source, Destination, Type, _),
-    format("~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n", 
+    format('~w -(~w,~w)-> ~w~nDlugosc trasy: ~w.~n', 
     [Source, Tid, Type, Destination, Sum]).
 
 printRoutes([Edge|Routes], Sum) :-
     Edge = edge(Tid, Source, _, Type, _),
-    format("~w -(~w,~w)-> ", [Source, Tid, Type]),
+    format('~w -(~w,~w)-> ', [Source, Tid, Type]),
     printRoutes(Routes, Sum).
