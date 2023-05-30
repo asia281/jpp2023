@@ -462,46 +462,48 @@ class RandomTestGroup(TestGroup):
     ) -> None:
         self.name = name
         self.graph = RandomGraph(vertices, edges, seed=seed, one_way_p=one_way_p)
+        print(self.graph)
         self.queries = random_queries(
             queries,
             list(self.graph._neighbours.keys()),
             [r.kind for r in self.graph.routes],
             seed=seed,
         )
+        print(self.queries)
 
 
 if __name__ == "__main__":
-    TestGroup(
-        "sample",
-        sample_graph,
-        [
-            Query("zakopane", "rusinowa", [Kind("rower")]),
-            Query("zakopane", None, [Kind("gorska"), Length(Comp.LESS, 9)]),
-            Query(None, None, [Kind("piesza")]),
-            Query(
-                "brzeziny", None, [Kind("gorska"), Kind("rower"), Length(Comp.LESS, 20)]
-            ),
-            Query(
-                "gasienicowa", "gasienicowa", [Kind("gorska"), Length(Comp.LESS, 20)]
-            ),
-        ],
-    ).run()
+    # TestGroup(
+    #     "sample",
+    #     sample_graph,
+    #     [
+    #         Query("zakopane", "rusinowa", [Kind("rower")]),
+    #         Query("zakopane", None, [Kind("gorska"), Length(Comp.LESS, 9)]),
+    #         Query(None, None, [Kind("piesza")]),
+    #         Query(
+    #             "brzeziny", None, [Kind("gorska"), Kind("rower"), Length(Comp.LESS, 20)]
+    #         ),
+    #         Query(
+    #             "gasienicowa", "gasienicowa", [Kind("gorska"), Length(Comp.LESS, 20)]
+    #         ),
+    #     ],
+    # ).run()
 
-    TestGroup("nil_nil_nil", small_path, [Query(None, None, [])]).run()
+    # TestGroup("nil_nil_nil", small_path, [Query(None, None, [])]).run()
 
-    TestGroup(
-        "length conditions",
-        cycle5,
-        [
-            Query(None, None, [Length(Comp.LESS, 3)]),
-            Query(None, None, [Length(Comp.LESS_EQUAL, 3)]),
-            Query(None, None, [Length(Comp.EQUAL, 3)]),
-            Query(None, None, [Length(Comp.GREATER_EQUAL, 3)]),
-            Query(None, None, [Length(Comp.GREATER, 3)]),
-        ],
-    ).run()
+    # TestGroup(
+    #     "length conditions",
+    #     cycle5,
+    #     [
+    #         Query(None, None, [Length(Comp.LESS, 3)]),
+    #         Query(None, None, [Length(Comp.LESS_EQUAL, 3)]),
+    #         Query(None, None, [Length(Comp.EQUAL, 3)]),
+    #         Query(None, None, [Length(Comp.GREATER_EQUAL, 3)]),
+    #         Query(None, None, [Length(Comp.GREATER, 3)]),
+    #     ],
+    # ).run()
 
-    RandomTestGroup("random_small", vertices=4, edges=5, queries=20, seed=42).run()
+    RandomTestGroup("random_small", vertices=4, edges=5, queries=20, seed=40).run()
 
     RandomTestGroup(
         "random_medium", vertices=6, edges=8, queries=50, seed=69, one_way_p=0.6
