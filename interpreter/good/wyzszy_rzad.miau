@@ -25,10 +25,14 @@ list<int> nums;
 nums.push(1);
 nums.push(2);
 nums.push(-10);
+nums.push(20);
 
-list<int> doubles = map(h, nums);
-# let squares = map(sqr nums);
-list<int> doubled_squares = map(compose(h, sqr), nums);
-# let squared_doubles = map(compose(sqr double) nums);
+list<int> doubles = map(double, nums);
+list<int> squares = map(sqr, nums);
 
-printEndl(doubles, doubled_squares);
+lambda<(int) -> int> compose_sqr_double = compose(h, sqr);
+
+list<int> doubled_squares = map(compose_sqr_double, nums);
+list<int> squared_doubles = map(compose(sqr, double), nums);
+
+printEndl(doubles, squares, doubled_squares, squared_doubles);
