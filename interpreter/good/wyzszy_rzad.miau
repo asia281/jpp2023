@@ -1,0 +1,34 @@
+# f . g
+fun compose (lambda <(int) -> int> f, lambda <(int) -> int> g) -> lambda<(int) -> int> {
+    return (int x) -> int { return f(g(x)); };
+}
+
+fun map (lambda <(int) -> int> fn, list<int> lst) -> list<int> {
+    list<int> mapped;
+    int i;
+    for(i from 0 to lst.len()-1) {
+        mapped.push(fn(lst.at(i)));
+    }
+    return mapped;
+}
+
+
+fun h(int x) -> int {
+    return x + x;
+}
+
+lambda <(int) -> int> sqr = (int x) -> int { return x * x; };
+
+lambda <(int) -> int> double = (int a) -> int { return a + a; };
+
+list<int> nums;
+nums.push(1);
+nums.push(2);
+nums.push(-10);
+
+list<int> doubles = map(h, nums);
+# let squares = map(sqr nums);
+list<int> doubled_squares = map(compose(h, sqr), nums);
+# let squared_doubles = map(compose(sqr double) nums);
+
+printEndl(doubles, doubled_squares);
